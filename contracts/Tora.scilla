@@ -1,0 +1,93 @@
+scilla_version 0
+
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+library Oracle
+
+(* OracleNode address owner_address pk status *)
+type OracleNode =
+| OracleNode of ByStr20 ByStr20 ByStr32 Uint32
+
+(* Request ID from type paramHash gasPrice gasLimit fee callbackFunc *)
+type Request =
+| Request of Uint32 ByStr20 Uint32 ByStr32 Uint128 Uint128 Uint32 String
+
+(* RewardRecord oracle_address reward *)
+type RewardRecord =
+| RewardRecord of ByStr20 Uint32
+
+(* Constant value *)
+let master_tee = 0xEe15c0F27Cf87bCb12fAEeBE7fDc3b9d91d6c91B
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+contract Oracle
+(owner: ByStr20)
+
+(*             The fields definition               *)
+field node_map: Map ByStr20 OracleNode = Emp ByStr20 OracleNode
+
+field req_map: Map Uint32 Request = Emp Uint32 Request
+field req_count: Uint32 = Uint32 0
+
+field reward_map: Map Uint32 RewardRecord = Emp Uint32 RewardRecord
+
+(*             Register a node on chain            *)
+transition register(owner_address : ByStr20, pk : ByStr32, proof : ByStr64)
+    (* todo *)
+end
+
+(*             The node shut down                  *)
+transition leave()
+    (* todo *)
+end
+
+(*             The node come back                  *)
+transition comeback()
+    (* todo *)
+end
+
+(*             Send a request on chain             *)
+transition request (request_type : Uint32, param_data : String, gas_price : Uint128, gas_limit : Uint128, fee : Uint32, callback_func : String)
+    (* todo check the _amount *)
+
+    (* todo new a request *)
+
+end
+
+(*             Return the String type result       *)
+transition responseString(id : Uint32, proof : ByStr64, result : String)
+    (* todo verify the response proof *)
+
+    (* todo check gas_fee remain, refund and send result to the user contract *)
+
+    (* todo record a reward *)
+
+end
+
+(*             Return the Uint32 type result       *)
+transition responseUint32(id : Uint32, proof : ByStr64, result : Uint32)
+    (* todo *)
+end
+
+(*             Return the Bool type result         *)
+transition responseBool(id : Uint32, proof : ByStr64, result : Bool)
+    (* todo *)
+end
+
+(*             Return the complex type result      *)
+transition responseString2(id : Uint32, proof : ByStr64, result : String)
+    (* todo *)
+end
+
+(*             The oracle node get the reward      *)
+transition getReward(request_id : Uint32)
+    (* todo check the reward record *)
+
+    (* todo send the reward *)
+
+    (* todo delete the reward record *)
+end
