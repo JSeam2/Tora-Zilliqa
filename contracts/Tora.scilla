@@ -19,18 +19,36 @@ library Oracle
 
 (* OracleNode address owner_address pk status *)
 type OracleNode =
-| OracleNode of ByStr20 ByStr20 ByStr32 Uint32
+| OracleNode of ByStr20 ByStr20 ByStr33 Uint32
 
 (* Request ID from type paramHash gasPrice gasLimit fee callbackFunc *)
 type Request =
-| Request of Uint32 ByStr20 Uint32 ByStr32 Uint128 Uint128 Uint32 String
+| Request of Uint32 ByStr20 Uint32 ByStr32 Uint128 Uint128 Uint128 String
 
 (* RewardRecord oracle_address reward *)
 type RewardRecord =
-| RewardRecord of ByStr20 Uint32
+| RewardRecord of ByStr20 Uint128
 
 (* Constant value *)
-let master_tee = 0xEe15c0F27Cf87bCb12fAEeBE7fDc3b9d91d6c91B
+let master_tee_address = 0xEe15c0F27Cf87bCb12fAEeBE7fDc3b9d91d6c91B
+let master_tee_pk = 0x03DE89CBD232A909E150D9F99002B75B3E397FF3FFD3D98482496245EB5FF527BC
+
+let one_msg =
+  fun (msg: Message) =>
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+(* node status library *)
+let init_status = Uint32 0
+let stop_status = Uint32 2
+let run_status = Uint32 3
+
+
+(* error codes library *)
+let code_success = Uint32 0
+let code_node_not_found = Uint32 1
+let code_request_not_found = Uint32 2
+let code_reward_not_found = Uint32 3
 
 (***************************************************)
 (*             The contract definition             *)
@@ -47,36 +65,126 @@ field req_count: Uint32 = Uint32 0
 field reward_map: Map Uint32 RewardRecord = Emp Uint32 RewardRecord
 
 (*             Register a node on chain            *)
-transition register(owner_address : ByStr20, pk : ByStr32, proof : ByStr64)
-    (* todo *)
+transition register(owner_address : ByStr20, pk : ByStr33, proof : ByStr64)
+    signed_str = builtin concat owner_address pk;
+    signed_str_by_str = builtin to_bystr signed_str;
+    legal = builtin ecdsa_verify master_tee_pk signed_str_by_str proof;
+    match legal with
+    | True =>
+        new_node = OracleNode _sender owner_address pk run_status;
+        node_map[_sender] := new_node;
+        e = {_eventname: "register"; msg: "register success"};
+        event e
+    | False =>
+    end
 end
 
 (*             The node shut down                  *)
 transition leave()
-    (* todo *)
+    nodes <- node_map;
+    node_opt = builtin get nodes _sender;
+    match node_opt with
+    | None =>
+        (* node is not found in the records *)
+        msg = {_tag: "";
+                _recipient: _sender;
+                _amount: Uint128 0;
+                code: code_node_not_found};
+        msgs = one_msg msg;
+        send msgs
+    | Some (OracleNode address owner_address pk status) =>
+        new_node = OracleNode _sender owner_address pk stop_status;
+        node_map[_sender] := new_node;
+        e = {_eventname: "leave"; msg: "node leave"};
+        event e
+    end
 end
 
 (*             The node come back                  *)
 transition comeback()
-    (* todo *)
+    nodes <- node_map;
+    node_opt = builtin get nodes _sender;
+    match node_opt with
+    | None =>
+        (* node is not found in the records *)
+        msg = {_tag: "";
+                _recipient: _sender;
+                _amount: Uint128 0;
+                code: code_node_not_found};
+        msgs = one_msg msg;
+        send msgs
+    | Some (OracleNode address owner_address pk status) =>
+        new_node = OracleNode _sender owner_address pk run_status;
+        node_map[_sender] := new_node;
+        e = {_eventname: "comeback"; msg: "node come back"};
+        event e
+    end
 end
 
 (*             Send a request on chain             *)
-transition request (request_type : Uint32, param_data : String, gas_price : Uint128, gas_limit : Uint128, fee : Uint32, callback_func : String)
-    (* todo check the _amount *)
-
-    (* todo new a request *)
-
+transition request (request_type : Uint32, param_data : String, gas_price : Uint128, gas_limit : Uint128, fee : Uint128, callback_func : String)
+    gas_fee = builtin mul gas_price gas_limit;
+    total_fee = builtin add fee gas_fee;
+    check = builtin lt _amount total_fee;
+    match check with
+    |True =>
+        msg = {_tag: "";
+        _recipient: _sender;
+        _amount: Uint128 0;
+        error: "Not enough money"};
+        msgs = one_msg msg;
+        send msgs
+    |False =>
+        accept;
+        id <- req_count;
+        param_hash = builtin keccak256hash param_data;
+        new_req = Request id _sender request_type param_hash gas_price gas_limit fee callback_func;
+        req_map[id] := new_req;
+        id =
+           let x = Uint32 1 in builtin add x id;
+        req_count := id;
+        e = {_eventname: "request"; msg: "send request success"; id: id; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
+        event e
+     end
 end
 
 (*             Return the String type result       *)
 transition responseString(id : Uint32, proof : ByStr64, result : String)
-    (* todo verify the response proof *)
+    nodes <- node_map;
+    node_opt = builtin get nodes _sender;
+    match node_opt with
+    | None =>
+        (* node is not found in the records *)
+        msg = {_tag: "";
+                _recipient: _sender;
+                _amount: Uint128 0;
+                code: code_node_not_found};
+        msgs = one_msg msg;
+        send msgs
+    | Some (OracleNode address owner_address pk status) =>
+        (* todo verify the response proof *)
 
-    (* todo check gas_fee remain, refund and send result to the user contract *)
-
-    (* todo record a reward *)
-
+        requests <- req_map;
+        request_opt = builtin get requests id;
+        match request_opt with
+        | None =>
+            (* request is not found in the records *)
+            msg = {_tag: "";
+                    _recipient: _sender;
+                    _amount: Uint128 0;
+                    code: code_request_not_found};
+            msgs = one_msg msg;
+            send msgs
+        | Some (Request id from request_type param_hash gas_price gas_limit fee callback_func) =>
+            gas_reward = builtin mul gas_price gas_limit;
+            total_reward = builtin add gas_reward fee;
+            new_reward = RewardRecord _sender total_reward;
+            reward_map[id] := new_reward;
+            msg = { _tag : callback_func; _recipient : from; _amount : Uint128 0; result : result};
+            msgs = one_msg msg;
+            send msgs
+        end
+    end
 end
 
 (*             Return the Uint32 type result       *)
@@ -96,9 +204,25 @@ end
 
 (*             The oracle node get the reward      *)
 transition getReward(request_id : Uint32)
-    (* todo check the reward record *)
-
-    (* todo send the reward *)
-
-    (* todo delete the reward record *)
+    rewards <- reward_map;
+    reward_opt = builtin get rewards request_id;
+    match reward_opt with
+    | None =>
+        msg = {_tag: "";
+                _recipient: _sender;
+                _amount: Uint128 0;
+                code: code_reward_not_found};
+        msgs = one_msg msg;
+        send msgs
+    | Some (RewardRecord oracle_address reward) =>
+        check = builtin eq _sender oracle_address;
+        match check with
+        | True =>
+            msg = { _tag : ""; _recipient : oracle_address; _amount : reward};
+            msgs = one_msg msg;
+            send msgs;
+            delete reward_map[request_id]
+        | False =>
+        end
+    end
 end
