@@ -21,9 +21,9 @@ library Oracle
 type OracleNode =
 | OracleNode of ByStr20 ByStr20 ByStr33 Uint32
 
-(* Request ID from type paramHash gasPrice gasLimit fee callbackFunc *)
+(* Request ID from type paramHash gasPrice gasLimit fee callbackFunc ifResponded *)
 type Request =
-| Request of Uint32 ByStr20 Uint32 ByStr32 Uint128 Uint128 Uint128 String
+| Request of Uint32 ByStr20 Uint32 ByStr32 Uint128 Uint128 Uint128 String Uint32
 
 (* RewardRecord oracle_address reward *)
 type RewardRecord =
@@ -49,6 +49,9 @@ let code_success = Uint32 0
 let code_node_not_found = Uint32 1
 let code_request_not_found = Uint32 2
 let code_reward_not_found = Uint32 3
+
+let code_not_responded = Uint32 0
+let code_is_responded = Uint32 1
 
 (***************************************************)
 (*             The contract definition             *)
@@ -139,7 +142,7 @@ transition request (request_type : Uint32, param_data : String, gas_price : Uint
         accept;
         id <- req_count;
         param_hash = builtin keccak256hash param_data;
-        new_req = Request id _sender request_type param_hash gas_price gas_limit fee callback_func;
+        new_req = Request id _sender request_type param_hash gas_price gas_limit fee callback_func code_not_responded;
         req_map[id] := new_req;
         e = {_eventname: "request"; msg: "send request success"; id: id; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
         event e;
@@ -176,14 +179,28 @@ transition responseString(id : Uint32, proof : ByStr64, result : String)
                     code: code_request_not_found};
             msgs = one_msg msg;
             send msgs
-        | Some (Request id from request_type param_hash gas_price gas_limit fee callback_func) =>
-            gas_reward = builtin mul gas_price gas_limit;
-            total_reward = builtin add gas_reward fee;
-            new_reward = RewardRecord _sender total_reward;
-            reward_map[id] := new_reward;
-            msg = { _tag : callback_func; _recipient : from; _amount : Uint128 0; result : result};
-            msgs = one_msg msg;
-            send msgs
+        | Some (Request id from request_type param_hash gas_price gas_limit fee callback_func if_responded) =>
+            check_not_responded = builtin eq if_responded code_not_responded;
+            match check_not_responded with
+            | True =>
+                (* set is_responded *)
+                update_req = Request id from request_type param_hash gas_price gas_limit fee callback_func code_is_responded;
+                req_map[id] := update_req;
+                gas_reward = builtin mul gas_price gas_limit;
+                total_reward = builtin add gas_reward fee;
+                new_reward = RewardRecord _sender total_reward;
+                reward_map[id] := new_reward;
+                msg = { _tag : callback_func; _recipient : from; _amount : Uint128 0; result : result};
+                msgs = one_msg msg;
+                send msgs
+            | False =>
+                msg = {_tag: "";
+                    _recipient: _sender;
+                    _amount: Uint128 0;
+                    error: "have a response"};
+                msgs = one_msg msg;
+                send msgs
+            end
         end
     end
 end
