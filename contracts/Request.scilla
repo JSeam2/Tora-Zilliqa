@@ -1,0 +1,46 @@
+(* Copyright 2019 TEEX *)
+(* Licensed under the Apache License, Version 2.0 (the "License"); *)
+(* you may not use this file except in compliance with the License. *)
+(* You may obtain a copy of the License at *)
+(*    http://www.apache.org/licenses/LICENSE-2.0 *)
+(* Unless required by applicable law or agreed to in writing, software *)
+(* distributed under the License is distributed on an "AS IS" BASIS, *)
+(* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. *)
+(* See the License for the specific language governing permissions and *)
+(* limitations under the License. *)
+
+scilla_version 0
+
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+library RequestOracle
+
+let one_msg =
+  fun (msg : Message) =>
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let oracle_address = 0xce2b2ba26ff8e39a50f4d3b35ab9927145221714
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract RequestOracle
+(owner: ByStr20)
+
+
+transition request()
+    msg = { _tag : "request"; _recipient : oracle_address; _amount : Uint128 0;
+    request_type: Uint32 0; param_data: ""; gas_price: Uint128 0; gas_limit: Uint128 0;
+    fee: Uint128 0; callback_func: "callback"};
+    msgs = one_msg msg;
+    send msgs
+end
+
+transition callback(result : String)
+    e = {_eventname: "callback"; msg: "call back result"};
+    event e
+end
