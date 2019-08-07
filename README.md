@@ -14,7 +14,7 @@ Tora-Zilliqa is a TEE-based, Trusted Oracle implement for [Zilliqa Blockchain](h
   - [Intel SGX Driver](https://github.com/intel/linux-sgx-driver)
 - Python 3.6+
 - Some Libraries(TODO)
-
+  - pyzil(https://github.com/deepgully/pyzil) included in the lib package
 ## Building and Runnig Tora
 
 TODO
