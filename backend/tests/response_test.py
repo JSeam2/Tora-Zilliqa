@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
+sys.path.append('../../lib/')
+
 from pprint import pprint
 
 from pyzil.zilliqa import chain
@@ -21,7 +25,7 @@ from pyzil.contract import Contract
 
 chain.set_active_chain(chain.TestNet)
 
-contract_addr = "zil1ec4jhgn0lr3e55856we44wvjw9zjy9c540gx08"
+contract_addr = "zil16et2dwg4cyueyrz96ex5lp83me73qzet8glhal"
 contract = Contract.load_from_address(contract_addr)
 
 account_sk = "dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4ba514c55bc6e317"
@@ -43,7 +47,7 @@ def response_string(result, gas_price, gas_limit):
     pprint(contract.last_receipt)
 
 
-response_string('result string', 2000000000, 20000)
+response_string('result string', 1000000000, 10000)
 
 
 def get_reward():
@@ -51,3 +55,6 @@ def get_reward():
                          params=[Contract.value_dict('request_id', 'Uint32', '0')])
     pprint(resp)
     pprint(contract.last_receipt)
+
+
+get_reward()

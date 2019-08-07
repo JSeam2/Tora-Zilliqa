@@ -22,7 +22,10 @@ let one_msg =
   let nil_msg = Nil {Message} in
   Cons {Message} msg nil_msg
 
-let oracle_address = 0xce2b2ba26ff8e39a50f4d3b35ab9927145221714
+let oracle_address = 0xd656a6b915c139920c45d64d4f84f1de7d100b2b
+
+let gas_price_set = Uint128 1000000000
+let gas_limit_set = Uint128 5000
 
 (***************************************************)
 (*             The contract definition             *)
@@ -33,9 +36,12 @@ contract RequestOracle
 
 
 transition request()
-    msg = { _tag : "request"; _recipient : oracle_address; _amount : Uint128 0;
-    request_type: Uint32 0; param_data: ""; gas_price: Uint128 0; gas_limit: Uint128 0;
-    fee: Uint128 0; callback_func: "callback"};
+    accept;
+    gas_fee = builtin mul gas_price_set gas_limit_set;
+    fee = builtin sub _amount gas_fee;
+    msg = { _tag : "request"; _recipient : oracle_address; _amount : _amount;
+    request_type: Uint32 0; param_data: ""; gas_price: gas_price_set; gas_limit: gas_limit_set;
+    fee: fee; callback_func: "callback"};
     msgs = one_msg msg;
     send msgs
 end

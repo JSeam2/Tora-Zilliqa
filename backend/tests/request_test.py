@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+sys.path.append('../../lib/')
+
 from pprint import pprint
 
 from pyzil.crypto import zilkey
@@ -26,13 +29,13 @@ account = Account(private_key="67d8c95700458aff274734dd2267dce59e67f9d9269739ff7
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-contract_addr = "zil1tguejn657waxjaddynns9z9s3ek908d46cc67d"
+contract_addr = "zil1angj4se7cljexnhaysxtww7k7p58gkflml3myq"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 
-oracle_address = '0x' + zilkey.to_valid_address("zil1ec4jhgn0lr3e55856we44wvjw9zjy9c540gx08")
+# oracle_address = '0x' + zilkey.to_valid_address("zil16et2dwg4cyueyrz96ex5lp83me73qzet8glhal")
+# pprint(oracle_address)
 
-
-resp = contract.call(method="request", params=[], gas_price=2000000000, gas_limit=20000)
+resp = contract.call(method="request", params=[], amount=3)
 pprint(resp)
 pprint(contract.last_receipt)

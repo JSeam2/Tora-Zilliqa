@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+sys.path.append('../../lib/')
+
 from pprint import pprint
 
 from pyzil.zilliqa import chain
@@ -22,7 +25,7 @@ from pyzil.crypto import schnorr
 
 chain.set_active_chain(chain.TestNet)
 
-contract_addr = "zil1ec4jhgn0lr3e55856we44wvjw9zjy9c540gx08"
+contract_addr = "zil16et2dwg4cyueyrz96ex5lp83me73qzet8glhal"
 contract = Contract.load_from_address(contract_addr)
 
 account_sk = "dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4ba514c55bc6e317"
