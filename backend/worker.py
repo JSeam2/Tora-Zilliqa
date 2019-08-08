@@ -51,13 +51,13 @@ _log_level_map ={
 }
 
 
-
-@click.command()
-@click.option(  '--config',         default="/", type=click.Path(exists=True))
+@click.group()
+@click.pass_context
+@click.option(  '--config',         default="/",    type=click.Path(exists=True))
 @click.option(  '--network',        default="",     type=click.Choice(['mainnet','testnet','local','']), help="The network choice")
 @click.option(  '--rpcserver',      default="",     help="The rpc server address")
 @click.option(  '--teeaddress',     default="",     help="The address of an registered TEE")
-def main(config,network,rpcserver,teeaddress):
+def main(ctx,config,network,rpcserver,teeaddress):
     '''
     The main procedure of a worker client.
 
@@ -70,28 +70,71 @@ def main(config,network,rpcserver,teeaddress):
     Returns:
         None
 
-    Note: The '--config' option is prior than others. It means if '--config' is set, other options will be ignored even if '--config' is incomplete.
+    Note: The '--config' option is prior than others. It means if '--config' is set, other options will be ignored even if the config file is incomplete.
     '''
 
-    if(config != "/"):
-        cfg = _parse_config(config)
-    else:
-        ##TODO: Handler of seperately declared arguments
-        print("Please declare arguments in a config file and pass it through '--config' option >.<!!")
+    #jump to init() here if "init" command is caught
+    if ctx.invoked_subcommand != "init":
+
+        if(config != "/"):
+            cfg = _parse_config(config)
+        else:
+            ##TODO: Handler of seperately declared arguments
+            print("Please declare arguments in a config file and pass it through '--config' option >.<!!")
 
 
-    logging.basicConfig(filename=cfg["log-file"],
-                        format='%(asctime)s %(levelname)s:%(message)s',
-                        level=_log_level_map[cfg["log-level"]])
+        logging.basicConfig(filename=cfg["log-file"],
+                            format='%(asctime)s %(levelname)s:%(message)s',
+                            level=_log_level_map[cfg["log-level"]])
 
 
     ##TODO:invoke KMS
-
     ##TODO:launch Monitor
 
     
         
+@main.command()
+@click.option(  '--account',        default="",                       help="The account of the beneficiary")
+@click.option(  '--master',         default="",                       help="The server address of a master TEE")
+def init(account, master):
+    '''
+    Init procedure should be invoked in advance by a newly added oracle node.
+    It will generate a config file for later use.
+
+    Args:
+        account:
+        master:
+        output:
     
+    Returns:
+        None
+    
+    '''
+
+    #TODO: invoke KMS
+    #Here is a stub
+
+    res = {"TEE-address":"0x71F119Dc662Fd0086c7c90C58e5237d74403a0C0",
+           "sig":        "0000000000000000000000000000000000000000000000000000000000001111"}
+    
+    #TODO: invoke the register function in Tora contract 
+
+
+    #Generate the config file
+    config = configparser.ConfigParser()
+    config['auth'] = {"master-host":master,
+                      "TEE-address":res["TEE-address"]} 
+
+    config['zilliqa'] = {"rpc-server":"127.0.0.1:4201"}
+    config['debug'] = {"level":"DEBUG",
+                       "log-file":"worker.log"}
+
+    with open('config.ini.default', 'w') as configfile:
+        config.write(configfile)
+
+    print("config.ini.default generated!")
+
+
 
 
 
