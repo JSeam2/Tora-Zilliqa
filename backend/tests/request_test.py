@@ -25,17 +25,19 @@ from pyzil.contract import Contract
 
 chain.set_active_chain(chain.TestNet)
 
+# user account
 account = Account(private_key="67d8c95700458aff274734dd2267dce59e67f9d9269739ff768c5f36cc5c6f94")
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-contract_addr = "zil1angj4se7cljexnhaysxtww7k7p58gkflml3myq"
+# request contract address
+contract_addr = "zil14yl6wq6y98zxm5njunq2qem9hawx3jddgcjd40"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 
-# oracle_address = '0x' + zilkey.to_valid_address("zil16et2dwg4cyueyrz96ex5lp83me73qzet8glhal")
+# oracle_address = '0x' + zilkey.to_valid_address("zil106hde8sfhslm44632vplgmgkllapt4nktjnyxq")
 # pprint(oracle_address)
 
-resp = contract.call(method="request", params=[], amount=3)
+resp = contract.call(method="request", params=[], amount=6)
 pprint(resp)
 pprint(contract.last_receipt)

@@ -38,17 +38,23 @@ print("{}: {}".format(account, balance))
 contract.account = account
 
 
-def response_string(result, gas_price, gas_limit, oracle_owner_address):
-    resp = contract.call(method="responseString",
-                         params=[Contract.value_dict('id', 'Uint32', '0'),
-                                 Contract.value_dict('proof', 'ByStr64',
-                                                     '0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA'),
-                                 Contract.value_dict('result', 'String', result),
-                                 Contract.value_dict('oracle_owner_address', 'ByStr20', oracle_owner_address)],
+def get_reward_balance(oracle_owner_address, gas_price, gas_limit):
+    resp = contract.call(method="get_reward_balance",
+                         params=[Contract.value_dict('oracle_owner_address', 'ByStr20', oracle_owner_address)],
                          gas_price=gas_price, gas_limit=gas_limit)
     pprint(resp)
     pprint(contract.last_receipt)
 
 
-response_string('result string', 1000000000, 10000, '0x7dcB18944157BD73A36DbB61a1700FcFd0182680')
+# get_reward_balance('0x7dcB18944157BD73A36DbB61a1700FcFd0182680', 1000000000, 10000)
 
+
+def withdraw_reward(oracle_owner_address, money, gas_price, gas_limit):
+    resp = contract.call(method="withdraw_reward",
+                         params=[Contract.value_dict('oracle_owner_address', 'ByStr20', oracle_owner_address)],
+                         gas_price=gas_price, gas_limit=gas_limit, amount=money)
+    pprint(resp)
+    pprint(contract.last_receipt)
+
+
+withdraw_reward('0x7dcB18944157BD73A36DbB61a1700FcFd0182680', 1, 1000000000, 10000)

@@ -25,12 +25,9 @@ type OracleNode =
 type Request =
 | Request of Uint32 ByStr20 Uint32 ByStr32 Uint128 Uint128 Uint128 String Uint32
 
-(* RewardRecord oracle_address reward *)
-type RewardRecord =
-| RewardRecord of ByStr20 Uint128
-
 (* Constant value *)
-let master_tee_address = 0xEe15c0F27Cf87bCb12fAEeBE7fDc3b9d91d6c91B
+(* one node temporarily, may more nodes later on *)
+let master_tee_address = 0xa391Fb22Ef65D65167A0c94D5E9b6eACece56c7E
 let master_tee_pk = 0x03DE89CBD232A909E150D9F99002B75B3E397FF3FFD3D98482496245EB5FF527BC
 
 let one_msg =
@@ -65,7 +62,8 @@ field node_map: Map ByStr20 OracleNode = Emp ByStr20 OracleNode
 field req_map: Map Uint32 Request = Emp Uint32 Request
 field req_count: Uint32 = Uint32 0
 
-field reward_map: Map Uint32 RewardRecord = Emp Uint32 RewardRecord
+(* oracle owner address <-> reward money *)
+field reward_map: Map ByStr20 Uint128 = Emp ByStr20 Uint128
 
 (*             Register a node on chain            *)
 transition register(owner_address : ByStr20, pk : ByStr33, proof : ByStr64)
@@ -139,7 +137,12 @@ transition request (request_type : Uint32, param_data : String, gas_price : Uint
         msgs = one_msg msg;
         send msgs
     |False =>
+        (* send the money to the master tee address *)
         accept;
+        msg = { _tag : ""; _recipient : master_tee_address; _amount : _amount};
+        msgs = one_msg msg;
+        send msgs;
+        (* log the request *)
         id <- req_count;
         param_hash = builtin keccak256hash param_data;
         new_req = Request id _sender request_type param_hash gas_price gas_limit fee callback_func code_not_responded;
@@ -153,32 +156,16 @@ transition request (request_type : Uint32, param_data : String, gas_price : Uint
 end
 
 (*             Return the String type result       *)
-transition responseString(id : Uint32, proof : ByStr64, result : String)
-    nodes <- node_map;
-    node_opt = builtin get nodes _sender;
-    match node_opt with
-    | None =>
-        (* node is not found in the records *)
-        msg = {_tag: "";
-                _recipient: _sender;
-                _amount: Uint128 0;
-                code: code_node_not_found};
-        msgs = one_msg msg;
-        send msgs
-    | Some (OracleNode address owner_address pk status) =>
-        (* todo verify the response proof *)
+transition responseString(id : Uint32, proof : ByStr64, result : String, oracle_owner_address : ByStr20)
+    (* todo verify the response proof with master tee pk*)
 
         requests <- req_map;
         request_opt = builtin get requests id;
         match request_opt with
         | None =>
             (* request is not found in the records *)
-            msg = {_tag: "";
-                    _recipient: _sender;
-                    _amount: Uint128 0;
-                    code: code_request_not_found};
-            msgs = one_msg msg;
-            send msgs
+            e = {_eventname: "response fail"; msg : "the request id is not found"};
+            event e
         | Some (Request id from request_type param_hash gas_price gas_limit fee callback_func if_responded) =>
             check_not_responded = builtin eq if_responded code_not_responded;
             match check_not_responded with
@@ -186,10 +173,17 @@ transition responseString(id : Uint32, proof : ByStr64, result : String)
                 (* set is_responded *)
                 update_req = Request id from request_type param_hash gas_price gas_limit fee callback_func code_is_responded;
                 req_map[id] := update_req;
-                gas_reward = builtin mul gas_price gas_limit;
-                total_reward = builtin add gas_reward fee;
-                new_reward = RewardRecord _sender total_reward;
-                reward_map[id] := new_reward;
+                (* record the reward *)
+                c_reward_map <- reward_map;
+                check_have_reward = builtin get c_reward_map oracle_owner_address;
+                match check_have_reward with
+                | Some (history_reward) =>
+                    new_reward = builtin add history_reward fee;
+                    reward_map[oracle_owner_address] := new_reward
+                | None =>
+                    new_reward = fee;
+                    reward_map[oracle_owner_address] := new_reward
+                end;
                 msg = { _tag : callback_func; _recipient : from; _amount : Uint128 0; result : result};
                 msgs = one_msg msg;
                 send msgs
@@ -202,7 +196,6 @@ transition responseString(id : Uint32, proof : ByStr64, result : String)
                 send msgs
             end
         end
-    end
 end
 
 (*             Return the Uint32 type result       *)
@@ -220,27 +213,35 @@ transition responseString2(id : Uint32, proof : ByStr64, result : String)
     (* todo *)
 end
 
-(*             The oracle node get the reward      *)
-transition getReward(request_id : Uint32)
-    rewards <- reward_map;
-    reward_opt = builtin get rewards request_id;
-    match reward_opt with
-    | None =>
-        msg = {_tag: "";
-                _recipient: _sender;
-                _amount: Uint128 0;
-                code: code_reward_not_found};
-        msgs = one_msg msg;
-        send msgs
-    | Some (RewardRecord oracle_address reward) =>
-        check = builtin eq _sender oracle_address;
-        match check with
-        | True =>
-            msg = { _tag : ""; _recipient : oracle_address; _amount : reward};
+(* The master tee checks how much money the oracle node has *)
+transition get_reward_balance(oracle_owner_address : ByStr20)
+    balance <- reward_map[oracle_owner_address];
+    e = {_eventname: "reward_balance"; msg: balance};
+    event e
+end
+
+(* The master tee calls to transfer reward to the oracle *)
+transition withdraw_reward(oracle_owner_address : ByStr20)
+    money = _amount;
+    c_reward_map <- reward_map;
+    check_have_reward = builtin get c_reward_map oracle_owner_address;
+    match check_have_reward with
+    | Some (balance) =>
+        check_balance = builtin lt balance money;
+        match check_balance with
+        | False =>
+            accept;
+            (* send the money to the oracle *)
+            msg = { _tag : ""; _recipient : oracle_owner_address; _amount : money};
             msgs = one_msg msg;
             send msgs;
-            delete reward_map[request_id]
-        | False =>
+            (* update the reward record *)
+            new_balance = builtin sub balance money;
+            reward_map[oracle_owner_address] := new_balance;
+            e = {_eventname: "withdraw"; msg: "withdraw success"};
+            event e
+        | True =>
         end
+    | None =>
     end
 end
