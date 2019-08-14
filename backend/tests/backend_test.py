@@ -18,18 +18,18 @@ import sys
 sys.path.append('../../')
 
 import _thread
-import time
 
 from backend.monitor.monitor import ZilliqaMonitor
+from backend.resolver.resolver import Resolver
 
 
 def run_monitor(monitor):
     monitor.run()
 
 
-def get_monitor_request(monitor):
-    time.sleep(30)
-    print(monitor.get_front_request())
+def run_resolver(monitors):
+    resolver = Resolver(monitors)
+    resolver.run()
 
 
 # for test
@@ -40,7 +40,7 @@ monitors.append(monitor)
 
 try:
     _thread.start_new_thread(run_monitor, (monitor,))
-    _thread.start_new_thread(get_monitor_request, (monitor,))
+    _thread.start_new_thread(run_resolver, (monitors,))
 except:
     print("Error: 无法启动线程")
 

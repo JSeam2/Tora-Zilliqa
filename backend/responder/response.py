@@ -15,8 +15,10 @@
 
 
 class Response:
-    def __init__(self, type, result, request_id, chain_name):
-        self.type = type
+    def __init__(self, type, result, request_id, chain_name, gas_price, gas_limit):
+        self.type = type  # string 0 int 1 bool 2
         self.result = result
         self.request_id = request_id
         self.chain_name = chain_name
+        self.gas_price = gas_price
+        self.gas_limit = gas_limit

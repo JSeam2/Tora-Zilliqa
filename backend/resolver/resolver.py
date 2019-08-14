@@ -16,11 +16,12 @@
 import sys
 sys.path.append('../../')
 
-from backend.dispatcher.dispatcher import Dispatcher
+from backend.dispatcher.request_dispatcher import RequestDispatcher
+import time
 
 
 class Resolver:
-    dispatcher = Dispatcher()
+    dispatcher = RequestDispatcher()
 
     def __init__(self, monitors):
         self.monitors = monitors
@@ -29,6 +30,10 @@ class Resolver:
         while True:
             for monitor in self.monitors:
                 request = monitor.get_front_request()
-                # resolve the request params
+                if request is not None:
+                    # resolve the request params
 
-                # dispatch the request
+                    # dispatch the request
+                    self.dispatcher.dispatch_request(request)
+                else:
+                    time.sleep(10)

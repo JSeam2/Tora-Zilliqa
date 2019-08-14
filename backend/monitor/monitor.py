@@ -66,7 +66,7 @@ class ZilliqaMonitor(Monitor):
             if param["vname"] == "fee":
                 fee = int(param["value"])
         print("get a new request: " + str(request_id) + " " + str(request_type) + " " + str(gas_limit) + " " + str(
-            gas_price) + " " + param_data + "" + str(fee))
+            gas_price) + " " + param_data + " " + str(fee))
         return Request(request_id, request_type, param_data, gas_price, gas_limit, fee, "Zilliqa")
 
     def __get_request_from_block(self, block_num):

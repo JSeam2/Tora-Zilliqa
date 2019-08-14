@@ -17,7 +17,7 @@
 class Request:
     def __init__(self, ID, type, param, gas_price, gas_limit, fee, chain_name):
         self.ID = ID
-        self.type = type
+        self.type = type  # collector 0, executor 1, relay 2
         self.param = param
         self.gas_price = gas_price
         self.gas_limit = gas_limit

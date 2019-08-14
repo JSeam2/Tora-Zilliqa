@@ -16,19 +16,22 @@
 import sys
 sys.path.append('../../')
 
-from backend.dispatcher.dispatcher import Dispatcher
+from backend.dispatcher.response_dispatcher import ResponseDispatcher
+from backend.responder.response import Response
 from queue import Queue
+import time
+import json
 
 
 class Processor:
-    dispatcher = Dispatcher()
+    dispatcher = ResponseDispatcher()
     req_q = Queue()
 
     def add_request(self, request):
-        print(request)
+        self.req_q.put(request)
 
     def process(self):
-        print(self.req_q)
+        return
 
     def run(self):
         while True:
@@ -37,14 +40,30 @@ class Processor:
 
 class Collector(Processor):
     def process(self):
-        print(self.req_q)
+        if not self.req_q.empty():
+            request = self.req_q.get()
+            param_data = json.loads(request.param.replace("'", '"'))
+            if param_data["builtin"] != "":
+                builtin_name = param_data["builtin"]
+                if builtin_name == "market_trade_pairs_info":
+                    # todo
+                    print("call the builtin function: " + builtin_name)
+            else:
+                # todo
+                print("call the general api")
+            response = Response(0, "collect result", request.ID, request.chain_name, request.gas_price, request.gas_limit)
+            self.dispatcher.dispatch_response(response)
+        else:
+            time.sleep(10)
 
 
 class Executor(Processor):
     def process(self):
-        print(self.req_q)
+        # todo
+        return
 
 
 class Relay(Processor):
     def process(self):
-        print(self.req_q)
+        # todo
+        return

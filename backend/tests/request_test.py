@@ -31,7 +31,7 @@ balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
 # request contract address
-contract_addr = "zil14yl6wq6y98zxm5njunq2qem9hawx3jddgcjd40"
+contract_addr = "zil1vftqmhx077dkmy9jt63wjuts9hyr9q87qu6nlk"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 

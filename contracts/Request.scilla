@@ -40,7 +40,7 @@ transition request()
     gas_fee = builtin mul gas_price_set gas_limit_set;
     fee = builtin sub _amount gas_fee;
     msg = { _tag : "request"; _recipient : oracle_address; _amount : _amount;
-    request_type: Uint32 0; param_data: ""; gas_price: gas_price_set; gas_limit: gas_limit_set;
+    request_type: Uint32 0; param_data: "{'builtin':'market_trade_pairs_info','market_num':'10','pair_num':'100'}"; gas_price: gas_price_set; gas_limit: gas_limit_set;
     fee: fee; callback_func: "callback"};
     msgs = one_msg msg;
     send msgs
