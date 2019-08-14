@@ -95,6 +95,32 @@ class BlockChain:
         }
         return params
 
+    """add the function 2019.8.13"""
+    def get_data_to_sign(self, sender_pubkey: bytes, to_addr: str,
+                         nonce: Union[str, int],
+                         amount: Union[str, int],
+                         gas_price: Union[str, int], gas_limit: Union[str, int],
+                         code="", data=""):
+
+        if not is_valid_checksum_address(to_addr):
+            raise ValueError("invalid checksum address")
+
+        txn_proto = pb2.ProtoTransactionCoreInfo()
+        txn_proto.version = self.version
+        txn_proto.nonce = int(nonce)
+        txn_proto.toaddr = utils.hex_str_to_bytes(to_addr)
+        txn_proto.senderpubkey.data = sender_pubkey
+        txn_proto.amount.data = utils.int_to_bytes(int(amount), n_bytes=16)
+        txn_proto.gasprice.data = utils.int_to_bytes(int(gas_price), n_bytes=16)
+        txn_proto.gaslimit = int(gas_limit)
+        if code:
+            txn_proto.code = code.encode("utf-8")
+        if data:
+            txn_proto.data = data.encode("utf-8")
+
+        data_to_sign = txn_proto.SerializeToString()
+        return data_to_sign
+
     def wait_txn_confirm(self, txn_id, timeout=60, sleep=5):
         start = time.time()
         while time.time() - start <= timeout:
@@ -109,10 +135,8 @@ class BlockChain:
 TestNet = BlockChain("https://dev-api.zilliqa.com/",
                      version=21823489, network_id=333)
 
-
 MainNet = BlockChain("https://api.zilliqa.com/",
                      version=65537, network_id=1)
-
 
 if "__main__" == __name__:
     print(TestNet.api.GetCurrentMiniEpoch())
