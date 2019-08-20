@@ -13,19 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-sys.path.append('../../')
+import requests
 
 
-class Dispatcher:
-    # processor list
+def get_web_api_json_result(url, param):
+    ret = requests.get(url + param, params={"format": "json"})
+    if ret.status_code == 200:
+        print(ret.text)
+        return ret.text
 
-    # responder list
 
-    def dispatch_request(self, request):
-        print(request)
-        # processor.process
-
-    def dispatch_response(self, response):
-        print(response)
-        # responder.respond
+# url = "https://blockchain.info/rawblock/"
+# param = "0000000000000bae09a7a393a8acded75aa67e46cb81f7acaa5ad94f9eacd103"
+# get_web_api_json_result(url, param)

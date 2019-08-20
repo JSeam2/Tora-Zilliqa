@@ -33,7 +33,7 @@ def run_resolver(monitors):
 
 
 # for test
-monitor = ZilliqaMonitor("https://dev-api.zilliqa.com/")
+monitor = ZilliqaMonitor("https://dev-api.zilliqa.com/", "0x7eaedc9e09bc3fbad7515303f46d16fffa15d676")
 
 monitors = []
 monitors.append(monitor)
@@ -45,4 +45,4 @@ except:
     print("Error: 无法启动线程")
 
 while 1:
-   pass
+    pass

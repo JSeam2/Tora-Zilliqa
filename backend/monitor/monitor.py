@@ -40,8 +40,9 @@ class Monitor:
 
 class ZilliqaMonitor(Monitor):
 
-    def __init__(self, url):
+    def __init__(self, url, contract_addr):
         self.api = ZilliqaAPI(url)
+        self.contract_addr = contract_addr
 
     @staticmethod
     def __resolve_event_log(event_log):
@@ -77,8 +78,9 @@ class ZilliqaMonitor(Monitor):
                 if "event_logs" in receipt:
                     event_logs = receipt["event_logs"]
                     for event_log in event_logs:
-                        if event_log["_eventname"] == "request":
-                            self.req_q.put(self.__resolve_event_log(event_log))
+                        if event_log["address"] == self.contract_addr:
+                            if event_log["_eventname"] == "request":
+                                self.req_q.put(self.__resolve_event_log(event_log))
 
     def __get_last_txn_block_num(self):
         last_txns = self.api.GetRecentTransactions()
