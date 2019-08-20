@@ -14,15 +14,34 @@
 # limitations under the License.
 
 
-class Request:
-    def __init__(self, ID, type, param, gas_price, gas_limit, fee, chain_name):
 
-        #TODO: From 
+import cmc_spider
+from backend.processor.processor import Processor
+
+#The registry of built-in functions
+#where each function is formatted as follow:
+# func-name(params: dic) -> str
+
+
+func_table = {
+
+    "market_trade_pairs_info": cmc_spider.top100
+    
+}
+
+
+class BuiltIn(Processor):
+
+    def process(self, params):
+
+        builtin_name = params["builtin"]
+
+        if( func_table.__contains__(builtin_name)):
+
+            res = func_table[builtin_name](params)
+
+            return res
         
-        self.ID = ID
-        self.type = type  # collector 0, executor 1, relay 2
-        self.param = param
-        self.gas_price = gas_price
-        self.gas_limit = gas_limit
-        self.fee = fee
-        self.chain_name = chain_name
+        else:
+            #TODO: error handler
+            return None

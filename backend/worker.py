@@ -18,19 +18,24 @@
 import os
 import click
 import logging
-import configparser
 import monitor
 
+from configobj import ConfigObj
 
 # --||
 # registry of required config entries
 # client works only when all have been set correctly. 
 # --||
 _required_cfg = [
-    ["master-host","auth","master-host"],
-    ["TEE-address","auth","TEE-address"],
-    ["rpc-server","zilliqa","rpc-server"],
+    ["master-host",     "auth",     "master-host"],
+    ["TEE-address",     "auth",     "TEE-address"],
+]
 
+_baseChain_cfg_zilliqa = [
+    ["baseChainServer",         "rpc-server"],
+    ["baseChainID",             "network-id"],
+    ["baseChainversion",        "version"],
+    ["baseChainContract",       "contract-address"],
 ]
 
 # --||
@@ -52,12 +57,71 @@ _log_level_map ={
 
 
 @click.group()
-@click.pass_context
+def main():
+    pass
+        
+
+        
+@main.command(short_help="removed...")
+@click.option(  '--account',        default="",                       help="The account of the beneficiary")
+@click.option(  '--master',         default="",                       help="The server address of a master TEE")
+@click.option(  '--target',         default="zilliqa",                help="The target blockchain name")
+def init(account, master, target):
+    '''
+    removed
+
+    # Args:
+    #     account: The account of the benficiary. The worker should set a valid account or he will not get revenue.
+    #     master: The server address of a master TEE. The master TEE will verify the woker's TEE through remote attestation and generate a proof if it is healthy.
+    #     target: The target here is always zilliqa.
+    
+    # Returns:
+    #     None
+    
+    '''
+
+    # #Set the target
+    # target = "zilliqa"
+    
+
+    # #TODO: invoke KMS
+    # #Here is a stub
+    
+    # stubRes = {"TEE-address":"0x71F119Dc662Fd0086c7c90C58e5237d74403a0C0",
+    #            "proof":      "0000000000000000000000000000000000000000000000000000000000001111"}
+    
+    # res = stubRes
+
+    # #TODO: invoke the register function in Tora contract 
+
+
+    # #Generate the config file
+    # config = ConfigObj(indent_type="\t")
+    # config.filename = 'template.ini'
+
+    # config['auth'] = {"master-host":master,
+    #                   "TEE-address":res["TEE-address"]} 
+
+    # config['BaseChain']={}
+    # config['BaseChain']['zilliqa'] = {"rpc-server":"",
+    #                                   "network-id":"",
+    #                                   "version":"",
+    #                                   "contract-address":"",}
+
+    # config['debug'] = {"level":"DEBUG",
+    #                    "log-file":"worker.log"}
+
+    # config.write()
+    # print("template.ini generated!")
+
+
+
+@main.command()
 @click.option(  '--config',         default="/",    type=click.Path(exists=True))
 @click.option(  '--network',        default="",     type=click.Choice(['mainnet','testnet','local','']), help="The network choice")
 @click.option(  '--rpcserver',      default="",     help="The rpc server address")
 @click.option(  '--teeaddress',     default="",     help="The address of an registered TEE")
-def main(ctx,config,network,rpcserver,teeaddress):
+def launch(config,network,rpcserver,teeaddress):
     '''
     The main procedure of a worker client.
 
@@ -73,70 +137,47 @@ def main(ctx,config,network,rpcserver,teeaddress):
     Note: The '--config' option is prior than others. It means if '--config' is set, other options will be ignored even if the config file is incomplete.
     '''
 
-    #jump to init() here if "init" command is caught
-    if ctx.invoked_subcommand != "init":
-
-        if(config != "/"):
+    if(config != "/"):
             cfg = _parse_config(config)
-        else:
-            ##TODO: Handler of seperately declared arguments
-            print("Please declare arguments in a config file and pass it through '--config' option >.<!!")
+    else:
+        ##TODO: Handler of seperately declared arguments
+        print("Please declare arguments in a config file and pass it through '--config' option >.<!!")
 
 
-        logging.basicConfig(filename=cfg["log-file"],
-                            format='%(asctime)s %(levelname)s:%(message)s',
-                            level=_log_level_map[cfg["log-level"]])
+    logging.basicConfig(filename=cfg["log-file"],
+                        format='%(asctime)s %(levelname)s:%(message)s',
+                        level=_log_level_map[cfg["log-level"]])
 
-
+     
     ##TODO:invoke KMS
     ##TODO:launch Monitor
 
-    
-        
-@main.command()
-@click.option(  '--account',        default="",                       help="The account of the beneficiary")
-@click.option(  '--master',         default="",                       help="The server address of a master TEE")
-def init(account, master):
+
+
+
+
+@main.command(short_help="withdraw toke from master account")
+@click.option( '--account',    default="",  help="The account of the beneficiary" )
+def withdraw():
     '''
-    Init procedure should be invoked in advance by a newly added oracle node.
-    It will generate a config file for later use.
-
-    Args:
-        account:
-        master:
-        output:
-    
-    Returns:
-        None
-    
+    This function will generate a transaction to transfer the token from TEE accoount to the worker's account.
     '''
+    #validate input
 
-    #TODO: invoke KMS
-    #Here is a stub
+    #construct a withdraw transaction
 
-    res = {"TEE-address":"0x71F119Dc662Fd0086c7c90C58e5237d74403a0C0",
-           "sig":        "0000000000000000000000000000000000000000000000000000000000001111"}
-    
-    #TODO: invoke the register function in Tora contract 
+    #invoke the KMS to sign the transaction
 
-
-    #Generate the config file
-    config = configparser.ConfigParser()
-    config['auth'] = {"master-host":master,
-                      "TEE-address":res["TEE-address"]} 
-
-    config['zilliqa'] = {"rpc-server":"127.0.0.1:4201"}
-    config['debug'] = {"level":"DEBUG",
-                       "log-file":"worker.log"}
-
-    with open('config.ini.default', 'w') as configfile:
-        config.write(configfile)
-
-    print("config.ini.default generated!")
+    #send the transaction
 
 
 
 
+@main.command(short_help="check worker's balance")
+@click.option( '--account',    default="",  help="The account to check" )
+def getBalance():
+
+    pass
 
 
 
@@ -152,19 +193,15 @@ def _parse_config(path):
         which contains all item in _required_cfg and _optional_cfg
         
     '''
-
-
-    config = configparser.ConfigParser()
+    res = {}
+   
     if(os.path.isabs(path)):
         config_path = path
     else:
         curpath = os.path.dirname(os.path.realpath(__file__))
         config_path = os.path.join(curpath, path)
 
-    config.read(config_path, encoding="utf-8")
-
-
-    res={}
+    config = ConfigObj(config_path)
 
     for item in _required_cfg:
         try:
@@ -172,6 +209,15 @@ def _parse_config(path):
         except KeyError:
             print("No such key in your config file:  " + item[2] + " !!")
             exit()
+    
+    #for zilliqa
+    for item in _baseChain_cfg_zilliqa:
+        try:
+            res[item[0]] = config["BaseChain"]["zilliqa"][item[1]]
+        except KeyError:
+            print("No such key in BaseChain-zilliqa section:  " + item[1] + " !!")
+            exit()   
+
     
     for item in _optional_cfg:
         try:

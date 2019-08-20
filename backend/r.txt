@@ -12,6 +12,7 @@ chardet==3.0.4
 click==6.7
 click-man==0.3.0
 coincurve==12.0.0
+configobj==5.0.6
 coz-bytecode==0.5.1
 cryptography==2.4.2
 cytoolz==0.9.0.1
@@ -59,7 +60,6 @@ pyrsistent==0.15.4
 pysha3==1.0.2
 pytz==2018.9
 PyYAML==3.13
-pyzil==0.5.25
 requests==2.21.0
 rlp==1.0.3
 schedule==0.6.0

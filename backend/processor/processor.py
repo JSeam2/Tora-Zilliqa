@@ -27,43 +27,62 @@ class Processor:
     dispatcher = ResponseDispatcher()
     req_q = Queue()
 
+
     def add_request(self, request):
         self.req_q.put(request)
+    
+    
 
-    def process(self):
+    def get_request(self):
+        if not self.req_q.empty():
+            request = self.req_q.get()
+            return request
+        else:
+            return None
+
+
+    def generate_response_str(self, req, res_str):
+        response = Response(req.type, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit)
+        self.dispatcher.dispatch_response(response)
+
+    def process(self, params):
         return
 
     def run(self):
         while True:
-            self.process()
+
+            request = self.get_request()
+            if not request:
+                time.sleep(10)
+            
+            else:
+                #TODO: Validate the request
+
+                param_data = json.loads(request.param.replace("'", '"'))
+
+                response = self.process(param_data)
+
+                self.generate_response_str(request, response)
+
 
 
 class Collector(Processor):
-    def process(self):
-        if not self.req_q.empty():
-            request = self.req_q.get()
-            param_data = json.loads(request.param.replace("'", '"'))
-            if param_data["builtin"] != "":
-                builtin_name = param_data["builtin"]
-                if builtin_name == "market_trade_pairs_info":
-                    # todo
-                    print("call the builtin function: " + builtin_name)
-            else:
-                # todo
-                print("call the general api")
-            response = Response(0, "collect result", request.ID, request.chain_name, request.gas_price, request.gas_limit)
-            self.dispatcher.dispatch_response(response)
-        else:
-            time.sleep(10)
+
+    def process(self, params):
+        
+        #TODO: Invoke Web API
+        print("call the general api")
+        return "collect result"
 
 
 class Executor(Processor):
     def process(self):
-        # todo
+        #TODO:
         return
 
 
 class Relay(Processor):
     def process(self):
-        # todo
+        #TODO:
         return
+
