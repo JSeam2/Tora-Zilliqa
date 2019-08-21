@@ -23,8 +23,6 @@
     IT'S JUST FOR TEST
 '''
 
-
-
 from bs4 import BeautifulSoup
 from re import sub
 import certifi

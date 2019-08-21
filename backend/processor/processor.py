@@ -21,19 +21,22 @@ from backend.responder.response import Response
 from queue import Queue
 import time
 import json
+import logging
 
 
 class Processor:
-    dispatcher = ResponseDispatcher()
-    req_q = Queue()
 
+    def __init__(self):
+        self.req_q = Queue()
+        self.dispatcher = ResponseDispatcher()
 
     def add_request(self, request):
+        print("Enter add request~")
         self.req_q.put(request)
-    
-    
 
     def get_request(self):
+
+        print("Enter get request~")
         if not self.req_q.empty():
             request = self.req_q.get()
             return request
@@ -41,8 +44,10 @@ class Processor:
             return None
 
 
-    def generate_response_str(self, req, res_str):
-        response = Response(req.type, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit)
+    def generate_response_str(self, request, res_str):
+
+        print("response string: ", res_str)
+        response = Response(request.type, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit)
         self.dispatcher.dispatch_response(response)
 
     def process(self, params):
@@ -57,9 +62,7 @@ class Processor:
             
             else:
                 #TODO: Validate the request
-
                 param_data = json.loads(request.param.replace("'", '"'))
-
                 response = self.process(param_data)
 
                 self.generate_response_str(request, response)
@@ -68,21 +71,30 @@ class Processor:
 
 class Collector(Processor):
 
-    def process(self, params):
-        
+    def process(self, params): 
+        print("Enter Collector~")
         #TODO: Invoke Web API
-        print("call the general api")
         return "collect result"
 
 
+
+
+
+
 class Executor(Processor):
-    def process(self):
+    def process(self, params):
+        print("Enter Executor~")
         #TODO:
         return
 
 
+
+
+
+
 class Relay(Processor):
-    def process(self):
+    def process(self, params):
+        print("Enter Relay~")
         #TODO:
         return
 

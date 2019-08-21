@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+﻿# -*- coding:utf-8 -*-
 # Copyright 2019 TEEX
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@ import sys
 sys.path.append('../../')
 
 from backend.processor.processor import Collector, Executor, Relay
+from backend.processor.builtin.builtin  import BuiltIn
 import _thread
 
 
@@ -30,9 +31,10 @@ class RequestDispatcher:
     processors = {}
 
     def __init__(self):
-        self.processors[0] = Collector()
-        self.processors[1] = Executor()
-        self.processors[2] = Relay()
+        self.processors[0] = BuiltIn()
+        self.processors[1] = Collector()
+        self.processors[2] = Executor()
+        self.processors[3] = Relay()
         # run the processors
         for key in self.processors.keys():
             try:

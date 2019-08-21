@@ -13,10 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import sys, os  
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import cmc_spider
 from backend.processor.processor import Processor
+import logging
+
 
 #The registry of built-in functions
 #where each function is formatted as follow:
@@ -25,7 +28,7 @@ from backend.processor.processor import Processor
 
 func_table = {
 
-    "market_trade_pairs_info": cmc_spider.top100
+    "market_trade_pairs_info": cmc_spider.process
     
 }
 
@@ -33,6 +36,8 @@ func_table = {
 class BuiltIn(Processor):
 
     def process(self, params):
+        print("Enter Builtin Processor")
+
 
         builtin_name = params["builtin"]
 

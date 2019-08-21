@@ -38,14 +38,11 @@ _baseChain_cfg_zilliqa = [
     ["baseChainContract",       "contract-address"],
 ]
 
-# --||
-#
 _optional_cfg = [
     ["log-level","debug","level",   "DEBUG"],
     ["log-file", "debug","log-file","worker.log"],
 ]
 
-#
 _log_level_map ={
     "DEBUG":    logging.DEBUG,
     "INFO":     logging.INFO,
