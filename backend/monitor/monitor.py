@@ -14,18 +14,19 @@
 # limitations under the License.
 
 import sys
-sys.path.append('../../')
-sys.path.append('../../lib')
-
+import os
 from queue import Queue
 import time
 
 from pyzil.zilliqa.api import ZilliqaAPI
 from backend.monitor.request import Request
+import threading
 
+class Monitor(threading.Thread):
 
-class Monitor:
-    req_q = Queue()
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.req_q = Queue()
 
     def run(self):
         print("run the monitor")
@@ -40,6 +41,7 @@ class Monitor:
 class ZilliqaMonitor(Monitor):
 
     def __init__(self, url, contract_addr):
+        super().__init__()
         self.api = ZilliqaAPI(url)
         self.contract_addr = contract_addr
 

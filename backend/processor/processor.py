@@ -14,7 +14,6 @@
 # limitations under the License.
 
 import sys
-sys.path.append('../../')
 
 from backend.dispatcher.response_dispatcher import ResponseDispatcher
 from backend.responder.response import Response
@@ -22,21 +21,20 @@ from queue import Queue
 import time
 import json
 import logging
+import threading
 
-
-class Processor:
+class Processor(threading.Thread):
 
     def __init__(self):
+        threading.Thread.__init__(self)
         self.req_q = Queue()
         self.dispatcher = ResponseDispatcher()
 
     def add_request(self, request):
-        print("Enter add request~")
         self.req_q.put(request)
 
     def get_request(self):
 
-        print("Enter get request~")
         if not self.req_q.empty():
             request = self.req_q.get()
             return request
@@ -78,19 +76,12 @@ class Collector(Processor):
 
 
 
-
-
-
 class Executor(Processor):
     def process(self, params):
         print("Enter Executor~")
         #TODO:
         return
-
-
-
-
-
+        
 
 class Relay(Processor):
     def process(self, params):

@@ -14,16 +14,17 @@
 # limitations under the License.
 
 import sys
-sys.path.append('../../')
 
 from backend.dispatcher.request_dispatcher import RequestDispatcher
 import time
+import threading
 
 
-class Resolver:
+class Resolver(threading.Thread):
     dispatcher = RequestDispatcher()
 
     def __init__(self, monitors):
+        threading.Thread.__init__(self)
         self.monitors = monitors
 
     def run(self):

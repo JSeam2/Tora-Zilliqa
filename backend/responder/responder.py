@@ -14,21 +14,23 @@
 # limitations under the License.
 
 import sys
-sys.path.append('../../')
-sys.path.append('../../lib/')
 
 from queue import Queue
 import time
 import json
+import threading
 from typing import List, Optional, Dict
 
 from pyzil.zilliqa import chain
 from pyzil.crypto import zilkey
 
 
-class Responder:
-    res_q = Queue()
+class Responder(threading.Thread):
     test = True  # for test
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.res_q = Queue()
 
     def add_response(self, response):
         self.res_q.put(response)

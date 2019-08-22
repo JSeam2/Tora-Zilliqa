@@ -15,15 +15,8 @@
 
 import sys
 
-sys.path.append('../../')
-
 from backend.processor.processor import Collector, Executor, Relay
 from backend.processor.builtin.builtin  import BuiltIn
-import _thread
-
-
-def run_processor(processor):
-    processor.run()
 
 
 class RequestDispatcher:
@@ -37,10 +30,7 @@ class RequestDispatcher:
         self.processors[3] = Relay()
         # run the processors
         for key in self.processors.keys():
-            try:
-                _thread.start_new_thread(run_processor, (self.processors[key],))
-            except:
-                print("Error: 无法启动线程")
+            self.processors[key].start()
 
     def dispatch_request(self, request):
         # processor.process

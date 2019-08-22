@@ -16,6 +16,14 @@
 
 
 import os
+import sys
+
+sys.path.append(os.path.abspath( os.path.join( os.path.dirname(__file__),"../")))
+sys.path.append(os.path.abspath( os.path.join( os.path.dirname(__file__),"lib")))
+import _thread
+from backend.monitor.monitor import ZilliqaMonitor
+from backend.resolver.resolver import Resolver
+
 import click
 import logging
 import monitor
@@ -28,7 +36,6 @@ from configobj import ConfigObj
 # --||
 _required_cfg = [
     ["master-host",     "auth",     "master-host"],
-    ["TEE-address",     "auth",     "TEE-address"],
 ]
 
 _baseChain_cfg_zilliqa = [
@@ -40,7 +47,7 @@ _baseChain_cfg_zilliqa = [
 
 _optional_cfg = [
     ["log-level","debug","level",   "DEBUG"],
-    ["log-file", "debug","log-file","worker.log"],
+    ["log-file", "debug","log-file","stdout"],
 ]
 
 _log_level_map ={
@@ -49,7 +56,6 @@ _log_level_map ={
     "WARNING":  logging.WARNING,
     "ERROR":    logging.ERROR,
     "CRITICAL": logging.CRITICAL
-
 }
 
 
@@ -57,59 +63,13 @@ _log_level_map ={
 def main():
     pass
         
-
         
 @main.command(short_help="removed...")
 @click.option(  '--account',        default="",                       help="The account of the beneficiary")
 @click.option(  '--master',         default="",                       help="The server address of a master TEE")
 @click.option(  '--target',         default="zilliqa",                help="The target blockchain name")
 def init(account, master, target):
-    '''
-    removed
-
-    # Args:
-    #     account: The account of the benficiary. The worker should set a valid account or he will not get revenue.
-    #     master: The server address of a master TEE. The master TEE will verify the woker's TEE through remote attestation and generate a proof if it is healthy.
-    #     target: The target here is always zilliqa.
-    
-    # Returns:
-    #     None
-    
-    '''
-
-    # #Set the target
-    # target = "zilliqa"
-    
-
-    # #TODO: invoke KMS
-    # #Here is a stub
-    
-    # stubRes = {"TEE-address":"0x71F119Dc662Fd0086c7c90C58e5237d74403a0C0",
-    #            "proof":      "0000000000000000000000000000000000000000000000000000000000001111"}
-    
-    # res = stubRes
-
-    # #TODO: invoke the register function in Tora contract 
-
-
-    # #Generate the config file
-    # config = ConfigObj(indent_type="\t")
-    # config.filename = 'template.ini'
-
-    # config['auth'] = {"master-host":master,
-    #                   "TEE-address":res["TEE-address"]} 
-
-    # config['BaseChain']={}
-    # config['BaseChain']['zilliqa'] = {"rpc-server":"",
-    #                                   "network-id":"",
-    #                                   "version":"",
-    #                                   "contract-address":"",}
-
-    # config['debug'] = {"level":"DEBUG",
-    #                    "log-file":"worker.log"}
-
-    # config.write()
-    # print("template.ini generated!")
+    pass
 
 
 
@@ -139,17 +99,42 @@ def launch(config,network,rpcserver,teeaddress):
     else:
         ##TODO: Handler of seperately declared arguments
         print("Please declare arguments in a config file and pass it through '--config' option >.<!!")
+        exit()
 
 
-    logging.basicConfig(filename=cfg["log-file"],
+    #Logging Config
+    log_file = "" if cfg["log-file"] =="stdout" else cfg["log-file"]
+    log_level = cfg["log-level"]
+
+    logging.basicConfig(filename=log_file,
                         format='%(asctime)s %(levelname)s:%(message)s',
-                        level=_log_level_map[cfg["log-level"]])
+                        level=_log_level_map[log_level])
 
-     
-    ##TODO:invoke KMS
+
+    
     ##TODO:launch Monitor
+    
+    zilliqa_monitor = ZilliqaMonitor(url = cfg["baseChainServer"], contract_addr = cfg["baseChainContract"])
+    resolver = Resolver([zilliqa_monitor])
+
+    logging.info("Monitor lanuched~")
+    logging.info("BaseChain: Zilliqa")
+    logging.info("RPC-server: " + cfg["baseChainServer"])
+    logging.info("Tora Contract Address: " + cfg["baseChainContract"])
+
+  
+    zilliqa_monitor.start()
+    resolver.start()
+
+    zilliqa_monitor.join()
+    resolver.join()
+
+   
 
 
+def run_resolver(monitors):
+    resolver = Resolver(monitors)
+    resolver.run()
 
 
 

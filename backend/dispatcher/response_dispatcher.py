@@ -15,14 +15,8 @@
 
 import sys
 
-sys.path.append('../../')
-
 from backend.responder.responder import ZilliqaResponder
-import _thread
 
-
-def run_responder(responder):
-    responder.run()
 
 
 class ResponseDispatcher:
@@ -33,10 +27,7 @@ class ResponseDispatcher:
         self.responders['Zilliqa'] = ZilliqaResponder()
         # run the responders
         for key in self.responders.keys():
-            try:
-                _thread.start_new_thread(run_responder, (self.responders[key],))
-            except:
-                print("Error: 无法启动线程")
+            self.responders[key].start()
 
     def dispatch_response(self, response):
         print(response)
