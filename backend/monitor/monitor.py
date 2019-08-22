@@ -17,7 +17,7 @@ import sys
 import os
 from queue import Queue
 import time
-import logging
+import coloredlogs, logging
 
 from pyzil.zilliqa.api import ZilliqaAPI
 from backend.monitor.request import Request
@@ -29,6 +29,7 @@ class Monitor(threading.Thread):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(int(os.getenv('Tora-log-level')))
+        coloredlogs.install(logger=self.logger)
 
         threading.Thread.__init__(self)
         self.req_q = Queue()
@@ -51,8 +52,7 @@ class ZilliqaMonitor(Monitor):
         self.contract_addr = contract_addr
         self.logger.info("ZilliqaMonitor Created~")
 
-    @staticmethod
-    def __resolve_event_log(event_log):
+    def __resolve_event_log(self, event_log):
         params = event_log["params"]
         request_id = 0
         request_type = 0
@@ -73,7 +73,7 @@ class ZilliqaMonitor(Monitor):
                 param_data = param["value"]
             if param["vname"] == "fee":
                 fee = int(param["value"])
-        print("get a new request: " + str(request_id) + " " + str(request_type) + " " + str(gas_limit) + " " + str(
+        self.logger.info("get a new request: " + str(request_id) + " " + str(request_type) + " " + str(gas_limit) + " " + str(
             gas_price) + " " + param_data + " " + str(fee))
         return Request(request_id, request_type, param_data, gas_price, gas_limit, fee, "Zilliqa")
 
@@ -91,7 +91,7 @@ class ZilliqaMonitor(Monitor):
 
     def __get_last_txn_block_num(self):
         last_txns = self.api.GetRecentTransactions()
-        print(last_txns)
+        # self.logger.info(last_txns)
         if len(last_txns["TxnHashes"]) != 0:
             last_txn_info = self.api.GetTransaction(last_txns["TxnHashes"][0])
             return last_txn_info["receipt"]["epoch_num"]

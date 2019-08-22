@@ -1,0 +1,5 @@
+2019-08-22 14:52:35,797 INFO monitor.py: ZilliqaMonitor Created~
+2019-08-22 14:52:35,799 INFO tora.py: Monitor lanuched~
+2019-08-22 14:52:35,799 INFO tora.py: BaseChain: Zilliqa
+2019-08-22 14:52:35,799 INFO tora.py: RPC-server: https://dev-api.zilliqa.com/
+2019-08-22 14:52:35,799 INFO tora.py: Tora Contract Address: 0x7eaedc9e09bc3fbad7515303f46d16fffa15d676

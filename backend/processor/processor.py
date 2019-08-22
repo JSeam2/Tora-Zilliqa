@@ -21,7 +21,7 @@ from backend.responder.response import Response
 from queue import Queue
 import time
 import json
-import logging
+import coloredlogs, logging
 import threading
 
 class Processor(threading.Thread):
@@ -31,6 +31,8 @@ class Processor(threading.Thread):
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(int(os.getenv('Tora-log-level')))
+        coloredlogs.install(logger=self.logger)
+
         self.req_q = Queue()
         self.dispatcher = ResponseDispatcher()
 
@@ -45,10 +47,9 @@ class Processor(threading.Thread):
         else:
             return None
 
-
     def generate_response_str(self, request, res_str):
 
-        print("response string: ", res_str)
+        self.logger.info("response string: "+ res_str)
         response = Response(request.type, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit)
         self.dispatcher.dispatch_response(response)
 

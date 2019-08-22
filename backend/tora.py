@@ -25,7 +25,7 @@ from backend.monitor.monitor import ZilliqaMonitor
 from backend.resolver.resolver import Resolver
 
 import click
-import logging
+import coloredlogs, logging
 import monitor
 
 from configobj import ConfigObj
@@ -77,8 +77,7 @@ def init(account, master, target):
 @click.option(  '--config',         default="/",    type=click.Path(exists=True))
 @click.option(  '--network',        default="",     type=click.Choice(['mainnet','testnet','local','']), help="The network choice")
 @click.option(  '--rpcserver',      default="",     help="The rpc server address")
-@click.option(  '--teeaddress',     default="",     help="The address of an registered TEE")
-def launch(config,network,rpcserver,teeaddress):
+def launch(config,network,rpcserver):
     '''
     The main procedure of a worker client.
 
@@ -86,7 +85,6 @@ def launch(config,network,rpcserver,teeaddress):
         config:
         network:
         rpcserver:
-        teeaddress:
 
     Returns:
         None
@@ -109,12 +107,12 @@ def launch(config,network,rpcserver,teeaddress):
 
     os.environ['Tora-log-level']=str(log_level)
 
-    logging.basicConfig(filename=log_file,
-                        format='%(asctime)s %(levelname)s %(filename)s:%(message)s')
-    
+    # logging.basicConfig(filename="log_file",
+    #                     format='%(asctime)s %(levelname)s %(filename)s: %(message)s')
+
     logger =logging.getLogger(__name__)
     logger.setLevel(log_level)
-
+    coloredlogs.install(logger=logger)
 
     
     ##TODO:launch Monitor

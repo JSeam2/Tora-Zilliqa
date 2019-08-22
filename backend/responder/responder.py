@@ -14,11 +14,13 @@
 # limitations under the License.
 
 import sys
+import os
 
 from queue import Queue
 import time
 import json
 import threading
+import coloredlogs, logging
 from typing import List, Optional, Dict
 
 from pyzil.zilliqa import chain
@@ -31,6 +33,9 @@ class Responder(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.res_q = Queue()
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(int(os.getenv('Tora-log-level')))
+        coloredlogs.install(logger=self.logger)
 
     def add_response(self, response):
         self.res_q.put(response)
@@ -48,7 +53,7 @@ class ZilliqaResponder(Responder):
     def respond(self):
         if not self.res_q.empty():
             response = self.res_q.get()
-            print("zilliqa respond: " + response.result)
+            self.logger.info("zilliqa respond: " + response.result)
             if self.test:
                 return
             request_id = response.request_id
