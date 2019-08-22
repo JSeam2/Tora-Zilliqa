@@ -66,7 +66,7 @@ class ZilliqaResponder(Responder):
             resp = self.__send_data_to_contract(tora_contract_address, response.gas_price, response.gas_limit, data)
             print(resp)
         else:
-            time.sleep(10)
+            time.sleep(1)
 
     @staticmethod
     def __value_dict(vname: str, vtype: str, value: str) -> dict:

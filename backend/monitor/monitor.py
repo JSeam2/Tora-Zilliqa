@@ -17,14 +17,19 @@ import sys
 import os
 from queue import Queue
 import time
+import logging
 
 from pyzil.zilliqa.api import ZilliqaAPI
 from backend.monitor.request import Request
 import threading
 
+
 class Monitor(threading.Thread):
 
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(int(os.getenv('Tora-log-level')))
+
         threading.Thread.__init__(self)
         self.req_q = Queue()
 
@@ -44,6 +49,7 @@ class ZilliqaMonitor(Monitor):
         super().__init__()
         self.api = ZilliqaAPI(url)
         self.contract_addr = contract_addr
+        self.logger.info("ZilliqaMonitor Created~")
 
     @staticmethod
     def __resolve_event_log(event_log):
@@ -104,7 +110,7 @@ class ZilliqaMonitor(Monitor):
         cur_block_num = str(int(692468) - 1)
         while True & (int(cur_block_num) != 0):
             if int(cur_block_num) >= int(self.api.GetCurrentMiniEpoch()):
-                time.sleep(30)
+                time.sleep(1)
             else:
                 if self.__has_txn(cur_block_num):
                     self.__get_request_from_block(cur_block_num)

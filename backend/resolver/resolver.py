@@ -21,11 +21,13 @@ import threading
 
 
 class Resolver(threading.Thread):
-    dispatcher = RequestDispatcher()
+    
 
     def __init__(self, monitors):
+
         threading.Thread.__init__(self)
         self.monitors = monitors
+        self.dispatcher = RequestDispatcher()
 
     def run(self):
         while True:
@@ -37,4 +39,4 @@ class Resolver(threading.Thread):
                     # dispatch the request
                     self.dispatcher.dispatch_request(request)
                 else:
-                    time.sleep(10)
+                    time.sleep(1)

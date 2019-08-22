@@ -36,8 +36,8 @@ func_table = {
 class BuiltIn(Processor):
 
     def process(self, params):
-        print("Enter Builtin Processor")
-
+        
+        self.logger.info("Enter Builtin Processor~")
 
         builtin_name = params["builtin"]
 

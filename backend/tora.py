@@ -103,12 +103,17 @@ def launch(config,network,rpcserver,teeaddress):
 
 
     #Logging Config
+
     log_file = "" if cfg["log-file"] =="stdout" else cfg["log-file"]
-    log_level = cfg["log-level"]
+    log_level = _log_level_map[cfg["log-level"]]
+
+    os.environ['Tora-log-level']=str(log_level)
 
     logging.basicConfig(filename=log_file,
-                        format='%(asctime)s %(levelname)s:%(message)s',
-                        level=_log_level_map[log_level])
+                        format='%(asctime)s %(levelname)s %(filename)s:%(message)s')
+    
+    logger =logging.getLogger(__name__)
+    logger.setLevel(log_level)
 
 
     
@@ -117,10 +122,10 @@ def launch(config,network,rpcserver,teeaddress):
     zilliqa_monitor = ZilliqaMonitor(url = cfg["baseChainServer"], contract_addr = cfg["baseChainContract"])
     resolver = Resolver([zilliqa_monitor])
 
-    logging.info("Monitor lanuched~")
-    logging.info("BaseChain: Zilliqa")
-    logging.info("RPC-server: " + cfg["baseChainServer"])
-    logging.info("Tora Contract Address: " + cfg["baseChainContract"])
+    logger.info("Monitor lanuched~")
+    logger.info("BaseChain: Zilliqa")
+    logger.info("RPC-server: " + cfg["baseChainServer"])
+    logger.info("Tora Contract Address: " + cfg["baseChainContract"])
 
   
     zilliqa_monitor.start()
@@ -128,8 +133,6 @@ def launch(config,network,rpcserver,teeaddress):
 
     zilliqa_monitor.join()
     resolver.join()
-
-   
 
 
 def run_resolver(monitors):

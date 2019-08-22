@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import sys
+import os
 
 from backend.dispatcher.response_dispatcher import ResponseDispatcher
 from backend.responder.response import Response
@@ -27,6 +28,9 @@ class Processor(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self)
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(int(os.getenv('Tora-log-level')))
         self.req_q = Queue()
         self.dispatcher = ResponseDispatcher()
 
@@ -56,7 +60,7 @@ class Processor(threading.Thread):
 
             request = self.get_request()
             if not request:
-                time.sleep(10)
+                time.sleep(1)
             
             else:
                 #TODO: Validate the request
