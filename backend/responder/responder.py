@@ -22,6 +22,10 @@ import json
 import threading
 import coloredlogs, logging
 from typing import List, Optional, Dict
+from backend.kms.kms import KMSConnector, oracle_owner_address
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../lib")))
 
 from pyzil.zilliqa import chain
 from pyzil.crypto import zilkey
@@ -57,12 +61,11 @@ class ZilliqaResponder(Responder):
             if self.test:
                 return
             request_id = response.request_id
-            proof = ''  # todo sign with kms
-            oracle_owner_address = ''  # todo get from kms
+            proof = '0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA'  # todo generate the proof
             tora_contract_address = 'zil106hde8sfhslm44632vplgmgkllapt4nktjnyxq'
 
             data = self.__generate_send_data(method="responseString",
-                                             params=[self.__value_dict('id', 'Uint32', request_id),
+                                             params=[self.__value_dict('id', 'Uint32', str(request_id)),
                                                      self.__value_dict('proof', 'ByStr64', proof),
                                                      self.__value_dict('result', 'String', response.result),
                                                      self.__value_dict('oracle_owner_address', 'ByStr20',
@@ -76,6 +79,21 @@ class ZilliqaResponder(Responder):
     @staticmethod
     def __value_dict(vname: str, vtype: str, value: str) -> dict:
         return {"vname": vname, "type": vtype, "value": value}
+
+    @staticmethod
+    def bytes_to_int(bytes_hex: bytes, byteorder="big") -> int:
+        """Convert bytes to int."""
+        return int.from_bytes(bytes_hex, byteorder=byteorder)
+
+    @staticmethod
+    def __hex_str_to_bytes(str_hex: str) -> bytes:
+        """Convert hex string to bytes."""
+        str_hex = str_hex.lower()
+        if str_hex.startswith("0x"):
+            str_hex = str_hex[2:]
+        if len(str_hex) & 1:
+            str_hex = "0" + str_hex
+        return bytes.fromhex(str_hex)
 
     @staticmethod
     def __generate_send_data(method: str, params: Optional[List[Dict]]):
@@ -95,21 +113,22 @@ class ZilliqaResponder(Responder):
         to_addr = zilkey.normalise_address(to_addr)
         if not to_addr:
             raise ValueError("invalid to address")
+        kms_conn = KMSConnector()
+        master_tee_nonce = kms_conn.get_master_tee_nonce() + 1
+        master_tee_pubkey_bytes = kms_conn.get_master_tee_pubkey()
+        master_tee_pubkey = hex(int.from_bytes(master_tee_pubkey_bytes, byteorder="big"))
 
-        master_tee_nonce = 0  # todo get from kms
-        master_tee_pubkey = ''  # todo get from kms
-
-        data_to_sign = chain.active_chain.get_data_to_sign(master_tee_pubkey, to_addr,
+        data_to_sign = chain.active_chain.get_data_to_sign(master_tee_pubkey_bytes, to_addr,
                                                            0, master_tee_nonce,
                                                            gas_price, gas_limit,
-                                                           "", data, priority)
-        signature = ''  # todo kms.sign(data_to_sign)
+                                                           "", data)
+        signature = kms_conn.sign_message(data_to_sign)
         params = {
             "version": chain.active_chain.version,
             "nonce": master_tee_nonce,
             "toAddr": to_addr,
             "amount": str(0),
-            "pubKey": master_tee_pubkey,
+            "pubKey": '0'+master_tee_pubkey[2:],
             "gasPrice": str(gas_price),
             "gasLimit": str(gas_limit),
             "code": None,

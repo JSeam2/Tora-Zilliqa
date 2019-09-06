@@ -1,17 +1,17 @@
 # -*- coding:utf-8 -*- 
-#Copyright 2019 TEEX
+# Copyright 2019 TEEX
 #
-#Licensed under the Apache License, Version 2.0 (the "License");
-#you may not use this file except in compliance with the License.
-#You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-#Unless required by applicable law or agreed to in writing, software
-#distributed under the License is distributed on an "AS IS" BASIS,
-#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#See the License for the specific language governing permissions and
-#limitations under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 '''
 A module for to manage secret keys of TEE in two ways:
@@ -31,5 +31,68 @@ sk:   42914050bd0700e2be7c4772b586adb5f3cb5a340caec372a070038086f32891
 
 '''
 
+import socket, ssl
+
+HOST, PORT = '127.0.0.1', 1234
+
+oracle_owner_address = '0x7dcB18944157BD73A36DbB61a1700FcFd0182680'
 
 
+class KMSConnector:
+    def __get_conn(self):
+        sock = socket.socket(socket.AF_INET)
+        context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+        context.load_cert_chain(certfile="../kms/client.crt", keyfile="../kms/client.key")
+        context.load_verify_locations("../kms/root.pem")
+        context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1  # optional
+        ssl.match_hostname = lambda cert, hostname: hostname == cert['subjectAltName'][0][1]
+        conn = context.wrap_socket(sock, server_hostname=HOST)
+        return conn
+
+    def get_master_tee_pubkey(self):
+        conn = self.__get_conn()
+        try:
+            conn.connect((HOST, PORT))
+            conn.write('0'.encode('utf-8'))
+            pubkey_bytes = conn.recv()
+            print(pubkey_bytes)
+            return pubkey_bytes
+        except:
+            return None
+        finally:
+            conn.close()
+
+    def get_master_tee_nonce(self):
+        conn = self.__get_conn()
+        try:
+            conn.connect((HOST, PORT))
+            conn.write('1'.encode('utf-8'))
+            nonce = conn.recv().decode()
+            print(nonce)
+            return int(nonce)
+        except:
+            return None
+        finally:
+            conn.close()
+
+    def sign_message(self, message):
+        conn = self.__get_conn()
+        try:
+            conn.connect((HOST, PORT))
+            conn.write('2'.encode('utf-8') + message)
+            signature = conn.recv().decode()
+            print(signature)
+            # self.conn.close()
+            return signature
+        except:
+            return None
+        finally:
+            conn.close()
+
+
+if __name__ == '__main__':
+    kms = KMSConnector()
+    kms.get_master_tee_pubkey()
+    kms.get_master_tee_nonce()
+    kms.sign_message(
+        b'\x08\x81\x80\xb4\n\x10\x07\x1a\x14~\xae\xdc\x9e\t\xbc?\xba\xd7QS\x03\xf4m\x16\xff\xfa\x15\xd6v"#\n!\x03\xf8\x96\x0c$K\xc9\xfdO\x80\xf7\x8f\xe7\x95lP\xdc,\xf7)6\xb4\xe1\x94\xe7]E}RG+\x0e\xe8*\x12\n\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x12\n\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00;\x9a\xca\x008\x90NJ\xbb\x03{"_tag": "responseString", "params": [{"vname": "id", "type": "Uint32", "value": "0"}, {"vname": "proof", "type": "ByStr64", "value": "0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA"}, {"vname": "result", "type": "String", "value": "result string"}, {"vname": "oracle_owner_address", "type": "ByStr20", "value": "0x7dcB18944157BD73A36DbB61a1700FcFd0182680"}]}')
