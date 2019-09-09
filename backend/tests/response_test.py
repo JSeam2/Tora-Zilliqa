@@ -16,9 +16,8 @@
 import os
 import sys
 
-sys.path.append(os.path.abspath( os.path.join( os.path.dirname(__file__),"../../")))
-sys.path.append(os.path.abspath( os.path.join( os.path.dirname(__file__),"../lib")))
-
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../lib")))
 
 from pprint import pprint
 
@@ -29,7 +28,8 @@ from pyzil.contract import Contract
 chain.set_active_chain(chain.TestNet)
 
 # tora contract address
-contract_addr = "zil106hde8sfhslm44632vplgmgkllapt4nktjnyxq"
+# contract_addr = "zil106hde8sfhslm44632vplgmgkllapt4nktjnyxq"
+contract_addr = "zil188cxacmwwdzagnwpv4gharfsdgdxacfu4njdd5"
 contract = Contract.load_from_address(contract_addr)
 
 # master tee sk
@@ -43,7 +43,7 @@ contract.account = account
 
 def response_string(result, gas_price, gas_limit, oracle_owner_address):
     resp = contract.call(method="responseString",
-                         params=[Contract.value_dict('id', 'Uint32', '0'),
+                         params=[Contract.value_dict('id', 'Uint32', '2'),
                                  Contract.value_dict('proof', 'ByStr64',
                                                      '0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA'),
                                  Contract.value_dict('result', 'String', result),
@@ -54,4 +54,3 @@ def response_string(result, gas_price, gas_limit, oracle_owner_address):
 
 
 response_string('result string', 1000000000, 10000, '0x7dcB18944157BD73A36DbB61a1700FcFd0182680')
-

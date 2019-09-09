@@ -35,7 +35,7 @@ def run_resolver(monitors):
 
 
 # for test
-monitor = ZilliqaMonitor("https://dev-api.zilliqa.com/", "0x7eaedc9e09bc3fbad7515303f46d16fffa15d676")
+monitor = ZilliqaMonitor("https://dev-api.zilliqa.com/", "0x39f06ee36e7345d44dc165517e8d306a1a6ee13c")
 
 monitors = []
 monitors.append(monitor)

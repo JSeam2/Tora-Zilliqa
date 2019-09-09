@@ -29,7 +29,8 @@ from pyzil.crypto import schnorr
 
 chain.set_active_chain(chain.TestNet)
 
-contract_addr = "zil16et2dwg4cyueyrz96ex5lp83me73qzet8glhal"
+# contract_addr = "zil106hde8sfhslm44632vplgmgkllapt4nktjnyxq"
+contract_addr = "zil188cxacmwwdzagnwpv4gharfsdgdxacfu4njdd5"
 contract = Contract.load_from_address(contract_addr)
 
 account_sk = "dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4ba514c55bc6e317"

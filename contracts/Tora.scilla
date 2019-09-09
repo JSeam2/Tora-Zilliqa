@@ -130,12 +130,8 @@ transition request (request_type : Uint32, param_data : String, gas_price : Uint
     check = builtin lt _amount total_fee;
     match check with
     |True =>
-        msg = {_tag: "";
-        _recipient: _sender;
-        _amount: Uint128 0;
-        error: "Not enough money"};
-        msgs = one_msg msg;
-        send msgs
+        e = {_eventname: "Not enough money"; msg: "fail request"};
+        event e
     |False =>
         (* send the money to the master tee address *)
         accept;
@@ -188,12 +184,8 @@ transition responseString(id : Uint32, proof : ByStr64, result : String, oracle_
                 msgs = one_msg msg;
                 send msgs
             | False =>
-                msg = {_tag: "";
-                    _recipient: _sender;
-                    _amount: Uint128 0;
-                    error: "have a response"};
-                msgs = one_msg msg;
-                send msgs
+                e = {_eventname: "repeat response"; msg: "have a response"};
+                event e
             end
         end
 end

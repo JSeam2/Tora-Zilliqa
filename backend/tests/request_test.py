@@ -29,12 +29,12 @@ from pyzil.contract import Contract
 chain.set_active_chain(chain.TestNet)
 
 # user account
-account = Account(private_key="67d8c95700458aff274734dd2267dce59e67f9d9269739ff768c5f36cc5c6f94")
+account = Account(private_key="dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4ba514c55bc6e317")
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
 # request contract address
-contract_addr = "zil12x80ne7nduftu7kfne7e3r4meru09pdysskslk"
+contract_addr = "zil15us6egvl2d8jyt0cw00kqyfvu2yx4agfz59t36"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 

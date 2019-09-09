@@ -32,6 +32,7 @@ sk:   42914050bd0700e2be7c4772b586adb5f3cb5a340caec372a070038086f32891
 '''
 
 import socket, ssl
+import os
 
 HOST, PORT = '127.0.0.1', 1234
 
@@ -42,8 +43,9 @@ class KMSConnector:
     def __get_conn(self):
         sock = socket.socket(socket.AF_INET)
         context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
-        context.load_cert_chain(certfile="../kms/client.crt", keyfile="../kms/client.key")
-        context.load_verify_locations("../kms/root.pem")
+        context.load_cert_chain(certfile=os.path.abspath(os.path.join(os.path.dirname(__file__), "./client.crt"))
+                                , keyfile=os.path.abspath(os.path.join(os.path.dirname(__file__), "./client.key")))
+        context.load_verify_locations(os.path.abspath(os.path.join(os.path.dirname(__file__),"./root.pem")))
         context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1  # optional
         ssl.match_hostname = lambda cert, hostname: hostname == cert['subjectAltName'][0][1]
         conn = context.wrap_socket(sock, server_hostname=HOST)
