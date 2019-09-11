@@ -23,6 +23,7 @@ sys.path.append(os.path.abspath( os.path.join( os.path.dirname(__file__),"lib"))
 import _thread
 from backend.monitor.monitor import ZilliqaMonitor
 from backend.resolver.resolver import Resolver
+from backend.kms.kms import KMSConnector
 
 import click
 import coloredlogs, logging
@@ -62,6 +63,13 @@ _log_level_map ={
 @click.group()
 def main():
     pass
+
+@main.command()
+def new_master_tee():
+    kms = KMSConnector()
+    master_tee = kms.new_master_tee()
+    print("new_master_tee_pubkey: "+master_tee[0])
+    print("new_master_tee_address: " + master_tee[1])
         
         
 @main.command(short_help="removed...")

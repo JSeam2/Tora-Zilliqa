@@ -50,7 +50,7 @@ class Processor(threading.Thread):
     def generate_response_str(self, request, res_str):
 
         self.logger.info("response string: "+ res_str)
-        response = Response(request.type, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit)
+        response = Response(request.type, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit, request.tora_addr)
         self.dispatcher.dispatch_response(response)
 
     def process(self, params):

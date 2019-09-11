@@ -62,12 +62,12 @@ class ZilliqaResponder(Responder):
                 return
             request_id = response.request_id
             proof = '0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA'  # todo generate the proof
-            tora_contract_address = 'zil188cxacmwwdzagnwpv4gharfsdgdxacfu4njdd5'
+            tora_contract_address = response.tora_addr
 
             data = self.__generate_send_data(method="responseString",
                                              params=[self.__value_dict('id', 'Uint32', str(request_id)),
                                                      self.__value_dict('proof', 'ByStr64', proof),
-                                                     self.__value_dict('result', 'String', "response string"),
+                                                     self.__value_dict('result', 'String', response.result.replace('"',"'")),
                                                      self.__value_dict('oracle_owner_address', 'ByStr20',
                                                                        oracle_owner_address)
                                                      ])

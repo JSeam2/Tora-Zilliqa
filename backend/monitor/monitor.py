@@ -20,6 +20,7 @@ import time
 import coloredlogs, logging
 
 from pyzil.zilliqa.api import ZilliqaAPI
+from pyzil.crypto import zilkey
 from backend.monitor.request import Request
 import threading
 
@@ -75,7 +76,7 @@ class ZilliqaMonitor(Monitor):
                 fee = int(param["value"])
         self.logger.info("get a new request: " + str(request_id) + " " + str(request_type) + " " + str(gas_limit) + " " + str(
             gas_price) + " " + param_data + " " + str(fee))
-        return Request(request_id, request_type, param_data, gas_price, gas_limit, fee, "Zilliqa")
+        return Request(request_id, request_type, param_data, gas_price, gas_limit, fee, "Zilliqa", self.contract_addr)
 
     def __get_request_from_block(self, block_num):
         txns = self.api.GetTransactionsForTxBlock(block_num)
@@ -85,7 +86,7 @@ class ZilliqaMonitor(Monitor):
                 if "event_logs" in receipt:
                     event_logs = receipt["event_logs"]
                     for event_log in event_logs:
-                        if event_log["address"] == self.contract_addr:
+                        if event_log["address"] == (zilkey.normalise_address(self.contract_addr)).lower():
                             if event_log["_eventname"] == "request":
                                 self.req_q.put(self.__resolve_event_log(event_log))
 

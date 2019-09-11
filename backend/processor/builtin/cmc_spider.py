@@ -75,15 +75,14 @@ def process(param):
                 pair_list[pair_name] = int(sub(r'[^\d.]', '', volume))
 
 
-    res = []
+    res = {}
     count = 0
     for i in sorted(pair_list, key=pair_list.__getitem__,reverse=True):
         
-        if count == 100:
+        if count == 10:
             break
         count += 1
         
-        res.append([i,pair_list[i]])
-
+        res[i] = str(pair_list[i])
     return json.dumps(res)
 
