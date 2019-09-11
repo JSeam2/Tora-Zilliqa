@@ -15,7 +15,7 @@
 
 
 class Response:
-    def __init__(self, type, result, request_id, chain_name, gas_price, gas_limit, tora_addr):
+    def __init__(self, type, result, request_id, chain_name, gas_price, gas_limit, tora_addr, user_addr):
         self.type = type  # string 0 int 1 bool 2
         self.result = result
         self.request_id = request_id
@@ -23,3 +23,4 @@ class Response:
         self.gas_price = gas_price
         self.gas_limit = gas_limit
         self.tora_addr = tora_addr
+        self.user_addr = user_addr

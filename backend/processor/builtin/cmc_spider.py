@@ -79,7 +79,7 @@ def process(param):
     count = 0
     for i in sorted(pair_list, key=pair_list.__getitem__,reverse=True):
         
-        if count == 10:
+        if count == 100:
             break
         count += 1
         

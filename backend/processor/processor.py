@@ -18,11 +18,13 @@ import os
 
 from backend.dispatcher.response_dispatcher import ResponseDispatcher
 from backend.responder.response import Response
+from backend.processor.general_web_api import get_web_api_json_result
 from queue import Queue
 import time
 import json
 import coloredlogs, logging
 import threading
+
 
 class Processor(threading.Thread):
 
@@ -50,7 +52,7 @@ class Processor(threading.Thread):
     def generate_response_str(self, request, res_str):
 
         self.logger.info("response string: "+ res_str)
-        response = Response(request.type, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit, request.tora_addr)
+        response = Response(request.type, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit, request.tora_addr, request.user_addr)
         self.dispatcher.dispatch_response(response)
 
     def process(self, params):
@@ -71,26 +73,24 @@ class Processor(threading.Thread):
                 self.generate_response_str(request, response)
 
 
-
 class Collector(Processor):
 
-    def process(self, params): 
-        print("Enter Collector~")
-        #TODO: Invoke Web API
-        return "collect result"
-
+    def process(self, params):
+        # TODO: Invoke Web API
+        self.logger.info("Enter Web API Collector~")
+        result = get_web_api_json_result("", {})
+        return result
 
 
 class Executor(Processor):
     def process(self, params):
         print("Enter Executor~")
-        #TODO:
+        # TODO:
         return
-        
+
 
 class Relay(Processor):
     def process(self, params):
         print("Enter Relay~")
-        #TODO:
+        # TODO:
         return
-

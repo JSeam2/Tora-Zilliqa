@@ -73,6 +73,10 @@ class ZilliqaResponder(Responder):
                                                      ])
             resp = self.__send_data_to_contract(tora_contract_address, response.gas_price, response.gas_limit, data)
             print(resp)
+            if resp['receipt']['success'] == True:
+                remain_gas = response.gas_limit-int(resp['receipt']['cumulative_gas'])
+                print(remain_gas)
+                # TODO refund
         else:
             time.sleep(1)
 

@@ -51,13 +51,16 @@ class KMSConnector:
         conn = context.wrap_socket(sock, server_hostname=HOST)
         return conn
 
-    def new_master_tee(self):
+    def new_master_tee(self, password):
         conn = self.__get_conn()
         try:
             conn.connect((HOST, PORT))
-            conn.write('3'.encode('utf-8'))
+            conn.write(('3'+password).encode('utf-8'))
             result = conn.recv().decode('utf-8')
-            return result.split(',')
+            if result == "":
+                return "Have no authority"
+            else:
+                return result.split(',')
         except:
             return None
         finally:
@@ -69,7 +72,6 @@ class KMSConnector:
             conn.connect((HOST, PORT))
             conn.write('0'.encode('utf-8'))
             pubkey_bytes = conn.recv()
-            print(pubkey_bytes)
             return pubkey_bytes
         except:
             return None
@@ -82,7 +84,6 @@ class KMSConnector:
             conn.connect((HOST, PORT))
             conn.write('1'.encode('utf-8'))
             nonce = conn.recv().decode()
-            print(nonce)
             return int(nonce)
         except:
             return None
@@ -93,9 +94,8 @@ class KMSConnector:
         conn = self.__get_conn()
         try:
             conn.connect((HOST, PORT))
-            conn.write('2'.encode('utf-8') + message)
+            conn.sendall('2'.encode('utf-8') + message)
             signature = conn.recv().decode()
-            print(signature)
             # self.conn.close()
             return signature
         except:
@@ -106,8 +106,8 @@ class KMSConnector:
 
 if __name__ == '__main__':
     kms = KMSConnector()
-    kms.get_master_tee_pubkey()
-    kms.get_master_tee_nonce()
-    kms.sign_message(
-        b'\x08\x81\x80\xb4\n\x10\x07\x1a\x14~\xae\xdc\x9e\t\xbc?\xba\xd7QS\x03\xf4m\x16\xff\xfa\x15\xd6v"#\n!\x03\xf8\x96\x0c$K\xc9\xfdO\x80\xf7\x8f\xe7\x95lP\xdc,\xf7)6\xb4\xe1\x94\xe7]E}RG+\x0e\xe8*\x12\n\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x12\n\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00;\x9a\xca\x008\x90NJ\xbb\x03{"_tag": "responseString", "params": [{"vname": "id", "type": "Uint32", "value": "0"}, {"vname": "proof", "type": "ByStr64", "value": "0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA"}, {"vname": "result", "type": "String", "value": "result string"}, {"vname": "oracle_owner_address", "type": "ByStr20", "value": "0x7dcB18944157BD73A36DbB61a1700FcFd0182680"}]}')
-    kms.new_master_tee()
+    # kms.get_master_tee_pubkey()
+    # kms.get_master_tee_nonce()
+    # kms.sign_message(
+    #     b'\x08\x81\x80\xb4\n\x10\x07\x1a\x14~\xae\xdc\x9e\t\xbc?\xba\xd7QS\x03\xf4m\x16\xff\xfa\x15\xd6v"#\n!\x03\xf8\x96\x0c$K\xc9\xfdO\x80\xf7\x8f\xe7\x95lP\xdc,\xf7)6\xb4\xe1\x94\xe7]E}RG+\x0e\xe8*\x12\n\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x12\n\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00;\x9a\xca\x008\x90NJ\xbb\x03{"_tag": "responseString", "params": [{"vname": "id", "type": "Uint32", "value": "0"}, {"vname": "proof", "type": "ByStr64", "value": "0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA"}, {"vname": "result", "type": "String", "value": "result string"}, {"vname": "oracle_owner_address", "type": "ByStr20", "value": "0x7dcB18944157BD73A36DbB61a1700FcFd0182680"}]}')
+    print(kms.new_master_tee("Zilliqa"))

@@ -143,7 +143,7 @@ transition request (request_type : Uint32, param_data : String, gas_price : Uint
         param_hash = builtin keccak256hash param_data;
         new_req = Request id _sender request_type param_hash gas_price gas_limit fee callback_func code_not_responded;
         req_map[id] := new_req;
-        e = {_eventname: "request"; msg: "send request success"; id: id; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
+        e = {_eventname: "request"; msg: "send request success"; id: id; from: _sender; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
         event e;
         id =
            let x = Uint32 1 in builtin add x id;
@@ -152,9 +152,7 @@ transition request (request_type : Uint32, param_data : String, gas_price : Uint
 end
 
 (*             Return the String type result       *)
-transition responseString(id : Uint32, proof : ByStr64, result : String, oracle_owner_address : ByStr20)
-    (* todo verify the response proof with master tee pk*)
-
+transition responseString(id : Uint32, result : String, oracle_owner_address : ByStr20)
         requests <- req_map;
         request_opt = builtin get requests id;
         match request_opt with

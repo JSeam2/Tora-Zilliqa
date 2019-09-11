@@ -15,7 +15,7 @@
 
 
 class Request:
-    def __init__(self, ID, type, param, gas_price, gas_limit, fee, chain_name, tora_addr):
+    def __init__(self, ID, type, param, gas_price, gas_limit, fee, chain_name, tora_addr, user_addr):
         self.ID = ID
         self.type = type  # collector 0, executor 1, relay 2
         self.param = param
@@ -24,3 +24,4 @@ class Request:
         self.fee = fee
         self.chain_name = chain_name
         self.tora_addr = tora_addr
+        self.user_addr = user_addr

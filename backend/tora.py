@@ -65,9 +65,10 @@ def main():
     pass
 
 @main.command()
-def new_master_tee():
+@click.option(  '--password',         default="",    help="Your kms password")
+def new_master_tee(password):
     kms = KMSConnector()
-    master_tee = kms.new_master_tee()
+    master_tee = kms.new_master_tee(password)
     print("new_master_tee_pubkey: "+master_tee[0])
     print("new_master_tee_address: " + master_tee[1])
         

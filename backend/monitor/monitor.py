@@ -61,9 +61,12 @@ class ZilliqaMonitor(Monitor):
         gas_price = 0
         param_data = ""
         fee = 0
+        user_addr = ""
         for param in params:
             if param['vname'] == "id":
                 request_id = int(param["value"])
+            if param['vname'] == "from":
+                user_addr = param["value"]
             if param['vname'] == "reqtype":
                 request_type = int(param["value"])
             if param["vname"] == "gaslimit":
@@ -76,7 +79,7 @@ class ZilliqaMonitor(Monitor):
                 fee = int(param["value"])
         self.logger.info("get a new request: " + str(request_id) + " " + str(request_type) + " " + str(gas_limit) + " " + str(
             gas_price) + " " + param_data + " " + str(fee))
-        return Request(request_id, request_type, param_data, gas_price, gas_limit, fee, "Zilliqa", self.contract_addr)
+        return Request(request_id, request_type, param_data, gas_price, gas_limit, fee, "Zilliqa", self.contract_addr, user_addr)
 
     def __get_request_from_block(self, block_num):
         txns = self.api.GetTransactionsForTxBlock(block_num)
