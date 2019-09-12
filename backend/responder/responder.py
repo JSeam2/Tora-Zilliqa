@@ -36,7 +36,6 @@ TRANSFER_GAS_PRICE = 1000000000
 
 
 class Responder(threading.Thread):
-    test = False  # for test
 
     def __init__(self):
         threading.Thread.__init__(self)
@@ -61,8 +60,6 @@ class ZilliqaResponder(Responder):
         if not self.res_q.empty():
             response = self.res_q.get()
             self.logger.info("zilliqa respond: " + response.result)
-            if self.test:
-                return
             request_id = response.request_id
             proof = '0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA'  # todo generate the proof
             tora_contract_address = response.tora_addr
@@ -76,9 +73,11 @@ class ZilliqaResponder(Responder):
                                                                        zilkey.normalise_address(KMSConnector.oracle_owner_address))
                                                      ])
             resp = self.__send_data_to_address(tora_contract_address, 0, response.gas_price, response.gas_limit, data)
-            print(resp)
             response.user_addr = "0x7dcB18944157BD73A36DbB61a1700FcFd0182680"
-            if resp['receipt']['success'] == True:
+            if not resp:
+                return
+            print(resp)
+            if resp['receipt']['success']:
                 remain_gas = response.gas_limit - int(resp['receipt']['cumulative_gas'])
                 # 一部分是退款的手续费，一部分作为withdraw的手续费
                 refund_gas = remain_gas * response.gas_price - TRANSFER_GAS * TRANSFER_GAS_PRICE - WITHDRAW_GAS*TRANSFER_GAS_PRICE
@@ -117,8 +116,7 @@ class ZilliqaResponder(Responder):
 
     """rewrite the account transfer function"""
 
-    @staticmethod
-    def __send_data_to_address(to_addr: str, amount=0,
+    def __send_data_to_address(self, to_addr: str, amount=0,
                                 gas_price: Optional[int] = None, gas_limit=1,
                                 data="", priority=False, timeout=300, sleep=20):
         if not to_addr:
@@ -139,6 +137,9 @@ class ZilliqaResponder(Responder):
                                                            gas_price, gas_limit,
                                                            '', data)
         signature = kms_conn.sign_message(data_to_sign)
+        if signature == '':
+            self.logger.info("The request has been responded")
+            return None
         params = {
             "version": chain.active_chain.version,
             "nonce": master_tee_nonce,
