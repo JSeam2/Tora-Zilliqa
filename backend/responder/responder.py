@@ -30,7 +30,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../lib"
 from pyzil.zilliqa import chain
 from pyzil.crypto import zilkey
 
-TRANSFER_GAS = 100
+TRANSFER_GAS = 1
+WITHDRAW_GAS = 1000
 TRANSFER_GAS_PRICE = 1000000000
 
 
@@ -53,7 +54,6 @@ class Responder(threading.Thread):
 
 class ZilliqaResponder(Responder):
     def run(self):
-        chain.set_active_chain(chain.TestNet)
         while True:
             self.respond()
 
@@ -81,7 +81,7 @@ class ZilliqaResponder(Responder):
             if resp['receipt']['success'] == True:
                 remain_gas = response.gas_limit - int(resp['receipt']['cumulative_gas'])
                 # 一部分是退款的手续费，一部分作为withdraw的手续费
-                refund_gas = remain_gas * response.gas_price - 2 * TRANSFER_GAS * TRANSFER_GAS_PRICE
+                refund_gas = remain_gas * response.gas_price - TRANSFER_GAS * TRANSFER_GAS_PRICE - WITHDRAW_GAS*TRANSFER_GAS_PRICE
                 self.logger.info("refund_gas:"+str(refund_gas))
                 refund_resp = self.__send_data_to_address(response.user_addr, refund_gas, TRANSFER_GAS_PRICE, TRANSFER_GAS)
                 print(refund_resp)

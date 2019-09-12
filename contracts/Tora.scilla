@@ -212,26 +212,33 @@ end
 
 (* The master tee calls to transfer reward to the oracle *)
 transition withdraw_reward(oracle_owner_address : ByStr20)
-    money = _amount;
-    c_reward_map <- reward_map;
-    check_have_reward = builtin get c_reward_map oracle_owner_address;
-    match check_have_reward with
-    | Some (balance) =>
-        check_balance = builtin lt balance money;
-        match check_balance with
-        | False =>
-            accept;
-            (* send the money to the oracle *)
-            msg = { _tag : ""; _recipient : oracle_owner_address; _amount : money};
-            msgs = one_msg msg;
-            send msgs;
-            (* update the reward record *)
-            new_balance = builtin sub balance money;
-            reward_map[oracle_owner_address] := new_balance;
-            e = {_eventname: "withdraw"; msg: "withdraw success"};
-            event e
-        | True =>
+    check_sender = builtin eq _sender master_tee_address
+    match check_sender with
+    | True =>
+        money = _amount;
+        c_reward_map <- reward_map;
+        check_have_reward = builtin get c_reward_map oracle_owner_address;
+        match check_have_reward with
+        | Some (balance) =>
+            check_balance = builtin lt balance money;
+            match check_balance with
+            | False =>
+                accept;
+                (* send the money to the oracle *)
+                msg = { _tag : ""; _recipient : oracle_owner_address; _amount : money};
+                msgs = one_msg msg;
+                send msgs;
+                (* update the reward record *)
+                new_balance = builtin sub balance money;
+                reward_map[oracle_owner_address] := new_balance;
+                e = {_eventname: "withdraw"; msg: "withdraw success"};
+                event e
+            | True =>
+            end
+        | None =>
         end
-    | None =>
-    end
+    | False =>
+        e = {_eventname: "withdraw error"; msg: "No authority"};
+        event e
+     end
 end

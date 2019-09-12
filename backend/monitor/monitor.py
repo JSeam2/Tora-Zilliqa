@@ -76,7 +76,7 @@ class ZilliqaMonitor(Monitor):
             if param["vname"] == "paramdata":
                 param_data = param["value"]
             if param["vname"] == "fee":
-                fee = int(param["value"])
+                fee = float(param["value"])
         self.logger.info("get a new request: " + str(request_id) + " " + str(request_type) + " " + str(gas_limit) + " " + str(
             gas_price) + " " + param_data + " " + str(fee))
         return Request(request_id, request_type, param_data, gas_price, gas_limit, fee, "Zilliqa", self.contract_addr, user_addr)

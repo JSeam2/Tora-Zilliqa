@@ -37,8 +37,6 @@ import os
 HOST, PORT = '127.0.0.1', 1234
 
 
-
-
 class KMSConnector:
     oracle_owner_address = ''
 
@@ -108,6 +106,20 @@ class KMSConnector:
             return None
         finally:
             conn.close()
+
+    def withdraw(self, address, money, tora_addr):
+        conn = self.__get_conn()
+        try:
+            conn.connect((HOST, PORT))
+            conn.write(('4'+address+','+str(money)+','+tora_addr).encode('utf-8'))
+            result = conn.recv().decode()
+            # self.conn.close()
+            return result
+        except:
+            return None
+        finally:
+            conn.close()
+
 
 
 if __name__ == '__main__':

@@ -17,10 +17,11 @@
 
 import os
 import sys
+import time
 
 sys.path.append(os.path.abspath( os.path.join( os.path.dirname(__file__),"../")))
 sys.path.append(os.path.abspath( os.path.join( os.path.dirname(__file__),"lib")))
-import _thread
+
 from backend.monitor.monitor import ZilliqaMonitor
 from backend.resolver.resolver import Resolver
 from backend.kms.kms import KMSConnector
@@ -30,6 +31,12 @@ import coloredlogs, logging
 import monitor
 
 from configobj import ConfigObj
+
+
+from pyzil.account import Account
+from pyzil.contract import Contract
+from pyzil.crypto import zilkey
+from pyzil.zilliqa import chain
 
 # --||
 # registry of required config entries
@@ -59,6 +66,7 @@ _log_level_map ={
     "CRITICAL": logging.CRITICAL
 }
 
+chain.set_active_chain(chain.TestNet)
 
 @click.group()
 def main():
@@ -84,9 +92,8 @@ def init(account, master, target):
 
 # for oracle node to launch
 @main.command()
-@click.option('--config',         default="/",    type=click.Path(exists=True))
 @click.option('--oracleaddr',     default="zil10h9339zp277h8gmdhds6zuq0elgpsf5qga4qvh", help="The account address of your oracle node")
-def launch(config, oracleaddr):
+def launch(oracleaddr):
     '''
     The main procedure of a worker client.
 
@@ -101,6 +108,7 @@ def launch(config, oracleaddr):
     Note: The '--config' option is prior than others. It means if '--config' is set, other options will be ignored even if the config file is incomplete.
     '''
     KMSConnector.oracle_owner_address = oracleaddr
+    config = "config.ini"
     if(config != "/"):
             cfg = _parse_config(config)
     else:
@@ -149,28 +157,40 @@ def run_resolver(monitors):
 
 
 @main.command(short_help="withdraw toke from master account")
-@click.option( '--account',    default="",  help="The account address of the beneficiary" )
-def withdraw():
+@click.option('--sk', help="The account sk")
+@click.option('--address', help="The account address of the beneficiary" )
+@click.option('--gas_price',  default=1000000000)
+@click.option('--gas_limit',  default=10000)
+def withdraw(sk, address, gas_price, gas_limit):
+
     '''
     This function will generate a transaction to transfer the token from TEE accoount to the worker's account.
     '''
-    #validate input
+    config = "config.ini"
+    cfg = _parse_config(config)
 
-    #construct a withdraw transaction
+    contract_addr = cfg["baseChainContract"]
+    contract = Contract.load_from_address(contract_addr)
 
-    #invoke the KMS to sign the transaction
-
-    #send the transaction
-
-
-
-
-@main.command(short_help="check worker's balance")
-@click.option( '--account',    default="",  help="The account to check" )
-def get_balance():
-
-    pass
-
+    account = Account(private_key=sk)
+    contract.account = account
+    resp = contract.call(method="get_reward_balance",
+                             params=[Contract.value_dict('oracle_owner_address', 'ByStr20', zilkey.normalise_address(address))],
+                             gas_price=gas_price, gas_limit=gas_limit)
+    if (not resp == None) and (not resp['receipt']['success']):
+        print("Network error")
+    else:
+        if (resp['receipt']['event_logs'][0]['params'][0]['value']['arguments'] == []) or (resp['receipt']['event_logs'][0]['params'][0]['value']['arguments']==['0']):
+            print("No money")
+        else:
+            money = int(resp['receipt']['event_logs'][0]['params'][0]['value']['arguments'][0])/1000000000000.0
+            print("Have money: " + str(money))
+            kms = KMSConnector()
+            if kms.withdraw(zilkey.normalise_address(address), money, cfg["baseChainContract"])=="success":
+                print("Withdraw submit success")
+                # time.sleep(300)
+            else:
+                print("Withdraw submit fail")
 
 
 def _parse_config(path):
