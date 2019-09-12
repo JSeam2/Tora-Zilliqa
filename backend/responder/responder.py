@@ -71,17 +71,19 @@ class ZilliqaResponder(Responder):
                                                                        zilkey.normalise_address(KMSConnector.oracle_owner_address))
                                                      ])
             resp = self.__send_data_to_address(tora_contract_address, 0, response.gas_price, response.gas_limit, data)
-            response.user_addr = "0x7dcB18944157BD73A36DbB61a1700FcFd0182680"
             if not resp:
                 return
             print(resp)
             if resp['receipt']['success']:
+                self.logger.info("Respond success")
                 remain_gas = response.gas_limit - int(resp['receipt']['cumulative_gas'])
                 # 一部分是退款的手续费，一部分作为withdraw的手续费
                 refund_gas = remain_gas * response.gas_price - TRANSFER_GAS * TRANSFER_GAS_PRICE - WITHDRAW_GAS*TRANSFER_GAS_PRICE
-                self.logger.info("refund_gas:"+str(refund_gas))
-                refund_resp = self.__send_data_to_address(response.user_addr, refund_gas, TRANSFER_GAS_PRICE, TRANSFER_GAS)
+                self.logger.info("Refund_gas:"+str(refund_gas))
+                refund_resp = self.__send_data_to_address(zilkey.to_checksum_address(response.user_addr), refund_gas, TRANSFER_GAS_PRICE, TRANSFER_GAS)
                 print(refund_resp)
+            else:
+                self.logger.info("Respond fail")
         else:
             time.sleep(1)
 
