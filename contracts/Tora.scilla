@@ -212,7 +212,7 @@ end
 
 (* The master tee calls to transfer reward to the oracle *)
 transition withdraw_reward(oracle_owner_address : ByStr20)
-    check_sender = builtin eq _sender master_tee_address
+    check_sender = builtin eq _sender master_tee_address;
     match check_sender with
     | True =>
         money = _amount;

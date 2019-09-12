@@ -22,7 +22,7 @@ let one_msg =
   let nil_msg = Nil {Message} in
   Cons {Message} msg nil_msg
 
-let oracle_address = 0x39f06ee36e7345d44dc165517e8d306a1a6ee13c
+let oracle_address = 0x81899dc729802eeabe31292e17de36e4058167a1
 
 let gas_price_set = Uint128 1000000000
 let gas_limit_set = Uint128 10000

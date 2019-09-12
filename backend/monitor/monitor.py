@@ -111,7 +111,7 @@ class ZilliqaMonitor(Monitor):
 
     def run(self):
         # cur_block_num = str(int(self.api.GetCurrentMiniEpoch()) - 1)
-        cur_block_num = str(int(745221) - 1)
+        cur_block_num = str(int(752551) - 1)
         while True & (int(cur_block_num) != 0):
             if int(cur_block_num) >= int(self.api.GetCurrentMiniEpoch()):
                 time.sleep(1)

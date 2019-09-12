@@ -61,12 +61,10 @@ class ZilliqaResponder(Responder):
             response = self.res_q.get()
             self.logger.info("zilliqa respond: " + response.result)
             request_id = response.request_id
-            proof = '0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA'  # todo generate the proof
             tora_contract_address = response.tora_addr
             zilkey.normalise_address(KMSConnector.oracle_owner_address)
             data = self.__generate_send_data(method="responseString",
                                              params=[self.__value_dict('id', 'Uint32', str(request_id)),
-                                                     self.__value_dict('proof', 'ByStr64', proof),
                                                      self.__value_dict('result', 'String',
                                                                        response.result.replace('"', "'")),
                                                      self.__value_dict('oracle_owner_address', 'ByStr20',
@@ -137,7 +135,7 @@ class ZilliqaResponder(Responder):
                                                            gas_price, gas_limit,
                                                            '', data)
         signature = kms_conn.sign_message(data_to_sign)
-        if signature == '':
+        if signature == 'None':
             self.logger.info("The request has been responded")
             return None
         params = {
