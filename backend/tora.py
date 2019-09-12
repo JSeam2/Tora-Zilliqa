@@ -64,6 +64,7 @@ _log_level_map ={
 def main():
     pass
 
+# for tora manager to new master tee
 @main.command()
 @click.option(  '--password',         default="",    help="Your kms password")
 def new_master_tee(password):
@@ -81,12 +82,11 @@ def init(account, master, target):
     pass
 
 
-
+# for oracle node to launch
 @main.command()
-@click.option(  '--config',         default="/",    type=click.Path(exists=True))
-@click.option(  '--network',        default="",     type=click.Choice(['mainnet','testnet','local','']), help="The network choice")
-@click.option(  '--rpcserver',      default="",     help="The rpc server address")
-def launch(config,network,rpcserver):
+@click.option('--config',         default="/",    type=click.Path(exists=True))
+@click.option('--oracleaddr',     default="zil10h9339zp277h8gmdhds6zuq0elgpsf5qga4qvh", help="The account address of your oracle node")
+def launch(config, oracleaddr):
     '''
     The main procedure of a worker client.
 
@@ -100,7 +100,7 @@ def launch(config,network,rpcserver):
 
     Note: The '--config' option is prior than others. It means if '--config' is set, other options will be ignored even if the config file is incomplete.
     '''
-
+    KMSConnector.oracle_owner_address = oracleaddr
     if(config != "/"):
             cfg = _parse_config(config)
     else:
@@ -149,7 +149,7 @@ def run_resolver(monitors):
 
 
 @main.command(short_help="withdraw toke from master account")
-@click.option( '--account',    default="",  help="The account of the beneficiary" )
+@click.option( '--account',    default="",  help="The account address of the beneficiary" )
 def withdraw():
     '''
     This function will generate a transaction to transfer the token from TEE accoount to the worker's account.
@@ -167,7 +167,7 @@ def withdraw():
 
 @main.command(short_help="check worker's balance")
 @click.option( '--account',    default="",  help="The account to check" )
-def getBalance():
+def get_balance():
 
     pass
 

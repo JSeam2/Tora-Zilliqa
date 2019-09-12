@@ -36,10 +36,16 @@ import os
 
 HOST, PORT = '127.0.0.1', 1234
 
-oracle_owner_address = '0x7dcB18944157BD73A36DbB61a1700FcFd0182680' # todo config
+
 
 
 class KMSConnector:
+    oracle_owner_address = ''
+
+    @staticmethod
+    def set_oracle_owner_address(oracle_owner_addr):
+        KMSConnector.oracle_owner_address = oracle_owner_addr
+
     def __get_conn(self):
         sock = socket.socket(socket.AF_INET)
         context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
@@ -94,7 +100,7 @@ class KMSConnector:
         conn = self.__get_conn()
         try:
             conn.connect((HOST, PORT))
-            conn.sendall('2'.encode('utf-8') + message)
+            conn.sendall('2'.encode('utf-8') + message + b'STOP')
             signature = conn.recv().decode()
             # self.conn.close()
             return signature

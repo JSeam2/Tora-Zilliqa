@@ -22,13 +22,16 @@ import json
 import threading
 import coloredlogs, logging
 from typing import List, Optional, Dict
-from backend.kms.kms import KMSConnector, oracle_owner_address
+from backend.kms.kms import KMSConnector
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../lib")))
 
 from pyzil.zilliqa import chain
 from pyzil.crypto import zilkey
+
+TRANSFER_GAS = 100
+TRANSFER_GAS_PRICE = 1000000000
 
 
 class Responder(threading.Thread):
@@ -63,20 +66,25 @@ class ZilliqaResponder(Responder):
             request_id = response.request_id
             proof = '0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA'  # todo generate the proof
             tora_contract_address = response.tora_addr
-
+            zilkey.normalise_address(KMSConnector.oracle_owner_address)
             data = self.__generate_send_data(method="responseString",
                                              params=[self.__value_dict('id', 'Uint32', str(request_id)),
                                                      self.__value_dict('proof', 'ByStr64', proof),
-                                                     self.__value_dict('result', 'String', response.result.replace('"',"'")),
+                                                     self.__value_dict('result', 'String',
+                                                                       response.result.replace('"', "'")),
                                                      self.__value_dict('oracle_owner_address', 'ByStr20',
-                                                                       oracle_owner_address)
+                                                                       zilkey.normalise_address(KMSConnector.oracle_owner_address))
                                                      ])
-            resp = self.__send_data_to_contract(tora_contract_address, response.gas_price, response.gas_limit, data)
+            resp = self.__send_data_to_address(tora_contract_address, 0, response.gas_price, response.gas_limit, data)
             print(resp)
+            response.user_addr = "0x7dcB18944157BD73A36DbB61a1700FcFd0182680"
             if resp['receipt']['success'] == True:
-                remain_gas = response.gas_limit-int(resp['receipt']['cumulative_gas'])
-                print(remain_gas)
-                # TODO refund
+                remain_gas = response.gas_limit - int(resp['receipt']['cumulative_gas'])
+                # 一部分是退款的手续费，一部分作为withdraw的手续费
+                refund_gas = remain_gas * response.gas_price - 2 * TRANSFER_GAS * TRANSFER_GAS_PRICE
+                self.logger.info("refund_gas:"+str(refund_gas))
+                refund_resp = self.__send_data_to_address(response.user_addr, refund_gas, TRANSFER_GAS_PRICE, TRANSFER_GAS)
+                print(refund_resp)
         else:
             time.sleep(1)
 
@@ -110,11 +118,15 @@ class ZilliqaResponder(Responder):
     """rewrite the account transfer function"""
 
     @staticmethod
-    def __send_data_to_contract(to_addr: str,
+    def __send_data_to_address(to_addr: str, amount=0,
                                 gas_price: Optional[int] = None, gas_limit=1,
                                 data="", priority=False, timeout=300, sleep=20):
-        # to_addr zli... to checksum address
-        to_addr = zilkey.normalise_address(to_addr)
+        if not to_addr:
+            raise ValueError("invalid to address")
+        if not to_addr.startswith("0x"):
+            # to_addr zli... to checksum address
+            to_addr = zilkey.normalise_address(to_addr)
+            print(to_addr)
         if not to_addr:
             raise ValueError("invalid to address")
         kms_conn = KMSConnector()
@@ -123,7 +135,7 @@ class ZilliqaResponder(Responder):
         master_tee_pubkey = hex(int.from_bytes(master_tee_pubkey_bytes, byteorder="big"))
 
         data_to_sign = chain.active_chain.get_data_to_sign(master_tee_pubkey_bytes, to_addr,
-                                                           master_tee_nonce, 0,
+                                                           master_tee_nonce, amount,
                                                            gas_price, gas_limit,
                                                            '', data)
         signature = kms_conn.sign_message(data_to_sign)
@@ -131,8 +143,8 @@ class ZilliqaResponder(Responder):
             "version": chain.active_chain.version,
             "nonce": master_tee_nonce,
             "toAddr": to_addr,
-            "amount": str(0),
-            "pubKey": '0'+master_tee_pubkey[2:],
+            "amount": str(amount),
+            "pubKey": '0' + master_tee_pubkey[2:],
             "gasPrice": str(gas_price),
             "gasLimit": str(gas_limit),
             "code": None,

@@ -21,9 +21,9 @@ library Oracle
 type OracleNode =
 | OracleNode of ByStr20 ByStr20 ByStr33 Uint32
 
-(* Request ID from type paramHash gasPrice gasLimit fee callbackFunc ifResponded *)
+(* Request ID from user_addr type paramHash gasPrice gasLimit fee callbackFunc ifResponded *)
 type Request =
-| Request of Uint32 ByStr20 Uint32 ByStr32 Uint128 Uint128 Uint128 String Uint32
+| Request of Uint32 ByStr20 ByStr20 Uint32 ByStr32 Uint128 Uint128 Uint128 String Uint32
 
 (* Constant value *)
 (* one node temporarily, may more nodes later on *)
@@ -124,7 +124,7 @@ transition comeback()
 end
 
 (*             Send a request on chain             *)
-transition request (request_type : Uint32, param_data : String, gas_price : Uint128, gas_limit : Uint128, fee : Uint128, callback_func : String)
+transition request (user_addr : ByStr20, request_type : Uint32, param_data : String, gas_price : Uint128, gas_limit : Uint128, fee : Uint128, callback_func : String)
     gas_fee = builtin mul gas_price gas_limit;
     total_fee = builtin add fee gas_fee;
     check = builtin lt _amount total_fee;
@@ -141,9 +141,9 @@ transition request (request_type : Uint32, param_data : String, gas_price : Uint
         (* log the request *)
         id <- req_count;
         param_hash = builtin keccak256hash param_data;
-        new_req = Request id _sender request_type param_hash gas_price gas_limit fee callback_func code_not_responded;
+        new_req = Request id _sender user_addr request_type param_hash gas_price gas_limit fee callback_func code_not_responded;
         req_map[id] := new_req;
-        e = {_eventname: "request"; msg: "send request success"; id: id; from: _sender; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
+        e = {_eventname: "request"; msg: "send request success"; id: id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
         event e;
         id =
            let x = Uint32 1 in builtin add x id;
@@ -160,12 +160,12 @@ transition responseString(id : Uint32, result : String, oracle_owner_address : B
             (* request is not found in the records *)
             e = {_eventname: "response fail"; msg : "the request id is not found"};
             event e
-        | Some (Request id from request_type param_hash gas_price gas_limit fee callback_func if_responded) =>
+        | Some (Request id from user_addr request_type param_hash gas_price gas_limit fee callback_func if_responded) =>
             check_not_responded = builtin eq if_responded code_not_responded;
             match check_not_responded with
             | True =>
                 (* set is_responded *)
-                update_req = Request id from request_type param_hash gas_price gas_limit fee callback_func code_is_responded;
+                update_req = Request id from user_addr request_type param_hash gas_price gas_limit fee callback_func code_is_responded;
                 req_map[id] := update_req;
                 (* record the reward *)
                 c_reward_map <- reward_map;
