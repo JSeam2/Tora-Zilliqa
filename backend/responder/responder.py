@@ -33,7 +33,7 @@ from pyzil.crypto import zilkey
 TRANSFER_GAS = 1
 WITHDRAW_GAS = 1000
 TRANSFER_GAS_PRICE = 1000000000
-
+WITHDRAW_GAS_PRICE = 1000000000
 
 class Responder(threading.Thread):
 
@@ -78,7 +78,13 @@ class ZilliqaResponder(Responder):
                 self.logger.info("Respond success")
                 remain_gas = response.gas_limit - int(resp['receipt']['cumulative_gas'])
                 # 一部分是退款的手续费，一部分作为withdraw的手续费
-                refund_gas = remain_gas * response.gas_price - TRANSFER_GAS * TRANSFER_GAS_PRICE - WITHDRAW_GAS*TRANSFER_GAS_PRICE
+                refund_gas = remain_gas * response.gas_price - TRANSFER_GAS * TRANSFER_GAS_PRICE - WITHDRAW_GAS * WITHDRAW_GAS_PRICE
+                if refund_gas < 0:
+                    self.logger.info("Refund_gas<0")
+                    return
+                if refund_gas == 0:
+                    self.logger.info("Refund_gas=0")
+                    return
                 self.logger.info("Refund_gas:"+str(refund_gas))
                 refund_resp = self.__send_data_to_address(zilkey.to_checksum_address(response.user_addr), refund_gas, TRANSFER_GAS_PRICE, TRANSFER_GAS)
                 print(refund_resp)

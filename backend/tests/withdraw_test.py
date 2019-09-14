@@ -29,7 +29,7 @@ from pyzil.contract import Contract
 chain.set_active_chain(chain.TestNet)
 
 # tora contract address
-contract_addr = "zil106hde8sfhslm44632vplgmgkllapt4nktjnyxq"
+contract_addr = "zil1sxyem3efsqhw40339yhp0h3kuszczeapzgkyh3"
 contract = Contract.load_from_address(contract_addr)
 
 # master tee sk

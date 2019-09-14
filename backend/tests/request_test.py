@@ -41,6 +41,6 @@ contract.account = account
 # oracle_address = '0x' + zilkey.to_valid_address("zil1sxyem3efsqhw40339yhp0h3kuszczeapzgkyh3")
 # pprint(oracle_address)
 
-resp = contract.call(method="request", params=[], amount=20)
+resp = contract.call(method="request", params=[], amount=15)
 pprint(resp)
 pprint(contract.last_receipt)
