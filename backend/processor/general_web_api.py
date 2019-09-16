@@ -16,14 +16,14 @@
 import requests
 
 
-def get_web_api_json_result(url, param):
-    ret = requests.get(url + param, params={"format": "json"})
+def get_web_api_json_result(url, params):
+    ret = requests.get(url, params=params)
     if ret.status_code == 200:
         result = ret.text.replace(" ", "")
         result = result.replace("\n", "")
         return result
 
 
-# url = "https://blockchain.info/rawblock/"
-# param = "0000000000000bae09a7a393a8acded75aa67e46cb81f7acaa5ad94f9eacd103"
+# url = "https://samples.openweathermap.org/data/2.5/weather"
+# param = {"q": "London,uk", "appid": "b6907d289e10d714a6e88b30761fae22"}
 # print(get_web_api_json_result(url, param))

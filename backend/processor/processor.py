@@ -64,20 +64,22 @@ class Processor(threading.Thread):
                 time.sleep(1)
             
             else:
-                #TODO: Validate the request
-                param_data = json.loads(request.param.replace("'", '"'))
-                response = self.process(param_data)
-
+                try:
+                    param_data = json.loads(request.param.replace("'", '"'))
+                    response = self.process(param_data)
+                except:
+                    response = "No correct request params"
                 self.generate_response_str(request, response)
+
 
 
 class Collector(Processor):
 
     def process(self, params):
-        # TODO: Invoke Web API
         self.logger.info("Enter Web API Collector~")
-        print(params)
-        result = get_web_api_json_result(params['url'], params['param'])
+        if ('url' not in params.keys()) or ('params' not in params.keys()):
+            return "No correct request params"
+        result = get_web_api_json_result(params['url'], params['params'])
         return result
 
 

@@ -34,12 +34,12 @@ balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
 # request contract address
-contract_addr = "zil1zlty2ek356s6zcy0eg0zk32xx306cm3h0w58y8"  # test request
-# contract_addr = "" # general request
+contract_addr = "zil1scswgxqaycjqaualnjw3ejmg6w2u80p0jdvsvp"  # test request
+# contract_addr = "zil1ze8m8hapfr4se563j3mex654yl0uklfk4hntaq"  # general request
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 
-# oracle_address = '0x' + zilkey.to_valid_address("zil1zsnqrz86rjwxa3dp7j5ur6ld8pj2rld6ppwyqw")
+# oracle_address = '0x' + zilkey.to_valid_address("zil165m736j7ht0x6chwsg096rdnrfhu9r8a7r7e4r")
 # pprint(oracle_address)
 
 resp = contract.call(method="request", params=[], amount=15)

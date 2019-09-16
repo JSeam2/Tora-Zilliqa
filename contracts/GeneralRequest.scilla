@@ -22,7 +22,7 @@ let one_msg =
   let nil_msg = Nil {Message} in
   Cons {Message} msg nil_msg
 
-let oracle_address = 0x14260188fa1c9c6ec5a1f4a9c1ebed3864a1fdba
+let oracle_address = 0xd537e8ea5ebade6d62ee821e5d0db31a6fc28cfd
 
 let gas_price_set = Uint128 1000000000
 let gas_limit_set = Uint128 10000
@@ -38,7 +38,8 @@ contract RequestOracle
 transition request()
     accept;
     msg = { _tag : "request"; _recipient : oracle_address; _amount : _amount;
-    user_addr: _sender; request_type: Uint32 1; param_data: "{'url':'https://blockchain.info/rawblock/','param':'0000000000000bae09a7a393a8acded75aa67e46cb81f7acaa5ad94f9eacd103'}";
+    user_addr: _sender; request_type: Uint32 1; param_data: "{'url':'https://samples.openweathermap.org/data/2.5/weather',
+    'params':{'q':'London,uk','appid':'b6907d289e10d714a6e88b30761fae22'}}";
     gas_price: gas_price_set; gas_limit: gas_limit_set;
     callback_func: "callback"};
     msgs = one_msg msg;

@@ -142,22 +142,21 @@ transition request (user_addr : ByStr20, request_type : Uint32, param_data : Str
         e = {_eventname: "Not enough money"; msg: "fail request"};
         event e
     |False =>
-        (* send the money to the master tee address *)
-        accept;
-        msg = { _tag : ""; _recipient : master_tee_address; _amount : _amount};
-        msgs = one_msg msg;
-        send msgs;
         (* log the request *)
         id <- req_count;
         param_hash = builtin keccak256hash param_data;
         fee = builtin sub _amount total_fee;
-
         check_fee = builtin lt fee min_fee;
         match check_fee with
         |True =>
             e = {_eventname: "Not enough money"; msg: "fail request"};
             event e
         |False =>
+            (* send the money to the master tee address *)
+            accept;
+            msg = { _tag : ""; _recipient : master_tee_address; _amount : _amount};
+            msgs = one_msg msg;
+            send msgs;
             new_req = Request id _sender user_addr request_type param_hash gas_price gas_limit fee callback_func code_not_responded;
             req_map[id] := new_req;
             e = {_eventname: "request"; msg: "send request success"; id: id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
