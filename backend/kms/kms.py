@@ -39,6 +39,9 @@ HOST, PORT = '127.0.0.1', 1234
 
 class KMSConnector:
     oracle_owner_address = ''
+    rpcserver = ''
+    version = ''
+    networkid = ''
 
     @staticmethod
     def set_oracle_owner_address(oracle_owner_addr):
@@ -86,7 +89,7 @@ class KMSConnector:
         conn = self.__get_conn()
         try:
             conn.connect((HOST, PORT))
-            conn.write('1'.encode('utf-8'))
+            conn.write(('1'+KMSConnector.rpcserver+','+KMSConnector.version+','+KMSConnector.networkid).encode('utf-8'))
             nonce = conn.recv().decode()
             return int(nonce)
         except:
@@ -111,7 +114,7 @@ class KMSConnector:
         conn = self.__get_conn()
         try:
             conn.connect((HOST, PORT))
-            conn.write(('4'+address+','+str(money)+','+tora_addr).encode('utf-8'))
+            conn.write(('4'+address+','+str(money)+','+tora_addr+','+KMSConnector.rpcserver+','+KMSConnector.version+','+KMSConnector.networkid).encode('utf-8'))
             result = conn.recv().decode()
             # self.conn.close()
             return result

@@ -133,6 +133,9 @@ def launch(oracleaddr):
     # set the active chain
     local_chain = BlockChain(cfg["baseChainServer"], int(cfg["baseChainversion"]), int(cfg["baseChainID"]))
     chain.set_active_chain(local_chain)
+    KMSConnector.rpcserver = cfg["baseChainServer"]
+    KMSConnector.version = cfg["baseChainversion"]
+    KMSConnector.networkid = cfg["baseChainID"]
     
     ##TODO:launch Monitor
     
@@ -174,6 +177,9 @@ def withdraw(sk, address, gas_price, gas_limit):
     # set the active chain
     local_chain = BlockChain(cfg["baseChainServer"], int(cfg["baseChainversion"]), int(cfg["baseChainID"]))
     chain.set_active_chain(local_chain)
+    KMSConnector.rpcserver = cfg["baseChainServer"]
+    KMSConnector.version = cfg["baseChainversion"]
+    KMSConnector.networkid = cfg["baseChainID"]
 
     contract_addr = cfg["baseChainContract"]
     contract = Contract.load_from_address(contract_addr)
