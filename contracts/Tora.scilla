@@ -34,7 +34,7 @@ let transfer_gas = Uint128 1
 let withdraw_gas = Uint128 1000
 let transfer_gas_price = Uint128 1000000000
 let withdraw_gas_price = Uint128 1000000000
-let min_fee = Uint128 5000000000000
+let min_fee = Uint128 1000000000000
 
 let one_msg =
   fun (msg: Message) =>

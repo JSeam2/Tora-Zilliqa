@@ -76,7 +76,8 @@ class Collector(Processor):
     def process(self, params):
         # TODO: Invoke Web API
         self.logger.info("Enter Web API Collector~")
-        result = get_web_api_json_result("", {})
+        print(params)
+        result = get_web_api_json_result(params['url'], params['param'])
         return result
 
 

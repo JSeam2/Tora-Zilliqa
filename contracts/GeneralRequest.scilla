@@ -38,7 +38,7 @@ contract RequestOracle
 transition request()
     accept;
     msg = { _tag : "request"; _recipient : oracle_address; _amount : _amount;
-    user_addr: _sender; request_type: Uint32 0; param_data: "{'builtin':'market_trade_pairs_info','market_num':'10','pair_num':'100'}";
+    user_addr: _sender; request_type: Uint32 1; param_data: "{'url':'https://blockchain.info/rawblock/','param':'0000000000000bae09a7a393a8acded75aa67e46cb81f7acaa5ad94f9eacd103'}";
     gas_price: gas_price_set; gas_limit: gas_limit_set;
     callback_func: "callback"};
     msgs = one_msg msg;

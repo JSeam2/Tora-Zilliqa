@@ -19,10 +19,11 @@ import requests
 def get_web_api_json_result(url, param):
     ret = requests.get(url + param, params={"format": "json"})
     if ret.status_code == 200:
-        print(ret.text)
-        return ret.text
+        result = ret.text.replace(" ", "")
+        result = result.replace("\n", "")
+        return result
 
 
 # url = "https://blockchain.info/rawblock/"
 # param = "0000000000000bae09a7a393a8acded75aa67e46cb81f7acaa5ad94f9eacd103"
-# get_web_api_json_result(url, param)
+# print(get_web_api_json_result(url, param))
