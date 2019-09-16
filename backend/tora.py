@@ -37,6 +37,7 @@ from pyzil.account import Account
 from pyzil.contract import Contract
 from pyzil.crypto import zilkey
 from pyzil.zilliqa import chain
+from pyzil.zilliqa.chain import BlockChain
 
 # --||
 # registry of required config entries
@@ -65,8 +66,6 @@ _log_level_map ={
     "ERROR":    logging.ERROR,
     "CRITICAL": logging.CRITICAL
 }
-
-chain.set_active_chain(chain.TestNet)
 
 @click.group()
 def main():
@@ -131,6 +130,9 @@ def launch(oracleaddr):
     logger.setLevel(log_level)
     coloredlogs.install(logger=logger)
 
+    # set the active chain
+    local_chain = BlockChain(cfg["baseChainServer"], int(cfg["baseChainversion"]), int(cfg["baseChainID"]))
+    chain.set_active_chain(local_chain)
     
     ##TODO:launch Monitor
     
@@ -169,6 +171,10 @@ def withdraw(sk, address, gas_price, gas_limit):
     config = "config.ini"
     cfg = _parse_config(config)
 
+    # set the active chain
+    local_chain = BlockChain(cfg["baseChainServer"], int(cfg["baseChainversion"]), int(cfg["baseChainID"]))
+    chain.set_active_chain(local_chain)
+
     contract_addr = cfg["baseChainContract"]
     contract = Contract.load_from_address(contract_addr)
 
@@ -188,7 +194,8 @@ def withdraw(sk, address, gas_price, gas_limit):
             kms = KMSConnector()
             if kms.withdraw(zilkey.normalise_address(address), money, cfg["baseChainContract"])=="success":
                 print("Withdraw submit success")
-                # time.sleep(300)
+                time.sleep(300)
+                print("Withdraw success")
             else:
                 print("Withdraw submit fail")
 
