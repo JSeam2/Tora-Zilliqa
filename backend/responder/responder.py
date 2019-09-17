@@ -138,6 +138,9 @@ class ZilliqaResponder(Responder):
         if not to_addr:
             raise ValueError("invalid to address")
         kms_conn = KMSConnector()
+        if kms_conn.get_master_tee_nonce() is None:
+            self.logger.info("KMS server has no response")
+            return None
         master_tee_nonce = kms_conn.get_master_tee_nonce() + 1
         master_tee_pubkey_bytes = kms_conn.get_master_tee_pubkey()
         master_tee_pubkey = hex(int.from_bytes(master_tee_pubkey_bytes, byteorder="big"))

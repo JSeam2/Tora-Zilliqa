@@ -191,7 +191,7 @@ def withdraw(config, sk, address, gas_price, gas_limit):
     resp = contract.call(method="get_reward_balance",
                              params=[Contract.value_dict('oracle_owner_address', 'ByStr20', zilkey.normalise_address(address))],
                              gas_price=gas_price, gas_limit=gas_limit)
-    if (not resp == None) and (not resp['receipt']['success']):
+    if (resp is not None) and (not resp['receipt']['success']):
         print("Network error")
     else:
         if (resp['receipt']['event_logs'][0]['params'][0]['value']['arguments'] == []) or (resp['receipt']['event_logs'][0]['params'][0]['value']['arguments']==['0']):
@@ -204,6 +204,8 @@ def withdraw(config, sk, address, gas_price, gas_limit):
                 print("Withdraw submit success")
                 time.sleep(300)
                 print("Withdraw success")
+            elif kms.withdraw(zilkey.normalise_address(address), money, cfg["baseChainContract"]) is None:
+                print("KMS server has no response")
             else:
                 print("Withdraw submit fail")
 
