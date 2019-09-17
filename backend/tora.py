@@ -45,6 +45,7 @@ from pyzil.zilliqa.chain import BlockChain
 # --||
 _required_cfg = [
     ["master-host",     "auth",     "master-host"],
+    ["oracle-account",     "auth",     "account"],
 ]
 
 _baseChain_cfg_zilliqa = [
@@ -52,6 +53,11 @@ _baseChain_cfg_zilliqa = [
     ["baseChainID",             "network-id"],
     ["baseChainversion",        "version"],
     ["baseChainContract",       "contract-address"],
+]
+
+_kms_cfg = [
+    ["KMS_HOST", "host"],
+    ["KMS_PORT", "port"],
 ]
 
 _optional_cfg = [
@@ -77,7 +83,7 @@ def main():
 def new_master_tee(password):
     kms = KMSConnector()
     master_tee = kms.new_master_tee(password)
-    print("new_master_tee_pubkey: "+master_tee[0])
+    print("new_master_tee_pubkey: "  + master_tee[0])
     print("new_master_tee_address: " + master_tee[1])
         
         
@@ -91,30 +97,21 @@ def init(account, master, target):
 
 # for oracle node to launch
 @main.command()
-@click.option('--oracleaddr',     default="zil10h9339zp277h8gmdhds6zuq0elgpsf5qga4qvh", help="The account address of your oracle node")
-def launch(oracleaddr):
+@click.option('--config',         default="config.ini",    type=click.Path(exists=True))
+def launch(config):
     '''
     The main procedure of a worker client.
 
     Args:
         config:
-        network:
-        rpcserver:
 
     Returns:
         None
 
     Note: The '--config' option is prior than others. It means if '--config' is set, other options will be ignored even if the config file is incomplete.
     '''
-    KMSConnector.oracle_owner_address = oracleaddr
-    config = "config.ini"
-    if(config != "/"):
-            cfg = _parse_config(config)
-    else:
-        ##TODO: Handler of seperately declared arguments
-        print("Please declare arguments in a config file and pass it through '--config' option >.<!!")
-        exit()
 
+    cfg = _parse_config(config)
 
     #Logging Config
 
@@ -136,6 +133,9 @@ def launch(oracleaddr):
     KMSConnector.rpcserver = cfg["baseChainServer"]
     KMSConnector.version = cfg["baseChainversion"]
     KMSConnector.networkid = cfg["baseChainID"]
+    KMSConnector.host = cfg["KMS_HOST"]
+    KMSConnector.port = cfg["KMS_PORT"]
+    KMSConnector.oracle_owner_address = cfg["oracle-account"]
     
     ##TODO:launch Monitor
     
@@ -162,16 +162,16 @@ def run_resolver(monitors):
 
 
 @main.command(short_help="withdraw toke from master account")
+@click.option('--config',         default="config.ini",    type=click.Path(exists=True))
 @click.option('--sk', help="The account sk")
 @click.option('--address', help="The account address of the beneficiary" )
 @click.option('--gas_price',  default=1000000000)
 @click.option('--gas_limit',  default=10000)
-def withdraw(sk, address, gas_price, gas_limit):
+def withdraw(config, sk, address, gas_price, gas_limit):
 
     '''
     This function will generate a transaction to transfer the token from TEE accoount to the worker's account.
     '''
-    config = "config.ini"
     cfg = _parse_config(config)
 
     # set the active chain
@@ -180,6 +180,8 @@ def withdraw(sk, address, gas_price, gas_limit):
     KMSConnector.rpcserver = cfg["baseChainServer"]
     KMSConnector.version = cfg["baseChainversion"]
     KMSConnector.networkid = cfg["baseChainID"]
+    KMSConnector.host = cfg["KMS_HOST"]
+    KMSConnector.host = cfg["KMS_PORT"]
 
     contract_addr = cfg["baseChainContract"]
     contract = Contract.load_from_address(contract_addr)
@@ -242,6 +244,14 @@ def _parse_config(path):
         except KeyError:
             print("No such key in BaseChain-zilliqa section:  " + item[1] + " !!")
             exit()   
+
+    #for kms
+    for item in _kms_cfg:
+        try:
+            res[item[0]] = config["KMS"][item[1]]
+        except KeyError:
+            print("No such key in KMS section:  " + item[1] + " !!")
+            exit()
 
     
     for item in _optional_cfg:

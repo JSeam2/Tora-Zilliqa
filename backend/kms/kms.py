@@ -42,6 +42,8 @@ class KMSConnector:
     rpcserver = ''
     version = ''
     networkid = ''
+    host = ''
+    port = ''
 
     @staticmethod
     def set_oracle_owner_address(oracle_owner_addr):
@@ -55,13 +57,13 @@ class KMSConnector:
         context.load_verify_locations(os.path.abspath(os.path.join(os.path.dirname(__file__),"./root.pem")))
         context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1  # optional
         ssl.match_hostname = lambda cert, hostname: hostname == cert['subjectAltName'][0][1]
-        conn = context.wrap_socket(sock, server_hostname=HOST)
+        conn = context.wrap_socket(sock, server_hostname= KMSConnector.host)
         return conn
 
     def new_master_tee(self, password):
         conn = self.__get_conn()
         try:
-            conn.connect((HOST, PORT))
+            conn.connect((KMSConnector.host, KMSConnector.port))
             conn.write(('3'+password).encode('utf-8'))
             result = conn.recv().decode('utf-8')
             if result == "":
@@ -76,7 +78,7 @@ class KMSConnector:
     def get_master_tee_pubkey(self):
         conn = self.__get_conn()
         try:
-            conn.connect((HOST, PORT))
+            conn.connect((KMSConnector.host, KMSConnector.port))
             conn.write('0'.encode('utf-8'))
             pubkey_bytes = conn.recv()
             return pubkey_bytes
@@ -88,7 +90,7 @@ class KMSConnector:
     def get_master_tee_nonce(self):
         conn = self.__get_conn()
         try:
-            conn.connect((HOST, PORT))
+            conn.connect((KMSConnector.host, KMSConnector.port))
             conn.write(('1'+KMSConnector.rpcserver+','+KMSConnector.version+','+KMSConnector.networkid).encode('utf-8'))
             nonce = conn.recv().decode()
             return int(nonce)
@@ -100,7 +102,7 @@ class KMSConnector:
     def sign_message(self, message):
         conn = self.__get_conn()
         try:
-            conn.connect((HOST, PORT))
+            conn.connect((KMSConnector.host, KMSConnector.port))
             conn.sendall('2'.encode('utf-8') + message + b'STOP')
             signature = conn.recv().decode()
             # self.conn.close()
@@ -113,7 +115,7 @@ class KMSConnector:
     def withdraw(self, address, money, tora_addr):
         conn = self.__get_conn()
         try:
-            conn.connect((HOST, PORT))
+            conn.connect((KMSConnector.host, KMSConnector.port))
             conn.write(('4'+address+','+str(money)+','+tora_addr+','+KMSConnector.rpcserver+','+KMSConnector.version+','+KMSConnector.networkid).encode('utf-8'))
             result = conn.recv().decode()
             # self.conn.close()
