@@ -41,12 +41,11 @@ class BuiltIn(Processor):
 
         builtin_name = params["builtin"]
 
-        if( func_table.__contains__(builtin_name)):
+        if func_table.__contains__(builtin_name):
 
             res = func_table[builtin_name](params)
 
             return res
         
         else:
-            #TODO: error handler
-            return None
+            return "Can not find this builtin function: " + builtin_name

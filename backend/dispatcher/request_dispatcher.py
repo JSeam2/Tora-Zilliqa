@@ -12,11 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import sys
+import coloredlogs
+import logging
+import os
 
 from backend.processor.processor import Collector, Executor, Relay
-from backend.processor.builtin.builtin  import BuiltIn
+from backend.processor.builtin.builtin import BuiltIn
 
 
 class RequestDispatcher:
@@ -24,6 +25,10 @@ class RequestDispatcher:
     processors = {}
 
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(int(os.getenv('Tora-log-level')))
+        coloredlogs.install(logger=self.logger)
+
         self.processors[0] = BuiltIn()
         self.processors[1] = Collector()
         self.processors[2] = Executor()
@@ -38,4 +43,4 @@ class RequestDispatcher:
         if processor is not None:
             processor.add_request(request)
         else:
-            print("can not process the request")
+            self.logger.info("Can not process this type request")

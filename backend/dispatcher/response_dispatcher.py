@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
+import logging
+import coloredlogs
+import os
 
 from backend.responder.responder import ZilliqaResponder
-
 
 
 class ResponseDispatcher:
@@ -24,6 +25,10 @@ class ResponseDispatcher:
     responders = {}
 
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(int(os.getenv('Tora-log-level')))
+        coloredlogs.install(logger=self.logger)
+
         self.responders['Zilliqa'] = ZilliqaResponder()
         # run the responders
         for key in self.responders.keys():
@@ -36,4 +41,4 @@ class ResponseDispatcher:
         if responder is not None:
             responder.add_response(response)
         else:
-            print("can not response")
+            self.logger.info("Can not respond to this chain")

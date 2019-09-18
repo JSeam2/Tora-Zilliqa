@@ -72,7 +72,6 @@ class Processor(threading.Thread):
                 self.generate_response_str(request, response)
 
 
-
 class Collector(Processor):
 
     def process(self, params):
