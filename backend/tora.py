@@ -124,8 +124,8 @@ def launch(config):
     KMSConnector.rpcserver = cfg["baseChainServer"]
     KMSConnector.version = cfg["baseChainversion"]
     KMSConnector.networkid = cfg["baseChainID"]
-    KMSConnector.host = cfg["KMS_HOST"]
-    KMSConnector.port = cfg["KMS_PORT"]
+    KMSConnector.host = str(cfg["KMS_HOST"])
+    KMSConnector.port = int(cfg["KMS_PORT"])
     KMSConnector.oracle_owner_address = cfg["oracle-account"]
     
     ##TODO:launch Monitor
@@ -171,8 +171,8 @@ def withdraw(config, sk, address, gas_price, gas_limit):
     KMSConnector.rpcserver = cfg["baseChainServer"]
     KMSConnector.version = cfg["baseChainversion"]
     KMSConnector.networkid = cfg["baseChainID"]
-    KMSConnector.host = cfg["KMS_HOST"]
-    KMSConnector.host = cfg["KMS_PORT"]
+    KMSConnector.host = str(cfg["KMS_HOST"])
+    KMSConnector.port = int(cfg["KMS_PORT"])
 
     contract_addr = cfg["baseChainContract"]
     contract = Contract.load_from_address(contract_addr)

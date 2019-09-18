@@ -22,8 +22,6 @@ A module for to manage secret keys of TEE in two ways:
 import socket, ssl
 import os
 
-HOST, PORT = '127.0.0.1', 1234
-
 
 class KMSConnector:
     oracle_owner_address = ''
@@ -45,7 +43,7 @@ class KMSConnector:
         context.load_verify_locations(os.path.abspath(os.path.join(os.path.dirname(__file__),"./root.pem")))
         context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1  # optional
         ssl.match_hostname = lambda cert, hostname: hostname == cert['subjectAltName'][0][1]
-        conn = context.wrap_socket(sock, server_hostname= KMSConnector.host)
+        conn = context.wrap_socket(sock, server_hostname=KMSConnector.host)
         return conn
 
     def get_master_tee_pubkey(self):
