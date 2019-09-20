@@ -27,8 +27,7 @@ type Request =
 
 (* Constant value *)
 (* one node temporarily, may more nodes later on *)
-let master_tee_address = 0xa391Fb22Ef65D65167A0c94D5E9b6eACece56c7E
-let master_tee_pk = 0x03DE89CBD232A909E150D9F99002B75B3E397FF3FFD3D98482496245EB5FF527BC
+let master_tee_address = 0x1ace2350c703a6df7e32bb073f12e11a8a139cd3
 
 let transfer_gas = Uint128 1
 let withdraw_gas = Uint128 1000
@@ -75,7 +74,6 @@ field reward_map: Map ByStr20 Uint128 = Emp ByStr20 Uint128
 transition register(owner_address : ByStr20, pk : ByStr33, proof : ByStr64)
     signed_str = builtin concat owner_address pk;
     signed_str_by_str = builtin to_bystr signed_str;
-    (* legal = builtin ecdsa_verify master_tee_pk signed_str_by_str proof; *)
     legal = True;
     match legal with
     | True =>
