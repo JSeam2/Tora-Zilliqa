@@ -1,9 +1,20 @@
-# Tora-introduction
+# Tora-Zilliqa
+
+
+## Overview
+
+Tora-Zilliqa is a TEE-based, Trusted Oracle implement for [Zilliqa Blockchain](https://zilliqa.com/). 
+
+
+## Architecture
+
+
+
 
 ## Token Flow
 
 * Diagram
 
-  <img src="https://github.com/TEEXIO/ToraZilliqa/tree/master/readme/token-flow.png" width="50%">
+  <img src="https://github.com/TEEXIO/ToraZilliqa/tree/master/docs/token-flow.png" width="50%">
 
   
