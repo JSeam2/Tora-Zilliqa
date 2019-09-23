@@ -25,7 +25,7 @@
 
 * `cd /home/Tora-Zilliqa`
 
-* Write the user contract，the example contract is in contracts/Request.scilla
+* Write the user contract，the example contract is in **contracts/Request.scilla**
 
   * Parameter Explanation
 

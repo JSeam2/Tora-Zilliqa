@@ -1,4 +1,4 @@
-# Tora Install
+# Tora Installation
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@
 
 The following steps describe the installation for Tora.
 
-Before the installation. Make sure you have installed intel-sgx driver and  /dev/isgx should appear.
+Before the installation. Make sure you have installed intel-sgx driver and  **/dev/isgx** should appear.
 
 
 <!-- Make sure again that you have installed intel-sgx driver, sdk and psw. To verify that you were successful, build the sample code in HW mode and run it.
@@ -47,7 +47,7 @@ First, pull the image.
 Second, start a docker with sgx device support
 
 ```
-  $  sudo docker run --device /dev/isgx -it teexio/tora-zilliqa /bin/bash
+  $ sudo docker run --device /dev/isgx -it teexio/tora-zilliqa /bin/bash
 ```
 
 Third, run the init script inside the docker
