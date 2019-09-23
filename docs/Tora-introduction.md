@@ -14,7 +14,7 @@ Tora is a trusted off-chain extended service for blockchain system, used for (i)
   * Support access to authenticated data sources and call Web API based on HTTP protocol.
   * Support major HTTP methods, e.g., GET，POST.
   * Provide authentication through HTTPs protocol.
-<font color = "gray"> 
+
 * Connect to other decentralized networks: 
   * Support decentralized storage including IPFS、SWARM.
   * Support access data from other blockchain，e.g., check an account, call a smart contract, verify a transaction, etc.
@@ -28,7 +28,7 @@ Tora is a trusted off-chain extended service for blockchain system, used for (i)
   * Trusted random number generation
   * Key management and encrypted Storage
   * More
-</font>
+
 
 ## Architecture
 
