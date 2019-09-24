@@ -187,16 +187,24 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 
 ## For User
 
-* First, you can download the **Tora-Zilliqa** project into your machine from <https://github.com/TEEXIO/Tora-Zilliqa>, and for user, you don't need the Intel SGX environment but you need **python3.6** to execute the python script.
+### Prerequisites
 
-* Second, you need ```cd {YOURPATH}/Tora-Zilliqa/backend/lib/pyzil``` . Then `pip install -r requirements.txt`.
-
-  * If there are some errors in MacOS, please check if you have installed **gmp**.You can install **gmp** as follows:
+* A normal Operating System **without SGX device**
+* Python3.6
+* Clone Tora-Zilliqa source code from <https://github.com/TEEXIO/Tora-Zilliqa>
+* Some python dependencies for pyzil lib
   
   ```
-   brew install gmp
-   export LDFLAGS="-L/usr/local/opt/openssl/lib -L /usr/local/opt/gmp/lib" && export CPPFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/gmp/include"
+   $ cd {YOURPATH}/Tora-Zilliqa/backend/lib/pyzil
+   $ pip install -r requirements.txt
   ```
+   * If there are some errors in MacOS, please check if you have installed **gmp**.You can install **gmp** as follows:
+    ```
+     $ brew install gmp
+     $ export LDFLAGS="-L/usr/local/opt/openssl/lib -L /usr/local/opt/gmp/lib" && export CPPFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/gmp/include"
+    ```
+
+### A simple case
 
 * Write the user contract，the example contract is in **contracts/Request.scilla** and **contracts/GeneralRequest.scilla**
 
