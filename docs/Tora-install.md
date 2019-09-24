@@ -60,7 +60,7 @@ Third, run the init script inside the docker
 Finally, check if the sample code work
 
 ```
-  $ cd ~/linux-sgx/linux/SampleCode/LocalAttestation
+  $ cd ~/linux-sgx/SampleCode/LocalAttestation
   $ make 
   $ ./app
 ```
