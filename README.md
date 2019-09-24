@@ -187,7 +187,12 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 
 * Second, you need ```cd {YOURPATH}/Tora-Zilliqa/backend/lib/pyzil``` . Then `pip install -r requirements.txt`.
 
-  * If there are some errors, please check if you have installed **gmp**.You can install **gmp** with`brew install gmp`and`export LDFLAGS="-L/usr/local/opt/openssl/lib -L /usr/local/opt/gmp/lib" && export CPPFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/gmp/include"`
+  * If there are some errors, please check if you have installed **gmp**.You can install **gmp** as follows:
+  
+  ```
+   brew install gmp
+   export LDFLAGS="-L/usr/local/opt/openssl/lib -L /usr/local/opt/gmp/lib" && export CPPFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/gmp/include"
+  ```
 
 * Write the user contract，the example contract is in **contracts/Request.scilla** and **contracts/GeneralRequest.scilla**
 
