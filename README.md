@@ -173,11 +173,11 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 
 * Launch the oracle node
 
-  `~/Zilliqa/build/matroska /usr/local/bin/python3 -B tora.py launch —config config.ini`
+  `~/Zilliqa/build/matroska /usr/local/bin/python3 -B tora.py launch —-config config.ini`
 
 * Withdraw reward
 
-  `~/Zilliqa/build/matroska /usr/local/bin/python3 -B tora.py withdraw —config config.ini --sk ( ) —address ( zil… )`
+  `~/Zilliqa/build/matroska /usr/local/bin/python3 -B tora.py withdraw —-config config.ini --sk 0x00000000001 —-address zil00000000001
 
   It needs about a few minutes to process the withdraw on chain
 
