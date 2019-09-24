@@ -124,9 +124,12 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 
 ## For master TEE
 
-* `cd /home/Python-KMS`
+* Enter the container  **tora_zilliqa_master**, and then:
+  ```
+   $ cd /home/Python-KMS
+  ```
 * Run the master TEE
-  * `~/Zilliqa/build/matroska /usr/local/bin/python3 -B server.py main --host 0.0.0.0 --port 1234`
+  * `$ ~/Zilliqa/build/matroska /usr/local/bin/python3 -B server.py main --host 0.0.0.0 --port 1234`
   * Explanation
     * -B option is for loading the files without pyc files. If pyc files already generated, can delete the pyc files by`find . -name "*.pyc" -exec rm -f {} \;`
     * When the new machine run the master TEE for the first time, master_tee_address will be generated and print on the console
@@ -139,7 +142,10 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 
 ## For Oracle Node
 
-* `cd /home/Tora-Zilliqa`
+* Enter the container  **tora_zilliqa_worker**, and then:
+ ```
+   $ cd /home/Tora-Zilliqa
+ ```
 
 * config.ini
 
