@@ -15,9 +15,9 @@
 
 ## Installation
 
-The following steps describe the installation for Tora.
+The following steps describe the installation for Tora **worker** and **master**. 
 
-Before the installation. Make sure you have installed intel-sgx driver and  **/dev/isgx** should appear.
+**Note:** You can install them on two devices or just on the same decice for test. But before the installation, make sure you have installed intel-sgx driver and  **/dev/isgx** should appear **on each device**.
 
 
 <!-- Make sure again that you have installed intel-sgx driver, sdk and psw. To verify that you were successful, build the sample code in HW mode and run it.
@@ -31,36 +31,41 @@ Before the installation. Make sure you have installed intel-sgx driver and  **/d
 
 ###  Environment Initialization
 
-Then switch to Tora source code directory and go to the env folder, enter the following command:
+Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter the following command:
 
 ```
+  $ cd /Path/To/Tora-Zilliqa/env
   $ ./init_env.sh  
 ```
 ### Pull Docker Image
 
-First, pull the image.
+1. Pull the the two docker images on each device separately, and start a container for each image with sgx device support. 
+
+  * 1.1 for the worker:
 
 ```
-  $ docker pull teexio/tora-zilliqa
+  $ docker pull teexio/tora_zilliqa_worker
+  $ docker run --device /dev/isgx -it teexio/tora_zilliqa_worker /bin/bash
 ```
 
-Second, start a docker with sgx device support
+  * 1.2 for the master TEE node:
 
 ```
-  $ sudo docker run --device /dev/isgx -it teexio/tora-zilliqa /bin/bash
+  $ docker pull teexio/tora_zilliqa_master
+  $ docker run --device /dev/isgx -p 1234:1234 -it teexio/tora_zilliqa_master /bin/bash
 ```
 
-Third, run the init script inside the docker
+2. Before launching the applicatoin, you need to do some initialization inside each container. 
 
 ```
   $ cd /root
-  $ ./init.sh
+  $ source init.sh
 ```
 
-Finally, check if the sample code work
+3. check if the sample code works in each container.
 
 ```
-  $ cd ~/linux-sgx/SampleCode/LocalAttestation
+  $ cd /root/SampleCode/LocalAttestation
   $ make 
   $ ./app
 ```
