@@ -104,7 +104,7 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
   $ docker run --device /dev/isgx -p 1234:1234 -it teexio/tora_zilliqa_master /bin/bash
 ```
 
-2. Before launching the applicatoin, you need to do some initialization inside each container. 
+2. Before launching the applicatoin, you need to do some initialization inside each container. 
 
 ```
   $ cd /root
@@ -129,9 +129,14 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
    $ cd /home/Python-KMS
   ```
 * Run the master TEE
-  * `$ ~/Zilliqa/build/matroska /usr/local/bin/python3 -B server.py main --host 0.0.0.0 --port 1234`
+  ```
+   $ ~/Zilliqa/build/matroska /usr/local/bin/python3 -B server.py main --host 0.0.0.0 --port 1234
+  ```
   * Explanation
-    * -B option is for loading the files without pyc files. If pyc files already generated, can delete the pyc files by`find . -name "*.pyc" -exec rm -f {} \;`
+    * -B option is for loading the files without pyc files. If pyc files already generated, can delete the pyc files as follows:
+    ```
+     $ find . -name "*.pyc" -exec rm -f {} \;
+    ```
     * When the new machine run the master TEE for the first time, master_tee_address will be generated and print on the console
 
 * Tora contract deployment
@@ -186,7 +191,7 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 * Withdraw reward
 
   ```
-    $ ~/Zilliqa/build/matroska /usr/local/bin/python3 -B tora.py withdraw —-config config.ini --sk 0x00000000001 —-address zil00000000001
+    $ ~/Zilliqa/build/matroska /usr/local/bin/python3 -B tora.py withdraw —-config config.ini --sk {YOUR SK} —-address {YOUR ZIL ADDRESS} --config config.ini
   ```
 
   It needs about a few minutes to process the withdraw on chain
