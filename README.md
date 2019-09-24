@@ -187,7 +187,7 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 
 * Second, you need ```cd {YOURPATH}/Tora-Zilliqa/backend/lib/pyzil``` . Then `pip install -r requirements.txt`.
 
-  * If there are some errors, please check if you have installed **gmp**.You can install **gmp** as follows:
+  * If there are some errors in MacOS, please check if you have installed **gmp**.You can install **gmp** as follows:
   
   ```
    brew install gmp
