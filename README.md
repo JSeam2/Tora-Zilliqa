@@ -78,15 +78,6 @@ The following steps describe the installation for Tora **worker** and **master**
 **Note:** You can install them on two devices or just on the same decice for test. But before the installation, make sure you have installed intel-sgx driver and  **/dev/isgx** should appear **on each device**.
 
 
-<!-- Make sure again that you have installed intel-sgx driver, sdk and psw. To verify that you were successful, build the sample code in HW mode and run it.
-
-```
-  $ cd /PATH/TO/sgx-sdk-sourcecode/SampleCode/LocalAttestation
-  $ make
-  $ ./app
-​``` -->
-
-
 ###  Environment Initialization
 
 Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter the following command:
@@ -127,6 +118,7 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
   $ make 
   $ ./app
 ```
+---
 
 # Tutorial
 
@@ -140,13 +132,8 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
     * When the new machine run the master TEE for the first time, master_tee_address will be generated and print on the console
 
 * Tora contract deployment
-
   * Modify contracts/Tora.scilla，set the according master_tee_address
-
-```
-    let master_tee_address = 0x...
-    ```
-
+  `let master_tee_address = 0x...`
   * Deploy the Tora contract, the example code is in tests/deploy_contract_test.py
   * Publish the Tora contract address
 
