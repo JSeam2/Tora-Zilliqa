@@ -27,7 +27,7 @@ type Request =
 
 (* Constant value *)
 (* one node temporarily, may more nodes later on *)
-let master_tee_address = 0xa391Fb22Ef65D65167A0c94D5E9b6eACece56c7E
+let master_tee_address = 0xd28cfb5bf373350cd6c6fdd09f0632aeaad29192
 
 let transfer_gas = Uint128 1
 let withdraw_gas = Uint128 1000

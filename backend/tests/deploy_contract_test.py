@@ -44,8 +44,10 @@ def deploy_contract(contract_file, account_sk):
     assert contract.status == Contract.Status.Deployed
 
 
-account_sk1 = "67d8c95700458aff274734dd2267dce59e67f9d9269739ff768c5f36cc5c6f94"
+# account_sk1 = "67d8c95700458aff274734dd2267dce59e67f9d9269739ff768c5f36cc5c6f94"
 account_sk2 = "dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4ba514c55bc6e317"
+account_sk1 = "297ab18157f8b598198df154550b41e1d04ef4a11d5b948334b34e3f8f1b1610"
 # deploy_contract("../../contracts/Tora.scilla", account_sk1)
 
-deploy_contract("../../contracts/Request.scilla", account_sk2)
+# deploy_contract("../../contracts/TopRequest.scilla", account_sk2)
+deploy_contract("../../contracts/GeneralRequest.scilla", account_sk2)

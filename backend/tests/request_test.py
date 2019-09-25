@@ -16,8 +16,8 @@
 import os
 import sys
 
-sys.path.append(os.path.abspath( os.path.join( os.path.dirname(__file__),"../../")))
-sys.path.append(os.path.abspath( os.path.join( os.path.dirname(__file__),"../lib")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../lib")))
 
 from pprint import pprint
 
@@ -33,15 +33,30 @@ account = Account(private_key="dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-# request contract address
-contract_addr = "zil1scswgxqaycjqaualnjw3ejmg6w2u80p0jdvsvp"  # test request
-# contract_addr = "zil1ze8m8hapfr4se563j3mex654yl0uklfk4hntaq"  # general request
-contract = Contract.load_from_address(contract_addr)
-contract.account = account
-
-# oracle_address = '0x' + zilkey.to_valid_address("zil165m736j7ht0x6chwsg096rdnrfhu9r8a7r7e4r")
+# oracle_address = '0x' + zilkey.to_valid_address("zil13f4l3cjtw40x3qvrg3y67ywdu99yc6vruh4h7t")
 # pprint(oracle_address)
 
-resp = contract.call(method="request", params=[], amount=15)
-pprint(resp)
-pprint(contract.last_receipt)
+
+def test_trading_pairs():
+    # request contract address
+    contract_addr = "zil1a0vs39fgx08ngcmtjdv7r3l8yclrcrptrdzaqz"  # test request
+    contract = Contract.load_from_address(contract_addr)
+    contract.account = account
+    resp = contract.call(method="request", params=[], amount=15)
+    pprint(resp)
+    pprint(contract.last_receipt)
+
+
+def test_web_api():
+    # request contract address
+    contract_addr = "zil18aule5w5syw830kr9lnad3evvtg7extapkmeck"  # test request
+    contract = Contract.load_from_address(contract_addr)
+    contract.account = account
+    resp = contract.call(method="request", params=[], amount=15)
+    pprint(resp)
+    pprint(contract.last_receipt)
+
+
+if __name__ == "__main__":
+    test_trading_pairs()
+    test_web_api()
