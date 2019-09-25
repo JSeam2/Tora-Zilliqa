@@ -191,7 +191,7 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 * Withdraw reward
 
   ```
-    $ ~/Zilliqa/build/matroska /usr/local/bin/python3 -B tora.py withdraw —-config config.ini --sk {YOUR SK} —-address {YOUR ZIL ADDRESS} --config config.ini
+    $ ~/Zilliqa/build/matroska /usr/local/bin/python3 -B tora.py withdraw —-config config.ini --sk {YOUR SK} —-address {YOUR ZIL ADDRESS}
   ```
 
   It needs about a few minutes to process the withdraw on chain
