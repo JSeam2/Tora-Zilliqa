@@ -52,7 +52,7 @@ Tora is a trusted off-chain extended service for blockchain system, used for (i)
 * **Reward** is the money for the oracle node that responds the request.
 * In the **request** phase, the user will transter overall gas fee and reward to the master tee.
 * In the **responding** phase, the redundant gas fee will be refunded to the user account after responding successfully. However, if the respond gas fee provided by user isn't enough to respond, the consumed gas will not be returned.
-* In the **withdraw** phase, the reward will be transfered to the oracle account. Master TEE covers the gas fee with the user provided fee.
+* In the **withdraw** phase, the reward will be transfered to the oracle account. Before user requests a withdraw, he needs to get a proof from chain for master TEE to verify the existence of reward. The process requires the user to pay a little gas fee. And master TEE covers the withdraw gas fee with the user provided fee.
 
 ---
 
