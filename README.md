@@ -261,3 +261,26 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
   * The gas fee for oracle node withdraw(about 1ZIL)
 
   If amount< the least fee, an event 'No enough money' will return
+  
+## An already deployed Oracle (on Zilliqa Testnet)
+ 
+ For testing purposes, we have deployed a set of oracle facilities on Zilliqa Testnet, including a **Worker**, a **Master TEE**, a **Tora SC** .
+ * **Zilliqz Network**: Testnet
+ * **Tora SC address**: 0x8a6bf8e24b755e6881834449af11cde14a4c6983    
+     * or zil13f4l3cjtw40x3qvrg3y67ywdu99yc6vruh4h7t in *ZIL* format
+ * **Master TEE address**: 0xd28cfb5bf373350cd6c6fdd09f0632aeaad29192
+ * **Master TEE IP**: 120.132.103.34:1234
+ 
+ We have also deployed two sample **User SC**s, one for Top trading pairs, and another for general Web API.
+ The source code locates in:
+   * `/Tora-Zilliqa/contracts/TopRequest.scilla`
+   * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
+
+ And you can just run the `/Tora-Zilliqa/backend/tests/requset_test.py` to invoke them.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
