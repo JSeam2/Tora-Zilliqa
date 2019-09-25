@@ -265,7 +265,7 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 ## An already deployed Oracle (on Zilliqa Testnet)
  
  For testing purposes, we have deployed a set of oracle facilities on Zilliqa Testnet, including a **Worker**, a **Master TEE**, a **Tora SC** .
- * **Zilliqz Network**: Testnet
+ * **Zilliqa Network**: Testnet
  * **Tora SC address**: 0x8a6bf8e24b755e6881834449af11cde14a4c6983    
      * or zil13f4l3cjtw40x3qvrg3y67ywdu99yc6vruh4h7t in *ZIL* format
  * **Master TEE address**: 0xd28cfb5bf373350cd6c6fdd09f0632aeaad29192
