@@ -128,7 +128,7 @@ class ZilliqaResponder(Responder):
 
     def __send_data_to_address(self, to_addr: str, amount=0,
                                 gas_price: Optional[int] = None, gas_limit=1,
-                                data="", priority=False, timeout=300, sleep=20):
+                                data="", priority=True, timeout=300, sleep=20):
         if not to_addr:
             raise ValueError("invalid to address")
         if not to_addr.startswith("0x"):

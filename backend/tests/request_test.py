@@ -31,11 +31,11 @@ from pyzil.zilliqa.api import ZilliqaAPI
 chain.set_active_chain(chain.TestNet)
 
 # user account
-account = Account(private_key="dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4ba514c55bc6e317")
+account = Account(private_key="919457fa2d81c0b7f1f1918683b1ff6b459c444aefec494c92f34d746ebb6b73")
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-# oracle_address = '0x' + zilkey.to_valid_address("zil13f4l3cjtw40x3qvrg3y67ywdu99yc6vruh4h7t")
+# oracle_address = '0x' + zilkey.to_valid_address("zil1cgsa7frn68elxhwpag2z7vuy9ascjn7slcxjg4")
 # pprint(oracle_address)
 
 
@@ -81,24 +81,28 @@ def get_response_event(contract_addr):
 
 def test_trading_pairs():
     # request contract address
-    contract_addr = "zil1rq6yfl2wtceqsdz2z2jptxrjhmcphej0nzucs2"
+    contract_addr = "zil1xme8747tyvasmmpjf6sxd0gxe25syn64jdpcn0"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
-    resp = contract.call(method="request", params=[], amount=25)
+    print("Waiting the request published on chain...")
+    resp = contract.call(method="request", params=[], amount=25, priority=True)
     pprint(resp)
+    print("Waiting the response...")
     get_response_event(contract_addr)
 
 
 def test_web_api():
     # request contract address
-    contract_addr = "zil19ru3ug22mz6a53t5sq2hkf5lpj3ksdt7s4lvrs"
+    contract_addr = "zil12cfmfz3qx0lrqw0qnk3ssqnp6wtzvw7eshqgev"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
-    resp = contract.call(method="request", params=[], amount=25)
+    print("Waiting the request published on chain...")
+    resp = contract.call(method="request", params=[], amount=25, priority=True)
     pprint(resp)
+    print("Waiting the response...")
     get_response_event(contract_addr)
 
 
 if __name__ == "__main__":
     test_trading_pairs()
-    # test_web_api()
+    test_web_api()
