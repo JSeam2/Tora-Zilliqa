@@ -262,16 +262,14 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 
   If amount< the least fee, an event 'No enough money' will return
 
-<!--
-
 
 ## An already deployed Oracle (on Zilliqa Testnet)
  
  For testing purposes, we have deployed a set of oracle facilities on Zilliqa Testnet, including a **Worker**, a **Master TEE**, a **Tora SC** .
  * **Zilliqa Network**: Testnet
- * **Tora SC address**: 0x8a6bf8e24b755e6881834449af11cde14a4c6983    
-     * or zil13f4l3cjtw40x3qvrg3y67ywdu99yc6vruh4h7t in *ZIL* format
- * **Master TEE address**: 0xd28cfb5bf373350cd6c6fdd09f0632aeaad29192
+ * **Tora SC address**: 0xc221df2473d1f3f35dc1ea142f33842f61894fd0    
+     * or zil1cgsa7frn68elxhwpag2z7vuy9ascjn7slcxjg4 in *ZIL* format
+ * **Master TEE address**: 0x0105acd2cf6d016ecb85cf37fa8f1941c69f0017
  * **Master TEE IP**: 120.132.103.34:1234
  
  We have also deployed two sample **User SC**s, one for Top trading pairs, and another for general Web API.
@@ -280,7 +278,7 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
    * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
 
  And you can just run the `/Tora-Zilliqa/backend/tests/requset_test.py` to invoke them.
- -->
+
  
  
  
