@@ -25,7 +25,7 @@ let one_msg =
 let oracle_address = 0x8a6bf8e24b755e6881834449af11cde14a4c6983
 
 let gas_price_set = Uint128 1000000000
-let gas_limit_set = Uint128 10000
+let gas_limit_set = Uint128 20000
 
 (***************************************************)
 (*             The contract definition             *)
@@ -47,6 +47,6 @@ transition request()
 end
 
 transition callback(result : String)
-    e = {_eventname: "callback"; msg: "call back result"};
+    e = {_eventname: "callback"; msg: result};
     event e
 end

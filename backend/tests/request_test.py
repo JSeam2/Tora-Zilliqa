@@ -15,6 +15,7 @@
 
 import os
 import sys
+import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../lib")))
@@ -25,6 +26,7 @@ from pyzil.crypto import zilkey
 from pyzil.zilliqa import chain
 from pyzil.account import Account
 from pyzil.contract import Contract
+from pyzil.zilliqa.api import ZilliqaAPI
 
 chain.set_active_chain(chain.TestNet)
 
@@ -37,26 +39,66 @@ print("{}: {}".format(account, balance))
 # pprint(oracle_address)
 
 
+def __has_txn(api, block_num):
+    block_info = api.GetTxBlock(block_num)
+    if block_info["header"]["NumTxns"] == 0:
+        return False
+    else:
+        return True
+
+
+def __get_response_from_block(contract_addr, api, block_num):
+    txns = api.GetTransactionsForTxBlock(block_num)
+    for txn in txns:
+        if len(txn) != 0:
+            receipt = api.GetTransaction(txn[0])["receipt"]
+            if "event_logs" in receipt:
+                event_logs = receipt["event_logs"]
+                for event_log in event_logs:
+                    if event_log["address"] == (zilkey.normalise_address(contract_addr)).lower():
+                        if event_log["_eventname"] == "callback":
+                            print(event_log)
+                            return True
+    return False
+
+
+def get_response_event(contract_addr):
+    url = "https://dev-api.zilliqa.com/"
+    api = ZilliqaAPI(url)
+    cur_block_num = str(int(api.GetCurrentMiniEpoch()) - 1)
+    while True & (int(cur_block_num) != 0):
+        if int(cur_block_num) >= int(api.GetCurrentMiniEpoch()):
+            time.sleep(1)
+        else:
+            if __has_txn(api, cur_block_num):
+                if __get_response_from_block(contract_addr, api, cur_block_num):
+                    break
+                else:
+                    cur_block_num = str(int(cur_block_num) + 1)
+            else:
+                cur_block_num = str(int(cur_block_num) + 1)
+
+
 def test_trading_pairs():
     # request contract address
-    contract_addr = "zil1a0vs39fgx08ngcmtjdv7r3l8yclrcrptrdzaqz"  # test request
+    contract_addr = "zil1rq6yfl2wtceqsdz2z2jptxrjhmcphej0nzucs2"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
-    resp = contract.call(method="request", params=[], amount=15)
+    resp = contract.call(method="request", params=[], amount=25)
     pprint(resp)
-    pprint(contract.last_receipt)
+    get_response_event(contract_addr)
 
 
 def test_web_api():
     # request contract address
-    contract_addr = "zil18aule5w5syw830kr9lnad3evvtg7extapkmeck"  # test request
+    contract_addr = "zil19ru3ug22mz6a53t5sq2hkf5lpj3ksdt7s4lvrs"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
-    resp = contract.call(method="request", params=[], amount=15)
+    resp = contract.call(method="request", params=[], amount=25)
     pprint(resp)
-    pprint(contract.last_receipt)
+    get_response_event(contract_addr)
 
 
 if __name__ == "__main__":
     test_trading_pairs()
-    test_web_api()
+    # test_web_api()
