@@ -19,6 +19,13 @@ from ethereum import (
     transactions,
     utils
 )
+from rlp.sedes import (
+    Binary,
+    big_endian_int,
+)
+from web3._utils.encoding import (
+    pad_bytes,
+)
 import rlp
 from trie import HexaryTrie
 from trie.constants import (
@@ -136,14 +143,11 @@ class Verifier:
             return False
         # generate the proof
         mpt_key_nibbles = bytes_to_nibbles(rlp.encode(tx_index))
-        stack = self.generate_proof(mpt, mpt_key_nibbles)
-        print(stack)
-        print(mpt.get_proof(rlp.encode(tx_index)))
-        # print("=======")
-        # print(mpt.root_hash)
-        # print("--------")
-        # for node in stack:
-        #     print(keccak(encode_raw(node)))
+        proof = tuple(self.generate_proof(mpt, mpt_key_nibbles))
+        if HexaryTrie.get_from_proof(mpt.root_hash, rlp.encode(utils.parse_as_int(tx_index)), proof) \
+                != self.rlp_transaction(txns[tx_index]):
+            return False
+        return True
 
     @staticmethod
     def rlp_transaction(tx_dict: dict):
@@ -224,7 +228,57 @@ class Verifier:
             aux(mpt.root_hash, mpt_key_nibbles)
         return stack
 
+    def verify_state(self, contract_addr, data_positions, block_number=-1):
+        if block_number == -1:
+            block_number = self.web3.eth.getBlock('latest').number
+        proof = self.web3.eth.getProof(contract_addr, data_positions, block_number)
+        print(proof)
+
+    @staticmethod
+    def format_proof_nodes(proof):
+        trie_proof = []
+        for rlp_node in proof:
+            trie_proof.append(rlp.decode(bytes(rlp_node)))
+        return trie_proof
+
+    def verify_eth_get_proof(self, proof, root):
+        trie_root = Binary.fixed_length(32, allow_empty=True)
+        hash32 = Binary.fixed_length(32)
+
+        class _Account(rlp.Serializable):
+            fields = [
+                ('nonce', big_endian_int),
+                ('balance', big_endian_int),
+                ('storage', trie_root),
+                ('code_hash', hash32)
+            ]
+
+        acc = _Account(
+            proof.nonce, proof.balance, proof.storageHash, proof.codeHash
+        )
+        rlp_account = rlp.encode(acc)
+        trie_key = keccak(bytes.fromhex(proof.address[2:]))
+
+        assert rlp_account == HexaryTrie.get_from_proof(
+            root, trie_key, self.format_proof_nodes(proof.accountProof)
+        ), "Failed to verify account proof {}".format(proof.address)
+
+        for storage_proof in proof.storageProof:
+            trie_key = keccak(pad_bytes(b'\x00', 32, storage_proof.key))
+            root = proof.storageHash
+            if storage_proof.value == b'\x00':
+                rlp_value = b''
+            else:
+                rlp_value = rlp.encode(storage_proof.value)
+
+            assert rlp_value == HexaryTrie.get_from_proof(
+                root, trie_key, self.format_proof_nodes(storage_proof.proof)
+            ), "Failed to verify storage proof {}".format(storage_proof.key)
+
+        return True
+
 
 if __name__ == "__main__":
     verifier = Verifier("http://192.168.11.57:8545")
-    verifier.verify_transaction("0xdc369d8038adedea391c91d4e3516a4eebb393842157fed25f02b11f1204510a")
+    print(verifier.verify_transaction("0xdc369d8038adedea391c91d4e3516a4eebb393842157fed25f02b11f1204510a"))
+    # verifier.verify_state("0xEbDDe366740A20966550Aab72d13d7B075142e8F", ["0x0", "0x1"])
