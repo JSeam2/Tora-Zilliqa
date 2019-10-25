@@ -90,19 +90,27 @@ class Verifier:
         self.web3 = Web3(HTTPProvider(chain))
 
     def verify_transaction(self, tx_hash):
-        # verify the block hash
         target_tx = self.web3.eth.getTransaction(tx_hash)
         if target_tx is None:
             return False
         block_info = self.web3.eth.getBlock(target_tx.blockHash, True)
-        if not self.verify_block_hash(block_info):
+        # verify the block hash
+        if not self.verify_block(block_info):
             return False
+        # verify the following 15 block hash
+        block_num = utils.parse_as_int(block_info["number"])
+        for i in range(1, 15):
+            self.verify_block(self.web3.eth.getBlock(block_num + i))
+        # verify the transaction
         if not self.verify_transaction_hash(block_info, tx_hash):
             return False
         return True
 
     @staticmethod
-    def verify_block_hash(block_info):
+    def verify_block(block_info):
+        # verify the difficulty
+        if utils.parse_as_int(block_info['difficulty']) < 2000000000000000:
+            return False
         # get block header from block info
         header = block.BlockHeader(
             normalize_bytes(block_info["parentHash"]),
@@ -229,10 +237,11 @@ class Verifier:
         return stack
 
     def verify_state(self, contract_addr, data_positions, block_number=-1):
+        latest_block = self.web3.eth.getBlock('latest')
         if block_number == -1:
-            block_number = self.web3.eth.getBlock('latest').number
+            block_number = latest_block.number
         proof = self.web3.eth.getProof(contract_addr, data_positions, block_number)
-        print(proof)
+        return self.verify_eth_get_proof(proof, latest_block.stateRoot)
 
     @staticmethod
     def format_proof_nodes(proof):
@@ -242,6 +251,7 @@ class Verifier:
         return trie_proof
 
     def verify_eth_get_proof(self, proof, root):
+        values = []
         trie_root = Binary.fixed_length(32, allow_empty=True)
         hash32 = Binary.fixed_length(32)
 
@@ -259,9 +269,8 @@ class Verifier:
         rlp_account = rlp.encode(acc)
         trie_key = keccak(bytes.fromhex(proof.address[2:]))
 
-        assert rlp_account == HexaryTrie.get_from_proof(
-            root, trie_key, self.format_proof_nodes(proof.accountProof)
-        ), "Failed to verify account proof {}".format(proof.address)
+        if rlp_account != HexaryTrie.get_from_proof(root, trie_key, self.format_proof_nodes(proof.accountProof)):
+            return False
 
         for storage_proof in proof.storageProof:
             trie_key = keccak(pad_bytes(b'\x00', 32, storage_proof.key))
@@ -271,14 +280,15 @@ class Verifier:
             else:
                 rlp_value = rlp.encode(storage_proof.value)
 
-            assert rlp_value == HexaryTrie.get_from_proof(
-                root, trie_key, self.format_proof_nodes(storage_proof.proof)
-            ), "Failed to verify storage proof {}".format(storage_proof.key)
+            if rlp_value != HexaryTrie.get_from_proof(root, trie_key, self.format_proof_nodes(storage_proof.proof)):
+                return False
+            else:
+                values.append({storage_proof.key.hex(): storage_proof.value.hex()})
 
-        return True
+        return True, values
 
 
 if __name__ == "__main__":
-    verifier = Verifier("http://192.168.11.57:8545")
-    print(verifier.verify_transaction("0xdc369d8038adedea391c91d4e3516a4eebb393842157fed25f02b11f1204510a"))
-    # verifier.verify_state("0xEbDDe366740A20966550Aab72d13d7B075142e8F", ["0x0", "0x1"])
+    verifier = Verifier("https://mainnet.infura.io/v3/projectkey")
+    print(verifier.verify_transaction("0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee"))
+    print(verifier.verify_state("0x123BA66d42aE85F7E9C911B375Ed3DbA078E94b7", ["0x0", "0x1"]))
