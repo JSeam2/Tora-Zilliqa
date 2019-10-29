@@ -99,8 +99,14 @@ class Verifier:
             return False
         # verify the following 15 block hash
         block_num = utils.parse_as_int(block_info["number"])
+        parent_block_hash = normalize_bytes(block_info.hash)
         for i in range(1, 15):
-            self.verify_block(self.web3.eth.getBlock(block_num + i))
+            temp_block_info = self.web3.eth.getBlock(block_num + i)
+            cur_block_parent_hash = normalize_bytes(temp_block_info["parentHash"])
+            if parent_block_hash != cur_block_parent_hash:
+                return False
+            parent_block_hash = normalize_bytes(temp_block_info.hash)
+            self.verify_block(temp_block_info)
         # verify the transaction
         if not self.verify_transaction_hash(block_info, tx_hash):
             return False
@@ -110,6 +116,9 @@ class Verifier:
     def verify_block(block_info):
         # verify the difficulty
         if utils.parse_as_int(block_info['difficulty']) < 2000000000000000:
+            return False
+        if int(normalize_bytes(block_info["nonce"]).hex(), 16) * utils.parse_as_int(block_info['difficulty']) \
+                > pow(2, 256):
             return False
         # get block header from block info
         header = block.BlockHeader(
