@@ -18,6 +18,7 @@ import os
 from queue import Queue
 import time
 import coloredlogs, logging
+import json
 
 from pyzil.zilliqa.api import ZilliqaAPI
 from pyzil.crypto import zilkey
@@ -69,6 +70,8 @@ class ZilliqaMonitor(Monitor):
                 user_addr = param["value"]
             if param['vname'] == "reqtype":
                 request_type = int(param["value"])
+                if request_type == 2:
+                    param_data = self.construct_swap_param_data(params)
             if param["vname"] == "gaslimit":
                 gas_limit = int(param["value"])
             if param["vname"] == "gasprice":
@@ -81,6 +84,22 @@ class ZilliqaMonitor(Monitor):
             gas_price) + " " + param_data + " " + str(fee))
         return Request(request_id, request_type, param_data, gas_price, gas_limit, fee, "Zilliqa", self.contract_addr, user_addr)
 
+    @staticmethod
+    def construct_swap_param_data(params):
+        param_data = {}
+        for param in params:
+            if param['vname'] == "swapid":
+                param_data['swap_id'] = int(param["value"])
+            if param['vname'] == "swapchain":
+                param_data['swap_chain'] = param["value"]
+            if param['vname'] == "txhash":
+                param_data['tx_hash'] = param["value"]
+            if param['vname'] == "initialaddr":
+                param_data['initial_addr'] = param["value"]
+            if param['vname'] == "targetaddr":
+                param_data['target_addr'] = param["value"]
+        return json.dumps(param_data)
+
     def __get_request_from_block(self, block_num):
         txns = self.api.GetTransactionsForTxBlock(block_num)
         for txn in txns:
@@ -90,7 +109,7 @@ class ZilliqaMonitor(Monitor):
                     event_logs = receipt["event_logs"]
                     for event_log in event_logs:
                         if event_log["address"] == (zilkey.normalise_address(self.contract_addr)).lower():
-                            if event_log["_eventname"] == "request":
+                            if event_log["_eventname"] == "request" or event_log["_eventname"] == "verifyrequest":
                                 self.req_q.put(self.__resolve_event_log(event_log))
 
     def __get_last_txn_block_num(self):

@@ -16,7 +16,7 @@ import coloredlogs
 import logging
 import os
 
-from backend.processor.processor import Collector, Executor, Relay
+from backend.processor.processor import Collector, Executor, SwapRelay, CrossChainInfoRelay
 from backend.processor.builtin.builtin import BuiltIn
 
 
@@ -31,8 +31,9 @@ class RequestDispatcher:
 
         self.processors[0] = BuiltIn()
         self.processors[1] = Collector()
-        self.processors[2] = Executor()
-        self.processors[3] = Relay()
+        self.processors[2] = SwapRelay()
+        self.processors[3] = CrossChainInfoRelay()
+        self.processors[4] = Executor()
         # run the processors
         for key in self.processors.keys():
             self.processors[key].start()

@@ -19,6 +19,7 @@ import os
 from backend.dispatcher.response_dispatcher import ResponseDispatcher
 from backend.responder.response import Response
 from backend.processor.general_web_api import get_web_api_json_result
+from backend.processor.eth_verifier import Verifier
 from queue import Queue
 import time
 import json
@@ -89,8 +90,16 @@ class Executor(Processor):
         return
 
 
-class Relay(Processor):
+class SwapRelay(Processor):
     def process(self, params):
-        print("Enter Relay~")
+        print("Enter SwapRelay~")
+        # TODO:
+
+        return
+
+
+class CrossChainInfoRelay(Processor):
+    def process(self, params):
+        print("Enter CrossChainInfoRelay~")
         # TODO:
         return
