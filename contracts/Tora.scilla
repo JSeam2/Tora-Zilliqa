@@ -21,15 +21,15 @@ library Oracle
 type OracleNode =
 | OracleNode of ByStr20 ByStr20 ByStr33 Uint32
 
-(* Request ID from user_addr type paramHash gasPrice gasLimit fee callbackFunc ifResponded *)
+(* Request ID from user_addr type paramData gasPrice gasLimit fee callbackFunc ifResponded *)
 (* request type 0-builtin 1-webapi 2-swap_verify 3-cross chain info*)
 type Request =
 | Request of Uint32 ByStr20 ByStr20 Uint32 String Uint128 Uint128 Uint128 String Uint32
 
-(* SwapRequest ID verify_id initial_addr swapChain initialMoney swapMoney targetAddr state allocator timeLock appealDdl*)
+(* SwapRequest ID verifyId initialAddr swapChain initialMoney swapMoney targetAddr chainBInitialAddr chainBTargetAddr state allocator timeLock appealDdl*)
 (* state 0-created 1-allocated 2-to_verified 3-finished *)
 type SwapRequest =
-| SwapRequest of Uint32 Uint32 ByStr20 String Uint128 Uint128 ByStr20 Uint32 ByStr20 BNum BNum
+| SwapRequest of Uint32 Uint32 ByStr20 String Uint128 Uint128 ByStr20 ByStr20 ByStr20 Uint32 ByStr20 BNum BNum
 
 (* Stake from_addr money accumulatedStake*)
 type Stake =
@@ -272,7 +272,7 @@ transition withdraw_reward(oracle_owner_address : ByStr20)
      end
 end
 
-transition request_swap(swap_chain: String, initial_money: Uint128, swap_money: Uint128, target_addr: ByStr20)
+transition request_swap(swap_chain: String, initial_money: Uint128, swap_money: Uint128, target_addr: ByStr20, swap_chain_initial_addr: ByStr20, swap_chain_target_addr: ByStr20)
     (* check the _amount *)
     check = builtin lt _amount initial_money;
     match check with
@@ -289,10 +289,10 @@ transition request_swap(swap_chain: String, initial_money: Uint128, swap_money: 
         verify_id = Uint32 0;
         (* log the request *)
         id <- swap_req_count;
-        new_req = SwapRequest id verify_id _sender swap_chain initial_money swap_money target_addr swap_created allocator time_lock appeal_ddl;
+        new_req = SwapRequest id verify_id _sender swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_created allocator time_lock appeal_ddl;
         swap_req_map[id] := new_req;
         (* publish the event *)
-        e = {_eventname: "swap"; msg: "New swap request"; id: id; initialaddr: _sender; swapchain: swap_chain; initialmoney: initial_money; targetmoney: swap_money; targetaddr: target_addr};
+        e = {_eventname: "swap"; msg: "New swap request"; id: id; initialaddr: _sender; swapchain: swap_chain; initialmoney: initial_money; targetmoney: swap_money; targetaddr: target_addr; swapchaininitialaddr: swap_chain_initial_addr; swapchaintargetaddr: swap_chain_target_addr};
         event e;
         id =
             let x = Uint32 1 in builtin add x id;
@@ -300,7 +300,7 @@ transition request_swap(swap_chain: String, initial_money: Uint128, swap_money: 
      end
 end
 
-transition commit_swap_hash(swap_request_id: Uint32, user_addr : ByStr20, param_data : String, gas_price : Uint128, gas_limit : Uint128)
+transition commit_swap_hash(swap_request_id: Uint32, user_addr : ByStr20, tx_hash : String, gas_price : Uint128, gas_limit : Uint128)
     requests <- swap_req_map;
     request_opt = builtin get requests swap_request_id;
     match request_opt with
@@ -308,7 +308,7 @@ transition commit_swap_hash(swap_request_id: Uint32, user_addr : ByStr20, param_
         (* check the swap request id *)
         e = {_eventname: "response fail"; msg : "the request id is not found"};
         event e
-    | Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr state allocator time_lock appeal_ddl) =>
+    | Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr state allocator time_lock appeal_ddl) =>
         check_target_addr = builtin eq target_addr _sender;
         match check_target_addr with
         | False =>
@@ -343,11 +343,12 @@ transition commit_swap_hash(swap_request_id: Uint32, user_addr : ByStr20, param_
                     request_type = Uint32 2;
                     (* log the request *)
                     id <- req_count;
+                    param_data = tx_hash;
                     new_req = Request id _sender user_addr request_type param_data gas_price gas_limit fee callback_func code_not_responded;
                     req_map[id] := new_req;
-                    e = {_eventname: "request"; msg: "send request success"; id: id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
+                    e = {_eventname: "verifyrequest"; msg: "send request success"; id: id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; swapid: swap_id; swapchain: swap_chain; txhash: tx_hash; initialaddr: swap_chain_initial_addr; targetaddr: swap_chain_initial_addr; fee: fee};
                     event e;
-                    updated_swap_request = SwapRequest swap_id id initial_addr swap_chain initial_money swap_money target_addr swap_to_verified allocator time_lock appeal_ddl;
+                    updated_swap_request = SwapRequest swap_id id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_to_verified allocator time_lock appeal_ddl;
                     swap_req_map[swap_id] := updated_swap_request;
                     (* bind the request id with the swap request id *)
                     swap_verify_id_map[id] := swap_request_id;
@@ -383,7 +384,7 @@ transition register_to_process(verify_request_id : Uint32)
                 (* request is not found in the records *)
                 e = {_eventname: "register fail"; msg : "the request id is not found"};
                 event e
-            | Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr state allocator time_lock appeal_ddl) =>
+            | Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr state allocator time_lock appeal_ddl) =>
                 (* check the request if allocated *)
                 if_allocated = builtin eq state swap_allocated;
                 match if_allocated with
@@ -405,7 +406,7 @@ transition register_to_process(verify_request_id : Uint32)
                         stake_map[verify_request_id] := update_stake
                     end;
                     (* set the request_state to isAllocated *)
-                    update_req = SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_allocated allocator time_lock appeal_ddl;
+                    update_req = SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_allocated _sender time_lock appeal_ddl;
                     swap_req_map[swap_id] := update_req;
                     (* publish the event *)
                     e = {_eventname: "register success"; requestid: verify_request_id; to_node_addr: _sender };
@@ -441,7 +442,7 @@ transition commit_verify_result(verify_request_id: Uint32, result: Bool, oracle_
                 (* request is not found in the records *)
                 e = {_eventname: "response fail"; msg : "the request id is not found"};
                 event e
-            | Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr state allocator time_lock appeal_ddl) =>
+            | Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr state allocator time_lock appeal_ddl) =>
                 (* check if the sender is the allocator *)
                 allocator_check = builtin eq _sender allocator;
                 match allocator_check with
@@ -487,7 +488,7 @@ transition commit_verify_result(verify_request_id: Uint32, result: Bool, oracle_
                                 reward_map[oracle_owner_address] := new_reward
                             end;
                             (* set the state to finished *)
-                            update_req = SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_finished allocator time_lock appeal_ddl;
+                            update_req = SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_finished allocator time_lock appeal_ddl;
                             swap_req_map[id] := update_req;
                             delete req_map[verify_request_id];
                             (* event for userA and userB to confirm the swap success *)
@@ -509,7 +510,7 @@ transition appeal(swap_request_id: Uint32)
         (* request is not found in the records *)
         e = {_eventname: "appeal fail"; msg : "the request id is not found"};
         event e
-    |Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr state allocator time_lock appeal_ddl) =>
+    |Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr state allocator time_lock appeal_ddl) =>
         (* check if the target addr userB *)
         check_target_addr = builtin eq target_addr _sender;
         match check_target_addr with
@@ -546,9 +547,9 @@ transition appeal(swap_request_id: Uint32)
                         (* update the time_lock and appeal_ddl *)
                         time_lock = builtin badd time_lock swap_lock;
                         appeal_ddl = builtin badd appeal_ddl appeal_time;
-                        update_swap_request = SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_to_verified allocator time_lock appeal_ddl;
+                        update_swap_request = SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_to_verified allocator time_lock appeal_ddl;
                         swap_req_map[swap_id] := update_swap_request;
-                        e = {_eventname: "request"; msg: "send request success"; id: verify_request_id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
+                        e = {_eventname: "verifyrequest"; msg: "send request success"; id: verify_request_id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; swapid: swap_id; swapchain: swap_chain; txhash: param_data; initialaddr: swap_chain_initial_addr; targetaddr: swap_chain_initial_addr; fee: fee};
                         event e
                     end
                 end
