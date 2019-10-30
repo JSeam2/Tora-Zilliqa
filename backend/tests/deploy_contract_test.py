@@ -40,13 +40,13 @@ def deploy_contract(contract_file, account_sk):
     # set account before deploy
     contract.account = account
 
-    contract.deploy(timeout=300, sleep=10)
+    contract.deploy(timeout=300, sleep=10, gas_limit=50000, priority=True)
     assert contract.status == Contract.Status.Deployed
 
 
 account_sk2 = "919457fa2d81c0b7f1f1918683b1ff6b459c444aefec494c92f34d746ebb6b73"
 account_sk1 = ""
-# deploy_contract("../../contracts/Tora.scilla", account_sk1)
+deploy_contract("../../contracts/ToraClean.scilla", account_sk1)
 
-deploy_contract("../../contracts/TopRequest.scilla", account_sk2)
-deploy_contract("../../contracts/GeneralRequest.scilla", account_sk2)
+# deploy_contract("../../contracts/TopRequest.scilla", account_sk2)
+# deploy_contract("../../contracts/GeneralRequest.scilla", account_sk2)
