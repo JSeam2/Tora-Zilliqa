@@ -60,6 +60,10 @@ _kms_cfg = [
     ["KMS_PORT", "port"],
 ]
 
+_cross_chain_cfg = [
+    ["ethereum-provider", "ethereum"]
+]
+
 _optional_cfg = [
     ["log-level","debug","level",   "DEBUG"],
     ["log-file", "debug","log-file","stdout"],
@@ -131,8 +135,7 @@ def launch(config):
     ##TODO:launch Monitor
     
     zilliqa_monitor = ZilliqaMonitor(url = cfg["baseChainServer"], contract_addr = cfg["baseChainContract"])
-    resolver = Resolver([zilliqa_monitor])
-
+    resolver = Resolver([zilliqa_monitor], cfg)
     logger.info("Monitor lanuched~")
     logger.info("BaseChain: Zilliqa")
     logger.info("RPC-server: " + cfg["baseChainServer"])
@@ -144,12 +147,6 @@ def launch(config):
 
     zilliqa_monitor.join()
     resolver.join()
-
-
-def run_resolver(monitors):
-    resolver = Resolver(monitors)
-    resolver.run()
-
 
 
 @main.command(short_help="withdraw toke from master account")
@@ -246,6 +243,12 @@ def _parse_config(path):
             print("No such key in KMS section:  " + item[1] + " !!")
             exit()
 
+    for item in _cross_chain_cfg:
+        try:
+            res[item[0]] = config["CrossChain"][item[1]]
+        except KeyError:
+            print("No such key in CrossChain section:  " + item[1] + " !!")
+            exit()
     
     for item in _optional_cfg:
         try:

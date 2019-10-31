@@ -89,7 +89,7 @@ class ZilliqaMonitor(Monitor):
         param_data = {}
         for param in params:
             if param['vname'] == "swapid":
-                param_data['swap_id'] = int(param["value"])
+                param_data['swap_id'] = param["value"]
             if param['vname'] == "swapchain":
                 param_data['swap_chain'] = param["value"]
             if param['vname'] == "txhash":
@@ -98,6 +98,8 @@ class ZilliqaMonitor(Monitor):
                 param_data['initial_addr'] = param["value"]
             if param['vname'] == "targetaddr":
                 param_data['target_addr'] = param["value"]
+            if param['vname'] == "swapmoney":
+                param_data['swap_money'] = param["value"]
         return json.dumps(param_data)
 
     def __get_request_from_block(self, block_num):

@@ -24,7 +24,7 @@ class RequestDispatcher:
     # processor list
     processors = {}
 
-    def __init__(self):
+    def __init__(self, configs):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(int(os.getenv('Tora-log-level')))
         coloredlogs.install(logger=self.logger)
@@ -32,7 +32,9 @@ class RequestDispatcher:
         self.processors[0] = BuiltIn()
         self.processors[1] = Collector()
         self.processors[2] = SwapRelay()
+        self.processors[2].set_ethereum_provider(configs['ethereum-provider'])
         self.processors[3] = CrossChainInfoRelay()
+        self.processors[3].set_ethereum_provider(configs['ethereum-provider'])
         self.processors[4] = Executor()
         # run the processors
         for key in self.processors.keys():

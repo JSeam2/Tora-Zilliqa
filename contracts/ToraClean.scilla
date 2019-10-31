@@ -220,7 +220,7 @@ transition commit_swap_hash(swap_request_id: Uint32, user_addr : ByStr20, tx_has
                     param_data = tx_hash;
                     new_req = Request id _sender user_addr request_type param_data gas_price gas_limit fee callback_func code_not_responded;
                     req_map[id] := new_req;
-                    e = {_eventname: "verifyrequest"; msg: "send request success"; id: id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; swapid: swap_id; swapchain: swap_chain; txhash: tx_hash; initialaddr: swap_chain_initial_addr; targetaddr: swap_chain_initial_addr; fee: fee};
+                    e = {_eventname: "verifyrequest"; msg: "send request success"; id: id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; swapid: swap_id; swapchain: swap_chain; txhash: tx_hash; initialaddr: swap_chain_initial_addr; targetaddr: swap_chain_initial_addr; swapmoney: swap_money; fee: fee};
                     event e;
                     updated_swap_request = SwapRequest swap_id id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_to_verified allocator time_lock appeal_ddl;
                     swap_req_map[swap_id] := updated_swap_request;
@@ -399,7 +399,7 @@ transition appeal(swap_request_id: Uint32)
                         appeal_ddl = builtin badd appeal_ddl appeal_time;
                         update_swap_request = SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_to_verified allocator time_lock appeal_ddl;
                         swap_req_map[swap_id] := update_swap_request;
-                        e = {_eventname: "verifyrequest"; msg: "send request success"; id: verify_request_id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; swapid: swap_id; swapchain: swap_chain; txhash: param_data; initialaddr: swap_chain_initial_addr; targetaddr: swap_chain_initial_addr; fee: fee};
+                        e = {_eventname: "verifyrequest"; msg: "send request success"; id: verify_request_id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; swapid: swap_id; swapchain: swap_chain; txhash: param_data; initialaddr: swap_chain_initial_addr; targetaddr: swap_chain_initial_addr; swapmoney: swap_money; fee: fee};
                         event e
                     end
                 end

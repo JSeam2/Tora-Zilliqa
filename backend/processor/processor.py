@@ -68,6 +68,9 @@ class Processor(threading.Thread):
                 try:
                     param_data = json.loads(request.param.replace("'", '"'))
                     response = self.process(param_data)
+                    if response is None:
+                        # abort this request
+                        continue
                 except:
                     response = "No correct request params"
                 self.generate_response_str(request, response)
@@ -91,14 +94,37 @@ class Executor(Processor):
 
 
 class SwapRelay(Processor):
-    def process(self, params):
-        print("Enter SwapRelay~")
-        # TODO:
+    def set_ethereum_provider(self, url):
+        self.ethereum_provider = url
 
-        return
+    def process(self, params):
+        self.logger.info("Enter SwapRelay~")
+        print(params)
+        swap_id = params['swap_id']
+        swap_chain = params['swap_chain']
+        if swap_chain == "Ethereum":
+
+            # TODO: register to process
+
+            tx_hash = params['tx_hash']
+            initial_addr = params['initial_addr']
+            target_addr = params['target_addr']
+            swap_money = params['swap_money']
+            if self.ethereum_provider is None:
+                self.logger.info("No ethereum provider set")
+                return None
+            verifier = Verifier(self.ethereum_provider)
+            result = verifier.verify_transaction(tx_hash, swap_id, initial_addr, target_addr, swap_money)
+            return result
+        else:
+            self.logger.info("Can't process this chain swap")
+            return None
 
 
 class CrossChainInfoRelay(Processor):
+    def set_ethereum_provider(self, url):
+        self.ethereum_provider = url
+
     def process(self, params):
         print("Enter CrossChainInfoRelay~")
         # TODO:

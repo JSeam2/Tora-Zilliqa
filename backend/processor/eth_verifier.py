@@ -89,11 +89,11 @@ class Verifier:
     def __init__(self, chain):
         self.web3 = Web3(HTTPProvider(chain))
 
-    def verify_transaction(self, tx_hash):
+    def verify_transaction(self, tx_hash, swap_id, initial_addr, target_addr, swap_money):
         target_tx = self.web3.eth.getTransaction(tx_hash)
-        # todo check the input, from, to, value
         if target_tx is None:
             return False
+        # todo check the input, from, to, value
         block_info = self.web3.eth.getBlock(target_tx.blockHash, True)
         # verify the block hash
         if not self.verify_block(block_info):
@@ -300,5 +300,5 @@ class Verifier:
 
 if __name__ == "__main__":
     verifier = Verifier("https://mainnet.infura.io/v3/projectid")
-    print(verifier.verify_transaction("0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee"))
+    print(verifier.verify_transaction("0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee", "0", "", "", 1))
     print(verifier.verify_state("0x123BA66d42aE85F7E9C911B375Ed3DbA078E94b7", ["0x0", "0x1"]))

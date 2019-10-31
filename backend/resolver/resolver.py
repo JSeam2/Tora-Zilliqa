@@ -23,11 +23,11 @@ import threading
 class Resolver(threading.Thread):
     
 
-    def __init__(self, monitors):
+    def __init__(self, monitors, configs):
 
         threading.Thread.__init__(self)
         self.monitors = monitors
-        self.dispatcher = RequestDispatcher()
+        self.dispatcher = RequestDispatcher(configs)
 
     def run(self):
         while True:
