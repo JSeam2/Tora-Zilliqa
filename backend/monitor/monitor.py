@@ -100,6 +100,7 @@ class ZilliqaMonitor(Monitor):
                 param_data['target_addr'] = param["value"]
             if param['vname'] == "swapmoney":
                 param_data['swap_money'] = param["value"]
+            param_data['initial_chain'] = 'Zilliqa'
         return json.dumps(param_data)
 
     def __get_request_from_block(self, block_num):

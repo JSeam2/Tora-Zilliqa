@@ -29,13 +29,11 @@ class RequestDispatcher:
         self.logger.setLevel(int(os.getenv('Tora-log-level')))
         coloredlogs.install(logger=self.logger)
 
-        self.processors[0] = BuiltIn()
-        self.processors[1] = Collector()
-        self.processors[2] = SwapRelay()
-        self.processors[2].set_ethereum_provider(configs['ethereum-provider'])
-        self.processors[3] = CrossChainInfoRelay()
-        self.processors[3].set_ethereum_provider(configs['ethereum-provider'])
-        self.processors[4] = Executor()
+        self.processors[0] = BuiltIn(configs)
+        self.processors[1] = Collector(configs)
+        self.processors[2] = SwapRelay(configs)
+        self.processors[3] = CrossChainInfoRelay(configs)
+        self.processors[4] = Executor(configs)
         # run the processors
         for key in self.processors.keys():
             self.processors[key].start()

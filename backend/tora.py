@@ -93,7 +93,8 @@ def init(account, master, target):
 # for oracle node to launch
 @main.command()
 @click.option('--config',         default="config.ini",    type=click.Path(exists=True))
-def launch(config):
+@click.option('--sk', help="The account sk")
+def launch(config, sk):
     '''
     The main procedure of a worker client.
 
@@ -107,6 +108,7 @@ def launch(config):
     '''
 
     cfg = _parse_config(config)
+    cfg['node-sk'] = sk
 
     #Logging Config
 
@@ -114,9 +116,6 @@ def launch(config):
     log_level = _log_level_map[cfg["log-level"]]
 
     os.environ['Tora-log-level']=str(log_level)
-
-    # logging.basicConfig(filename="log_file",
-    #                     format='%(asctime)s %(levelname)s %(filename)s: %(message)s')
 
     logger =logging.getLogger(__name__)
     logger.setLevel(log_level)
