@@ -35,7 +35,7 @@ account = Account(private_key="919457fa2d81c0b7f1f1918683b1ff6b459c444aefec494c9
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-contract_addr = "zil1qhg3lqcmnecd3vtsq03anman887kgnnlkl5qd8"
+contract_addr = "zil1ugfrsh7nj99asztps6el2jaqeul3u273sq2lcp"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 
@@ -96,5 +96,5 @@ def monitor_swap_success_event(account_addr):
 
 
 if __name__ == "__main__":
-    new_swap_request_test("Ethereum", 10000000000000, 1, "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0x734Ac651Dd95a339c633cdEd410228515F97fAfF", "0x7006abF3216445aaE379Ac77c9b89929147F5301")
-    monitor_swap_success_event("")
+    new_swap_request_test("Ethereum", 1000000000000, 1, "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0x734Ac651Dd95a339c633cdEd410228515F97fAfF", "0x7006abF3216445aaE379Ac77c9b89929147F5301")
+    # monitor_swap_success_event("0x7dcB18944157BD73A36DbB61a1700FcFd0182680")

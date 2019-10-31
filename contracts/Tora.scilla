@@ -306,57 +306,64 @@ transition commit_swap_hash(swap_request_id: Uint32, user_addr : ByStr20, tx_has
     match request_opt with
     | None =>
         (* check the swap request id *)
-        e = {_eventname: "response fail"; msg : "the request id is not found"};
+        e = {_eventname: "commit fail"; msg : "the request id is not found"};
         event e
     | Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr state allocator time_lock appeal_ddl) =>
-        check_target_addr = builtin eq target_addr _sender;
-        match check_target_addr with
+        check_state = builtin eq state swap_created;
+        match check_state with
         | False =>
-            e = {_eventname: "appeal fail"; msg : "not the target addr"};
+            e = {_eventname: "commit fail"; msg : "the request state is not created"};
             event e
         | True =>
-            gas_fee = builtin mul gas_price gas_limit;
-            withdraw_fee = builtin mul withdraw_gas_price withdraw_gas;
-            transfer_fee = builtin mul transfer_gas_price transfer_gas;
-            total_fee = builtin add gas_fee withdraw_fee;
-            total_fee = builtin add total_fee transfer_fee;
-            check = builtin lt _amount total_fee;
-            match check with
-            |True =>
-                e = {_eventname: "Not enough money"; msg: "fail request"};
+            check_target_addr = builtin eq target_addr _sender;
+            match check_target_addr with
+            | False =>
+                e = {_eventname: "commit fail"; msg : "not the target addr"};
                 event e
-            |False =>
-                fee = builtin sub _amount total_fee;
-                check_fee = builtin lt fee min_fee;
-                match check_fee with
+            | True =>
+                gas_fee = builtin mul gas_price gas_limit;
+                withdraw_fee = builtin mul withdraw_gas_price withdraw_gas;
+                transfer_fee = builtin mul transfer_gas_price transfer_gas;
+                total_fee = builtin add gas_fee withdraw_fee;
+                total_fee = builtin add total_fee transfer_fee;
+                check = builtin lt _amount total_fee;
+                match check with
                 |True =>
                     e = {_eventname: "Not enough money"; msg: "fail request"};
                     event e
                 |False =>
-                    (* send the money to the master tee address *)
-                    accept;
-                    msg = { _tag : ""; _recipient : master_tee_address; _amount : _amount};
-                    msgs = one_msg msg;
-                    send msgs;
-                    callback_func = "";
-                    (* verify request type *)
-                    request_type = Uint32 2;
-                    (* log the request *)
-                    id <- req_count;
-                    param_data = tx_hash;
-                    new_req = Request id _sender user_addr request_type param_data gas_price gas_limit fee callback_func code_not_responded;
-                    req_map[id] := new_req;
-                    e = {_eventname: "verifyrequest"; msg: "send request success"; id: id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; swapid: swap_id; swapchain: swap_chain; txhash: tx_hash; initialaddr: swap_chain_initial_addr; targetaddr: swap_chain_initial_addr; swapmoney: swap_money; fee: fee};
-                    event e;
-                    updated_swap_request = SwapRequest swap_id id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_to_verified allocator time_lock appeal_ddl;
-                    swap_req_map[swap_id] := updated_swap_request;
-                    (* bind the request id with the swap request id *)
-                    swap_verify_id_map[id] := swap_request_id;
-                    id =
-                    let x = Uint32 1 in builtin add x id;
-                    req_count := id
+                    fee = builtin sub _amount total_fee;
+                    check_fee = builtin lt fee min_fee;
+                    match check_fee with
+                    |True =>
+                        e = {_eventname: "Not enough money"; msg: "fail request"};
+                        event e
+                    |False =>
+                        (* send the money to the master tee address *)
+                        accept;
+                        msg = { _tag : ""; _recipient : master_tee_address; _amount : _amount};
+                        msgs = one_msg msg;
+                        send msgs;
+                        callback_func = "";
+                        (* verify request type *)
+                        request_type = Uint32 2;
+                        (* log the request *)
+                        id <- req_count;
+                        param_data = tx_hash;
+                        new_req = Request id _sender user_addr request_type param_data gas_price gas_limit fee callback_func code_not_responded;
+                        req_map[id] := new_req;
+                        e = {_eventname: "verifyrequest"; msg: "send request success"; id: id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; swapid: swap_id; swapchain: swap_chain; txhash: tx_hash; initialaddr: swap_chain_initial_addr; targetaddr: swap_chain_initial_addr; swapmoney: swap_money; fee: fee};
+                        event e;
+                        updated_swap_request = SwapRequest swap_id id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_to_verified allocator time_lock appeal_ddl;
+                        swap_req_map[swap_id] := updated_swap_request;
+                        (* bind the request id with the swap request id *)
+                        swap_verify_id_map[id] := swap_request_id;
+                        id =
+                        let x = Uint32 1 in builtin add x id;
+                        req_count := id
+                     end
                  end
-             end
+            end
         end
     end
 end
@@ -417,7 +424,7 @@ transition register_to_process(verify_request_id : Uint32)
     end
 end
 
-transition commit_verify_result(verify_request_id: Uint32, result: Bool, oracle_owner_address : ByStr20)
+transition commit_verify_result(verify_request_id: Uint32, result: String, oracle_owner_address : ByStr20)
     (* result = 0 true  result = 1 false *)
     requests <- req_map;
     request_opt = builtin get requests verify_request_id;
@@ -444,7 +451,7 @@ transition commit_verify_result(verify_request_id: Uint32, result: Bool, oracle_
                 event e
             | Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr state allocator time_lock appeal_ddl) =>
                 (* check if the sender is the allocator *)
-                allocator_check = builtin eq _sender allocator;
+                allocator_check = builtin eq oracle_owner_address allocator;
                 match allocator_check with
                 |False =>
                     e = {_eventname: "response fail"; msg : "not be allocated"};
@@ -455,24 +462,31 @@ transition commit_verify_result(verify_request_id: Uint32, result: Bool, oracle_
                     match stake_opt with
                     | None =>
                     | Some (Stake from_addr money accumulated_stake) =>
-                        check_responder = builtin eq from_addr _sender;
+                        check_responder = builtin eq from_addr oracle_owner_address;
                         match check_responder with
                         |False =>
                             e = {_eventname: "response fail"; msg : "the verify request is appealed"};
                             event e
                         |True  =>
-                            match result with
+                            correct_result = "True";
+                            check_result = builtin eq result correct_result;
+                            match check_result with
                             | False =>
                                 (* return the lock swap money *)
                                 msg = { _tag : ""; _recipient : initial_addr; _amount : initial_money};
                                 msgs = one_msg msg;
-                                send msgs
+                                send msgs;
+                                e = {_eventname: "Swap fail and return the lock money"; initialaddr: initial_addr; swapchain: swap_chain; initialmoney: initial_money; swapmoney: swap_money; targetaddr: target_addr};
+                                event e
                             | True =>
                                 (* transfer the swap money and the appeal money - accumulated_stake*)
                                 temp_swap_money = builtin add initial_money accumulated_stake;
                                 msg = { _tag : ""; _recipient : target_addr; _amount: temp_swap_money};
                                 msgs = one_msg msg;
-                                send msgs
+                                send msgs;
+                                (* event for userA and userB to confirm the swap success *)
+                                e = {_eventname: "Swap success"; initialaddr: initial_addr; swapchain: swap_chain; initialmoney: initial_money; swapmoney: swap_money; targetaddr: target_addr};
+                                event e
                             end;
                             (* record the reward *)
                             c_reward_map <- reward_map;
@@ -490,10 +504,7 @@ transition commit_verify_result(verify_request_id: Uint32, result: Bool, oracle_
                             (* set the state to finished *)
                             update_req = SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_finished allocator time_lock appeal_ddl;
                             swap_req_map[id] := update_req;
-                            delete req_map[verify_request_id];
-                            (* event for userA and userB to confirm the swap success *)
-                            e = {_eventname: "Swap success"; initialaddr: initial_addr; swapchain: swap_chain; initialmoney: initial_money; swapmoney: swap_money; targetaddr: target_addr};
-                            event e
+                            delete req_map[verify_request_id]
                         end
                     end
                 end

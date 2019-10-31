@@ -35,7 +35,7 @@ account = Account(private_key="dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-contract_addr = "zil1qhg3lqcmnecd3vtsq03anman887kgnnlkl5qd8"
+contract_addr = "zil1ugfrsh7nj99asztps6el2jaqeul3u273sq2lcp"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 
@@ -47,7 +47,7 @@ def commit_swap_hash_test(swap_request_id, user_addr, tx_hash, gas_price, gas_li
         Contract.value_dict("tx_hash", "String", tx_hash),
         Contract.value_dict("gas_price", "Uint128", gas_price),
         Contract.value_dict("gas_limit", "Uint128", gas_limit)
-    ], amount=25)
+    ], amount=20)
     pprint(resp)
 
 
@@ -94,7 +94,8 @@ def monitor_swap_request_event(account_addr):
         else:
             if __has_txn(api, cur_block_num):
                 if __get_swap_request_event(account_addr, api, cur_block_num):
-                    break
+                    print("A new swap request to you...")
+                    cur_block_num = str(int(cur_block_num) + 1)
                 else:
                     cur_block_num = str(int(cur_block_num) + 1)
             else:
@@ -102,5 +103,5 @@ def monitor_swap_request_event(account_addr):
 
 
 if __name__ == "__main__":
-    monitor_swap_request_event("0x7dcB18944157BD73A36DbB61a1700FcFd0182680")
-    # commit_swap_hash_test("0", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee", "20000", "1000000000")
+    # monitor_swap_request_event("0x7dcB18944157BD73A36DbB61a1700FcFd0182680")
+    commit_swap_hash_test("1", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee", "15000", "1000000000")

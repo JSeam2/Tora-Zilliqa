@@ -100,6 +100,8 @@ class ZilliqaMonitor(Monitor):
                 param_data['target_addr'] = param["value"]
             if param['vname'] == "swapmoney":
                 param_data['swap_money'] = param["value"]
+            if param['vname'] == "id":
+                param_data['verify_id'] = param["value"]
             param_data['initial_chain'] = 'Zilliqa'
         return json.dumps(param_data)
 

@@ -43,9 +43,9 @@ from pyzil.zilliqa.chain import BlockChain
 # registry of required config entries
 # client works only when all have been set correctly. 
 # --||
-_required_cfg = [
-    ["master-host",     "auth",     "master-host"],
-    ["oracle-account",     "auth",     "account"],
+_oracle_account_cfg = [
+    ["oracleAddress",     "OracleAccount",     "address"],
+    ["oracleSK",     "OracleAccount",     "sk"],
 ]
 
 _baseChain_cfg_zilliqa = [
@@ -61,7 +61,7 @@ _kms_cfg = [
 ]
 
 _cross_chain_cfg = [
-    ["ethereum-provider", "ethereum"]
+    ["ethereumProvider", "ethereum"]
 ]
 
 _optional_cfg = [
@@ -93,8 +93,7 @@ def init(account, master, target):
 # for oracle node to launch
 @main.command()
 @click.option('--config',         default="config.ini",    type=click.Path(exists=True))
-@click.option('--sk', help="The account sk")
-def launch(config, sk):
+def launch(config):
     '''
     The main procedure of a worker client.
 
@@ -108,14 +107,13 @@ def launch(config, sk):
     '''
 
     cfg = _parse_config(config)
-    cfg['node-sk'] = sk
 
     #Logging Config
 
     log_file = "" if cfg["log-file"] =="stdout" else cfg["log-file"]
     log_level = _log_level_map[cfg["log-level"]]
 
-    os.environ['Tora-log-level']=str(log_level)
+    os.environ['Tora-log-level'] = str(log_level)
 
     logger =logging.getLogger(__name__)
     logger.setLevel(log_level)
@@ -129,18 +127,16 @@ def launch(config, sk):
     KMSConnector.networkid = cfg["baseChainID"]
     KMSConnector.host = str(cfg["KMS_HOST"])
     KMSConnector.port = int(cfg["KMS_PORT"])
-    KMSConnector.oracle_owner_address = cfg["oracle-account"]
+    KMSConnector.oracle_owner_address = cfg["oracleAddress"]
     
-    ##TODO:launch Monitor
-    
-    zilliqa_monitor = ZilliqaMonitor(url = cfg["baseChainServer"], contract_addr = cfg["baseChainContract"])
+    zilliqa_monitor = ZilliqaMonitor(url=cfg["baseChainServer"], contract_addr=cfg["baseChainContract"])
     resolver = Resolver([zilliqa_monitor], cfg)
     logger.info("Monitor lanuched~")
     logger.info("BaseChain: Zilliqa")
     logger.info("RPC-server: " + cfg["baseChainServer"])
     logger.info("Tora Contract Address: " + cfg["baseChainContract"])
+    logger.info("Oracle Account: " + cfg["oracleAddress"] + " " + cfg["oracleSK"])
 
-  
     zilliqa_monitor.start()
     resolver.start()
 
@@ -150,11 +146,9 @@ def launch(config, sk):
 
 @main.command(short_help="withdraw toke from master account")
 @click.option('--config',         default="config.ini",    type=click.Path(exists=True))
-@click.option('--sk', help="The account sk")
-@click.option('--address', help="The account address of the beneficiary" )
 @click.option('--gas_price',  default=1000000000)
 @click.option('--gas_limit',  default=10000)
-def withdraw(config, sk, address, gas_price, gas_limit):
+def withdraw(config, gas_price, gas_limit):
 
     '''
     This function will generate a transaction to transfer the token from TEE accoount to the worker's account.
@@ -173,10 +167,10 @@ def withdraw(config, sk, address, gas_price, gas_limit):
     contract_addr = cfg["baseChainContract"]
     contract = Contract.load_from_address(contract_addr)
 
-    account = Account(private_key=sk)
+    account = Account(private_key=cfg["oracleSK"])
     contract.account = account
     resp = contract.call(method="get_reward_balance",
-                             params=[Contract.value_dict('oracle_owner_address', 'ByStr20', zilkey.normalise_address(address))],
+                             params=[Contract.value_dict('oracle_owner_address', 'ByStr20', zilkey.normalise_address(cfg['oracleAddress']))],
                              gas_price=gas_price, gas_limit=gas_limit)
     if (resp is not None) and (not resp['receipt']['success']):
         print("Network error")
@@ -187,11 +181,11 @@ def withdraw(config, sk, address, gas_price, gas_limit):
             money = int(resp['receipt']['event_logs'][0]['params'][0]['value']['arguments'][0])/1000000000000.0
             print("Have money: " + str(money))
             kms = KMSConnector()
-            if kms.withdraw(zilkey.normalise_address(address), money, cfg["baseChainContract"])=="success":
+            if kms.withdraw(zilkey.normalise_address(cfg['oracleAddress']), money, cfg["baseChainContract"])=="success":
                 print("Withdraw submit success")
                 time.sleep(300)
                 print("Withdraw success")
-            elif kms.withdraw(zilkey.normalise_address(address), money, cfg["baseChainContract"]) is None:
+            elif kms.withdraw(zilkey.normalise_address(cfg['oracleAddress']), money, cfg["baseChainContract"]) is None:
                 print("KMS server has no response")
             else:
                 print("Withdraw submit fail")
@@ -219,7 +213,7 @@ def _parse_config(path):
 
     config = ConfigObj(config_path)
 
-    for item in _required_cfg:
+    for item in _oracle_account_cfg:
         try:
             res[item[0]] = config[item[1]][item[2]]
         except KeyError:
@@ -256,8 +250,6 @@ def _parse_config(path):
             res[item[0]] = item[3]
     
     return res
-
-
 
 
 if __name__ == "__main__":

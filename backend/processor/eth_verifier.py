@@ -93,7 +93,15 @@ class Verifier:
         target_tx = self.web3.eth.getTransaction(tx_hash)
         if target_tx is None:
             return False
-        # todo check the input, from, to, value
+        print(target_tx)
+        if target_tx["from"] != initial_addr:
+            return False
+        if target_tx["to"] != target_addr:
+            return False
+        if target_tx["value"] != int(swap_money):
+            return False
+        if target_tx["input"] != hex(int(swap_id)):
+            return False
         block_info = self.web3.eth.getBlock(target_tx.blockHash, True)
         # verify the block hash
         if not self.verify_block(block_info):
@@ -300,5 +308,5 @@ class Verifier:
 
 if __name__ == "__main__":
     verifier = Verifier("https://mainnet.infura.io/v3/projectid")
-    print(verifier.verify_transaction("0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee", "0", "", "", 1))
-    print(verifier.verify_state("0x123BA66d42aE85F7E9C911B375Ed3DbA078E94b7", ["0x0", "0x1"]))
+    print(verifier.verify_transaction("0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee", "0", "0x734Ac651Dd95a339c633cdEd410228515F97fAfF", "0x7006abF3216445aaE379Ac77c9b89929147F5301", "233100450000000"))
+    # print(verifier.verify_state("0x123BA66d42aE85F7E9C911B375Ed3DbA078E94b7", ["0x0", "0x1"]))

@@ -8,6 +8,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../lib"
 from pyzil.account import Account
 from pyzil.contract import Contract
 
+DEFAULT_REGISTER_STAKE = 2
+
 
 class SwapProcessRegister:
     def __init__(self, contract_addr):
@@ -24,7 +26,7 @@ class ZilliqaSwapProcessRegister(SwapProcessRegister):
         contract.account = account
         resp = contract.call(method="register_to_process", params=[
             Contract.value_dict("verify_request_id", "Uint32", request_id)
-        ])
+        ], amount=DEFAULT_REGISTER_STAKE)
         if not resp:
             return False
         if resp['receipt']['success']:

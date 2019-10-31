@@ -35,15 +35,15 @@ account = Account(private_key="919457fa2d81c0b7f1f1918683b1ff6b459c444aefec494c9
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-contract_addr = "zil1qhg3lqcmnecd3vtsq03anman887kgnnlkl5qd8"
+contract_addr = "zil1ugfrsh7nj99asztps6el2jaqeul3u273sq2lcp"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 
 
 def register_to_process_test(verify_request_id):
     resp = contract.call(method="register_to_process", params=[
-        Contract.value_dict("register_to_process", "Uint32", verify_request_id)
-    ])
+        Contract.value_dict("verify_request_id", "Uint32", verify_request_id)
+    ], amount=2)
     pprint(resp)
     if not resp:
         pprint("Register fail")
@@ -60,9 +60,12 @@ def register_to_process_test(verify_request_id):
 def commit_verify_result_test(verify_request_id, result, oracle_owner_address):
     resp = contract.call(method="commit_verify_result", params=[
         Contract.value_dict('verify_request_id', 'Uint32', verify_request_id),
-        Contract.value_dict('result', 'Bool', result),
+        Contract.value_dict('result', 'String', result),
         Contract.value_dict('oracle_owner_address', 'ByStr20', oracle_owner_address)
     ])
     pprint(resp)
 
 
+if __name__ == "__main__":
+    # register_to_process_test("0")
+    commit_verify_result_test("0", "True", "0xa391fb22ef65d65167a0c94d5e9b6eacece56c7e")

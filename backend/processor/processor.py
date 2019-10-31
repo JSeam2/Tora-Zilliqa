@@ -53,7 +53,12 @@ class Processor(threading.Thread):
             return None
 
     def generate_response_str(self, request, res_str):
-        response = Response(request.type, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit, request.tora_addr, request.user_addr)
+        response_method = ""
+        if request.type in [0, 1, 3]:
+            response_method = "responseString"
+        elif request.type == 2:
+            response_method = "commit_verify_result"
+        response = Response(request.type, response_method, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit, request.tora_addr, request.user_addr)
         self.dispatcher.dispatch_response(response)
 
     def process(self, params):
@@ -100,16 +105,19 @@ class Executor(Processor):
 class SwapRelay(Processor):
     def process(self, params):
         self.logger.info("Enter SwapRelay~")
-        print(params)
         swap_id = params['swap_id']
         swap_chain = params['swap_chain']
         initial_chain = params['initial_chain']
+        verify_id = params['verify_id']
         swap_process_register = None
         if initial_chain == "Zilliqa":
             swap_process_register = ZilliqaSwapProcessRegister(self.configs['baseChainContract'])
         if swap_chain == "Ethereum":
-            if not swap_process_register:
-                if swap_process_register.register_to_process(self.configs['node-sk'], swap_id):
+            if swap_process_register is not None:
+                if self.configs['oracleSK'] is None or self.configs['oracleSK'] == "":
+                    self.logger.info("No available sk for relay process")
+                    return
+                if swap_process_register.register_to_process(self.configs['node-sk'], verify_id):
                     tx_hash = params['tx_hash']
                     initial_addr = params['initial_addr']
                     target_addr = params['target_addr']
@@ -135,7 +143,6 @@ class CrossChainInfoRelay(Processor):
 
     def process(self, params):
         self.logger.info("Enter CrossChainInfoRelay~")
-        print(params)
         if ('contract_addr' not in params.keys()) or ('data_positions' not in params.keys()) \
                 or('block_number' not in params.keys()):
             return "No correct request params"
