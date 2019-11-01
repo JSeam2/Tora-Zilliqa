@@ -395,3 +395,29 @@ transition appeal(swap_request_id: Uint32)
         end
     end
 end
+transition get_exceeded_swap_money(swap_request_id: Uint32)
+    swap_requests <- swap_req_map;
+    swap_request_opt = builtin get swap_requests swap_request_id;
+    match swap_request_opt with
+    |None =>
+        e = {_eventname: "get fail"; msg : "the swap id is not found"};
+        event e
+    |Some (SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr state allocator time_lock appeal_start appeal_ddl) =>
+        cur_block_num <- & BLOCKNUMBER;
+        check_time_lock = builtin blt time_lock cur_block_num;
+        match check_time_lock with
+        |False =>
+            e = {_eventname: "get fail"; msg : "have not exceeded"};
+            event e
+        |True =>
+            update_swap_request = SwapRequest swap_id verify_id initial_addr swap_chain initial_money swap_money target_addr swap_chain_initial_addr swap_chain_target_addr swap_finished allocator time_lock appeal_start appeal_ddl;
+            swap_req_map[swap_id] := update_swap_request;
+            delete req_map[verify_id];
+            msg = { _tag : ""; _recipient : initial_addr; _amount : initial_money};
+            msgs = one_msg msg;
+            send msgs;
+            e = {_eventname: "Swap exceeded and return the lock money"; initialaddr: initial_addr; swapchain: swap_chain; initialmoney: initial_money; swapmoney: swap_money; targetaddr: target_addr};
+            event e
+        end
+    end
+end
