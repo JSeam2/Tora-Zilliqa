@@ -29,7 +29,7 @@ chain.set_active_chain(chain.TestNet)
 
 # tora contract address
 # contract_addr = "zil106hde8sfhslm44632vplgmgkllapt4nktjnyxq"
-contract_addr = "zil188cxacmwwdzagnwpv4gharfsdgdxacfu4njdd5"
+contract_addr = "zil1ugfrsh7nj99asztps6el2jaqeul3u273sq2lcp"
 contract = Contract.load_from_address(contract_addr)
 
 # master tee sk
@@ -43,9 +43,7 @@ contract.account = account
 
 def response_string(result, gas_price, gas_limit, oracle_owner_address):
     resp = contract.call(method="responseString",
-                         params=[Contract.value_dict('id', 'Uint32', '2'),
-                                 Contract.value_dict('proof', 'ByStr64',
-                                                     '0xD14E8CE1289BDEAFDFA6A50FB5D77A3863BD9AE2DBA36F29FD6175A6A8652E8561CA066F2BC0AFF4C39E077FDBCFCA0F2929CE6440203C41DB1C038FEB8C66CA'),
+                         params=[Contract.value_dict('id', 'Uint32', '1'),
                                  Contract.value_dict('result', 'String', result),
                                  Contract.value_dict('oracle_owner_address', 'ByStr20', oracle_owner_address)],
                          gas_price=gas_price, gas_limit=gas_limit)
@@ -53,4 +51,4 @@ def response_string(result, gas_price, gas_limit, oracle_owner_address):
     pprint(contract.last_receipt)
 
 
-response_string('result string', 1000000000, 10000, '0x7dcB18944157BD73A36DbB61a1700FcFd0182680')
+response_string("(True, [{'0x00': '0x89db21870d8b0520cc793de78923b6beaaa321df'}, {'0x01': '0x00'}])", 1000000000, 10000, '0x7dcB18944157BD73A36DbB61a1700FcFd0182680')

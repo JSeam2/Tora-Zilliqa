@@ -16,6 +16,7 @@
 import os
 import sys
 import time
+import json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../lib")))
@@ -35,7 +36,7 @@ account = Account(private_key="dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-contract_addr = "zil1ugfrsh7nj99asztps6el2jaqeul3u273sq2lcp"
+contract_addr = "zil13a4dul8j27tqu6s0v3xs8q25m9d7nm5n4u45mc"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 
@@ -104,4 +105,5 @@ def monitor_swap_request_event(account_addr):
 
 if __name__ == "__main__":
     # monitor_swap_request_event("0x7dcB18944157BD73A36DbB61a1700FcFd0182680")
-    commit_swap_hash_test("1", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee", "15000", "1000000000")
+    # commit_swap_hash_test("0", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee", "15000", "1000000000")
+    appeal_test("0")

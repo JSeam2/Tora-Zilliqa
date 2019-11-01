@@ -117,15 +117,15 @@ class SwapRelay(Processor):
                 if self.configs['oracleSK'] is None or self.configs['oracleSK'] == "":
                     self.logger.info("No available sk for relay process")
                     return
-                if swap_process_register.register_to_process(self.configs['node-sk'], verify_id):
+                if swap_process_register.register_to_process(self.configs['oracleSK'], verify_id):
                     tx_hash = params['tx_hash']
                     initial_addr = params['initial_addr']
                     target_addr = params['target_addr']
                     swap_money = params['swap_money']
-                    if self.configs["ethereum-provider"] is None:
+                    if self.configs["ethereumProvider"] is None:
                         self.logger.info("No ethereum provider set")
                         return None
-                    verifier = Verifier(self.configs["ethereum-provider"])
+                    verifier = Verifier(self.configs["ethereumProvider"])
                     result = verifier.verify_transaction(tx_hash, swap_id, initial_addr, target_addr, swap_money)
                     return result
                 else:
@@ -143,13 +143,18 @@ class CrossChainInfoRelay(Processor):
 
     def process(self, params):
         self.logger.info("Enter CrossChainInfoRelay~")
-        if ('contract_addr' not in params.keys()) or ('data_positions' not in params.keys()) \
-                or('block_number' not in params.keys()):
+        if self.configs["ethereumProvider"] is None:
+            self.logger.info("No ethereum provider set")
+            return None
+        if 'contract_addr' in params.keys() and 'data_positions' in params.keys():
+            contract_addr = params['contract_addr']
+            data_positions = params['data_positions']
+            verifier = Verifier(self.configs["ethereumProvider"])
+            if 'block_number' not in params.keys():
+                result = verifier.verify_state(contract_addr, data_positions)
+            else:
+                block_number = params['block_number']
+                result = verifier.verify_state(contract_addr, data_positions, block_number)
+            return result
+        else:
             return "No correct request params"
-        contract_addr = params['contract_addr']
-        data_positions = params['data_positions']
-        block_number = params['block_number']
-
-        verifier = Verifier(self.configs["ethereum-provider"])
-        result = verifier.verify_state(contract_addr, data_positions, block_number)
-        return result

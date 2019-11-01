@@ -103,6 +103,18 @@ def test_web_api():
     get_response_event(contract_addr)
 
 
+def test_cross_chain_info():
+    # request contract address
+    contract_addr = "zil1u7ah4wm7hkpvxnj7580lgvd6a0wyhlx69frut9"
+    contract = Contract.load_from_address(contract_addr)
+    contract.account = account
+    print("Waiting the request published on chain...")
+    resp = contract.call(method="request", params=[], amount=25, priority=True)
+    pprint(resp)
+    print("Waiting the response...")
+
+
 if __name__ == "__main__":
-    test_trading_pairs()
-    test_web_api()
+    # test_trading_pairs()
+    # test_web_api()
+    test_cross_chain_info()
