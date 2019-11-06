@@ -1,0 +1,157 @@
+scilla_version 0
+
+library Oracle
+
+(* OracleNode address owner_address pk status *)
+type OracleNode =
+| OracleNode of ByStr20 ByStr20 ByStr33 Uint32
+
+(* Request ID from user_addr type paramData gasPrice gasLimit fee callbackFunc ifResponded *)
+(* request type 0-builtin 1-webapi 2-swap_verify 3-cross chain info*)
+type Request =
+| Request of Uint32 ByStr20 ByStr20 Uint32 String Uint128 Uint128 Uint128 String Uint32
+
+(* Constant value *)
+(* one node temporarily, may more nodes later on *)
+let master_tee_address = 0x0105acd2cf6d016ecb85cf37fa8f1941c69f0017
+
+let transfer_gas = Uint128 1
+let withdraw_gas = Uint128 1000
+let transfer_gas_price = Uint128 1000000000
+let withdraw_gas_price = Uint128 1000000000
+let min_fee = Uint128 1000000000000
+
+let one_msg =
+  fun (msg: Message) =>
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let code_not_responded = Uint32 0
+let code_is_responded = Uint32 1
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+contract Oracle
+(owner: ByStr20)
+
+field req_map: Map Uint32 Request = Emp Uint32 Request
+field req_count: Uint32 = Uint32 1
+
+(* oracle owner address <-> reward money *)
+field reward_map: Map ByStr20 Uint128 = Emp ByStr20 Uint128
+
+(*             Send a request on chain             *)
+transition request (user_addr : ByStr20, request_type : Uint32, param_data : String, gas_price : Uint128, gas_limit : Uint128, callback_func : String)
+    gas_fee = builtin mul gas_price gas_limit;
+    withdraw_fee = builtin mul withdraw_gas_price withdraw_gas;
+    transfer_fee = builtin mul transfer_gas_price transfer_gas;
+    total_fee = builtin add gas_fee withdraw_fee;
+    total_fee = builtin add total_fee transfer_fee;
+    check = builtin lt _amount total_fee;
+    match check with
+    |True =>
+        e = {_eventname: "Not enough money"; msg: "fail request"};
+        event e
+    |False =>
+        (* log the request *)
+        id <- req_count;
+        fee = builtin sub _amount total_fee;
+        check_fee = builtin lt fee min_fee;
+        match check_fee with
+        |True =>
+            e = {_eventname: "Not enough money"; msg: "fail request"};
+            event e
+        |False =>
+            (* send the money to the master tee address *)
+            accept;
+            msg = { _tag : ""; _recipient : master_tee_address; _amount : _amount};
+            msgs = one_msg msg;
+            send msgs;
+            new_req = Request id _sender user_addr request_type param_data gas_price gas_limit fee callback_func code_not_responded;
+            req_map[id] := new_req;
+            e = {_eventname: "request"; msg: "send request success"; id: id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
+            event e;
+            id =
+            let x = Uint32 1 in builtin add x id;
+            req_count := id
+         end
+     end
+end
+
+(*             Return the String type result       *)
+transition responseString(id : Uint32, result : String, oracle_owner_address : ByStr20)
+        requests <- req_map;
+        request_opt = builtin get requests id;
+        match request_opt with
+        | None =>
+            (* request is not found in the records *)
+            e = {_eventname: "response fail"; msg : "the request id is not found"};
+            event e
+        | Some (Request id from user_addr request_type param_data gas_price gas_limit fee callback_func if_responded) =>
+            check_not_responded = builtin eq if_responded code_not_responded;
+            match check_not_responded with
+            | True =>
+                (* set is_responded *)
+                update_req = Request id from user_addr request_type param_data gas_price gas_limit fee callback_func code_is_responded;
+                req_map[id] := update_req;
+                (* record the reward *)
+                c_reward_map <- reward_map;
+                check_have_reward = builtin get c_reward_map oracle_owner_address;
+                match check_have_reward with
+                | Some (history_reward) =>
+                    new_reward = builtin add history_reward fee;
+                    reward_map[oracle_owner_address] := new_reward
+                | None =>
+                    new_reward = fee;
+                    reward_map[oracle_owner_address] := new_reward
+                end;
+                msg = { _tag : callback_func; _recipient : from; _amount : Uint128 0; result : result};
+                msgs = one_msg msg;
+                send msgs
+            | False =>
+                e = {_eventname: "repeat response"; msg: "have a response"};
+                event e
+            end
+        end
+end
+
+(* The master tee checks how much money the oracle node has *)
+transition get_reward_balance(oracle_owner_address : ByStr20)
+    balance <- reward_map[oracle_owner_address];
+    e = {_eventname: "reward_balance"; msg: balance};
+    event e
+end
+
+(* The master tee calls to transfer reward to the oracle *)
+transition withdraw_reward(oracle_owner_address : ByStr20)
+    check_sender = builtin eq _sender master_tee_address;
+    match check_sender with
+    | True =>
+        money = _amount;
+        c_reward_map <- reward_map;
+        check_have_reward = builtin get c_reward_map oracle_owner_address;
+        match check_have_reward with
+        | Some (balance) =>
+            check_balance = builtin lt balance money;
+            match check_balance with
+            | False =>
+                accept;
+                (* send the money to the oracle *)
+                msg = { _tag : ""; _recipient : oracle_owner_address; _amount : money};
+                msgs = one_msg msg;
+                send msgs;
+                (* update the reward record *)
+                new_balance = builtin sub balance money;
+                reward_map[oracle_owner_address] := new_balance;
+                e = {_eventname: "withdraw"; msg: "withdraw success"};
+                event e
+            | True =>
+            end
+        | None =>
+        end
+    | False =>
+        e = {_eventname: "withdraw error"; msg: "No authority"};
+        event e
+     end
+end

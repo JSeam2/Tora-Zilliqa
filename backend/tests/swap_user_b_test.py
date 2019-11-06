@@ -36,7 +36,7 @@ account = Account(private_key="dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-contract_addr = "zil13a4dul8j27tqu6s0v3xs8q25m9d7nm5n4u45mc"
+contract_addr = "zil193swyr6q8lxqgrtrawt9rpdn99vqep4g74kpnk"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 

@@ -104,7 +104,7 @@ def test_web_api():
 
 
 def test_cross_chain_info():
-    # request contract address
+    # request contract address zil154sa6skklxq6w359nc0rk60vmsvnlra76vlvf8
     contract_addr = "zil1u7ah4wm7hkpvxnj7580lgvd6a0wyhlx69frut9"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
