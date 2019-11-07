@@ -69,7 +69,7 @@ class ZilliqaResponder(Responder):
                                                      self.__value_dict('result', 'String',
                                                                        response.result.replace('"', "'")),
                                                      self.__value_dict('oracle_owner_address', 'ByStr20',
-                                                                       zilkey.normalise_address(KMSConnector.oracle_owner_address))
+                                                                       zilkey.normalise_address(KMSConnector.oracle_owner_address).lower())
                                                      ])
             try:
                 resp = self.__send_data_to_address(tora_contract_address, 0, response.gas_price, response.gas_limit, data)

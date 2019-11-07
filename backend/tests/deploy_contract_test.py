@@ -46,7 +46,7 @@ def deploy_contract(contract_file, account_sk):
 
 account_sk2 = "919457fa2d81c0b7f1f1918683b1ff6b459c444aefec494c92f34d746ebb6b73"
 account_sk1 = "dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4ba514c55bc6e317"
-deploy_contract("../../contracts/ToraClean.scilla", account_sk1)
+deploy_contract("../../contracts/ToraSwap.scilla", account_sk1)
 
 # deploy_contract("../../contracts/TopRequest.scilla", account_sk2)
 # deploy_contract("../../contracts/GeneralRequest.scilla", account_sk2)
