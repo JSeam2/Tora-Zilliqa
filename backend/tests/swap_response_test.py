@@ -35,7 +35,7 @@ account = Account(private_key="919457fa2d81c0b7f1f1918683b1ff6b459c444aefec494c9
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-contract_addr = "zil1duvzphxjp3krg37rdys8cp4tkh8yn530sde56c"
+contract_addr = "zil1j70rj5dddlzzar93vh6nlqg6e98awha0xyqpjk"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 
@@ -68,4 +68,4 @@ def commit_verify_result_test(verify_request_id, result, oracle_owner_address):
 
 if __name__ == "__main__":
     # register_to_process_test("1")
-    commit_verify_result_test("1", "True", "0xa391fb22ef65d65167a0c94d5e9b6eacece56c7e")
+    commit_verify_result_test("100000", "True", "0xa391fb22ef65d65167a0c94d5e9b6eacece56c7e")

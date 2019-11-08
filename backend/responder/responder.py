@@ -73,7 +73,8 @@ class ZilliqaResponder(Responder):
                                                      ])
             try:
                 resp = self.__send_data_to_address(tora_contract_address, 0, response.gas_price, response.gas_limit, data)
-            except:
+            except Exception as e:
+                self.logger.info(e)
                 resp = None
             if not resp:
                 self.logger.info("Respond fail")

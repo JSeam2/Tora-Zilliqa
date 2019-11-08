@@ -112,7 +112,7 @@ class SwapRelay(Processor):
         swap_process_register = None
         if initial_chain == "Zilliqa":
             swap_process_register = ZilliqaSwapProcessRegister(self.configs['baseChainContract'])
-        if swap_chain == "Ethereum":
+        if swap_chain == "Ropsten":
             if swap_process_register is not None:
                 if self.configs['oracleSK'] is None or self.configs['oracleSK'] == "":
                     self.logger.info("No available sk for relay process")
@@ -122,10 +122,10 @@ class SwapRelay(Processor):
                     initial_addr = params['initial_addr']
                     target_addr = params['target_addr']
                     swap_money = params['swap_money']
-                    if self.configs["ethereumProvider"] is None:
-                        self.logger.info("No ethereum provider set")
+                    if self.configs["ropstenProvider"] is None:
+                        self.logger.info("No ropsten provider set")
                         return None
-                    verifier = Verifier(self.configs["ethereumProvider"])
+                    verifier = Verifier(self.configs["ropstenProvider"])
                     result = verifier.verify_transaction(tx_hash, swap_id, initial_addr, target_addr, swap_money)
                     return result
                 else:

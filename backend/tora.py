@@ -61,7 +61,8 @@ _kms_cfg = [
 ]
 
 _cross_chain_cfg = [
-    ["ethereumProvider", "ethereum"]
+    ["ethereumProvider", "ethereum"],
+    ["ropstenProvider", "ropsten"]
 ]
 
 _optional_cfg = [

@@ -125,7 +125,7 @@ class Verifier:
             if target_tx["input"] != "0x":
                 return False
         else:
-            if target_tx["input"] != hex(int(swap_id)):
+            if int(target_tx["input"], 0) != int(swap_id):
                 return False
         block_info = self.web3.eth.getBlock(target_tx.blockHash, True)
         # verify the block hash
@@ -149,7 +149,7 @@ class Verifier:
     @staticmethod
     def verify_block(block_info):
         # verify the difficulty
-        if utils.parse_as_int(block_info['difficulty']) < 2000000000000000:
+        if utils.parse_as_int(block_info['difficulty']) < 10000000:
             return False
         if int(normalize_bytes(block_info["nonce"]).hex(), 16) * utils.parse_as_int(block_info['difficulty']) \
                 > pow(2, 256):
@@ -332,6 +332,6 @@ class Verifier:
 
 
 if __name__ == "__main__":
-    verifier = Verifier("https://mainnet.infura.io/v3/projectid")
-    print(verifier.verify_transaction("0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee", "", "0x734Ac651Dd95a339c633cdEd410228515F97fAfF", "0x7006abF3216445aaE379Ac77c9b89929147F5301", "233100450000000"))
+    verifier = Verifier("https://ropsten.infura.io/v3/613949b5e37f45d393b7f4c1948be8d5")
+    print(verifier.verify_transaction("0xc8b85da7fdda086f20ee74aef0c2fecc622abf301e384b71f84626c874dbb25f", "1", "0x96C2D6177f5D5e5137047e38ECAC6d064a878fD1", "0xe586C7111C5dD4feb222f2CBB087020485640308", "100000000000000"))
     # print(verifier.verify_state("0x123BA66d42aE85F7E9C911B375Ed3DbA078E94b7", ["0x0", "0x1"]))
