@@ -46,7 +46,7 @@ contract Oracle
 (owner: ByStr20)
 
 field req_map: Map Uint32 Request = Emp Uint32 Request
-field req_count: Uint32 = Uint32 1000000000000
+field req_count: Uint32 = Uint32 1000000000
 
 (* oracle owner address <-> reward money *)
 field reward_map: Map ByStr20 Uint128 = Emp ByStr20 Uint128
