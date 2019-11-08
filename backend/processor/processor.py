@@ -54,7 +54,7 @@ class Processor(threading.Thread):
 
     def generate_response_str(self, request, res_str):
         response_method = ""
-        if request.type in [0, 1, 3]:
+        if request.type in [0, 1, 3, 4]:
             response_method = "responseString"
         elif request.type == 2:
             response_method = "commit_verify_result"
@@ -143,18 +143,39 @@ class CrossChainInfoRelay(Processor):
 
     def process(self, params):
         self.logger.info("Enter CrossChainInfoRelay~")
-        if self.configs["ethereumProvider"] is None:
-            self.logger.info("No ethereum provider set")
-            return None
-        if 'contract_addr' in params.keys() and 'data_positions' in params.keys():
-            contract_addr = params['contract_addr']
-            data_positions = params['data_positions']
-            verifier = Verifier(self.configs["ethereumProvider"])
-            if 'block_number' not in params.keys():
-                result = verifier.verify_state(contract_addr, data_positions)
+        if 'chain_name' in params.keys() and 'contract_addr' in params.keys() and 'data_positions' in params.keys():
+            if params['chain_name'] == 'Ethereum':
+                if self.configs["ethereumProvider"] is None:
+                    self.logger.info("No ethereum provider set")
+                    return None
+                contract_addr = params['contract_addr']
+                data_positions = params['data_positions']
+                verifier = Verifier(self.configs["ethereumProvider"])
+                if 'block_number' not in params.keys():
+                    result = verifier.verify_state(contract_addr, data_positions)
+                else:
+                    block_number = params['block_number']
+                    result = verifier.verify_state(contract_addr, data_positions, block_number)
+                return result
             else:
-                block_number = params['block_number']
-                result = verifier.verify_state(contract_addr, data_positions, block_number)
-            return result
+                self.logger.info("Can't process this chain txn")
+                return None
+        else:
+            return "No correct request params"
+
+
+class CrossChainTxnVerifier(Processor):
+    def process(self, params):
+        self.logger.info("Enter CrossChainTxnVerifier~")
+        if 'chain_name' in params.keys() and 'txn_hash' in params.keys():
+            if params['chain_name'] == 'Ethereum':
+                if self.configs["ethereumProvider"] is None:
+                    self.logger.info("No ethereum provider set")
+                    return None
+                verifier = Verifier(self.configs["ethereumProvider"])
+                return verifier.verify_transaction_exist(params['txn_hash'])
+            else:
+                self.logger.info("Can't process this chain txn")
+                return None
         else:
             return "No correct request params"

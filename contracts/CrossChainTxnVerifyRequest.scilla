@@ -25,7 +25,7 @@ let one_msg =
 let oracle_address = 0xa561dd42d6f981a746859e1e3b69ecdc193f8fbe
 
 let gas_price_set = Uint128 1000000000
-let gas_limit_set = Uint128 20000
+let gas_limit_set = Uint128 10000
 
 (***************************************************)
 (*             The contract definition             *)
@@ -38,8 +38,7 @@ contract RequestOracle
 transition request()
     accept;
     msg = { _tag : "request"; _recipient : oracle_address; _amount : _amount;
-    user_addr: _sender; request_type: Uint32 3; param_data: "{'chain_name':'Ethereum','contract_addr':'0x123BA66d42aE85F7E9C911B375Ed3DbA078E94b7',
-    'data_positions':['0x0', '0x1']}";
+    user_addr: _sender; request_type: Uint32 4; param_data: "{'chain_name':'Ethereum','txn_hash':'0xcdca9cf3867180a939342bebe344560e50d99b77fb21d120950cb908cac7bdee'}";
     gas_price: gas_price_set; gas_limit: gas_limit_set;
     callback_func: "callback"};
     msgs = one_msg msg;

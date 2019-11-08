@@ -89,6 +89,27 @@ class Verifier:
     def __init__(self, chain):
         self.web3 = Web3(HTTPProvider(chain))
 
+    def verify_transaction_exist(self, tx_hash):
+        target_tx = self.web3.eth.getTransaction(tx_hash)
+        block_info = self.web3.eth.getBlock(target_tx.blockHash, True)
+        # verify the block hash
+        if not self.verify_block(block_info):
+            return False
+        # verify the following 15 block hash
+        block_num = utils.parse_as_int(block_info["number"])
+        parent_block_hash = normalize_bytes(block_info.hash)
+        for i in range(1, 15):
+            temp_block_info = self.web3.eth.getBlock(block_num + i)
+            cur_block_parent_hash = normalize_bytes(temp_block_info["parentHash"])
+            if parent_block_hash != cur_block_parent_hash:
+                return False
+            parent_block_hash = normalize_bytes(temp_block_info.hash)
+            self.verify_block(temp_block_info)
+        # verify the transaction
+        if not self.verify_transaction_hash(block_info, tx_hash):
+            return False
+        return True
+
     def verify_transaction(self, tx_hash, swap_id, initial_addr, target_addr, swap_money):
         target_tx = self.web3.eth.getTransaction(tx_hash)
         if target_tx is None:

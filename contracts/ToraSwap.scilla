@@ -3,7 +3,7 @@ scilla_version 0
 library Oracle
 
 (* Request ID from user_addr type paramData gasPrice gasLimit fee callbackFunc ifResponded *)
-(* request type 0-builtin 1-webapi 2-swap_verify 3-cross chain info*)
+(* request type 0-builtin 1-webapi 2-swap_verify 3-cross chain info 4-transaction verify*)
 type Request =
 | Request of Uint32 ByStr20 ByStr20 Uint32 String Uint128 Uint128 Uint128 String Uint32
 
@@ -46,7 +46,7 @@ contract Oracle
 (owner: ByStr20)
 
 field req_map: Map Uint32 Request = Emp Uint32 Request
-field req_count: Uint32 = Uint32 1
+field req_count: Uint32 = Uint32 1000000000000
 
 (* oracle owner address <-> reward money *)
 field reward_map: Map ByStr20 Uint128 = Emp ByStr20 Uint128

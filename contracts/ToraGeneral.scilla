@@ -7,7 +7,7 @@ type OracleNode =
 | OracleNode of ByStr20 ByStr20 ByStr33 Uint32
 
 (* Request ID from user_addr type paramData gasPrice gasLimit fee callbackFunc ifResponded *)
-(* request type 0-builtin 1-webapi 2-swap_verify 3-cross chain info*)
+(* request type 0-builtin 1-webapi 2-swap_verify 3-cross chain info 4-transaction verify*)
 type Request =
 | Request of Uint32 ByStr20 ByStr20 Uint32 String Uint128 Uint128 Uint128 String Uint32
 
