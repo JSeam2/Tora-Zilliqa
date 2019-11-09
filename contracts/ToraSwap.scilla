@@ -16,7 +16,7 @@ type SwapRequest =
 type Stake =
 | Stake of ByStr20 Uint128 Uint128
 
-let master_tee_address = 0xa391fb22ef65d65167a0c94d5e9b6eacece56c7e
+let master_tee_address = 0xc4818b8c0d0c2ae775e8ed1998d72c7aa0743063
 
 let transfer_gas = Uint128 1
 let withdraw_gas = Uint128 1000

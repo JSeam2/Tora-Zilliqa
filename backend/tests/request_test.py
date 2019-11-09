@@ -35,7 +35,7 @@ account = Account(private_key="919457fa2d81c0b7f1f1918683b1ff6b459c444aefec494c9
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-# oracle_address = '0x' + zilkey.to_valid_address("zil1cgsa7frn68elxhwpag2z7vuy9ascjn7slcxjg4")
+# oracle_address = '0x' + zilkey.to_valid_address("zil1vxv8lsha9cx4a2fth74zvd8e22y8eh85px4thu")
 # pprint(oracle_address)
 
 
@@ -105,7 +105,7 @@ def test_web_api():
 
 def test_cross_chain_info():
     # request contract address zil154sa6skklxq6w359nc0rk60vmsvnlra76vlvf8
-    contract_addr = "zil1xd26u2a9t2p7zjq2lzpsh6gt3ypfzluwq3r4dg"
+    contract_addr = "zil1muhe748ch3awrkvrtth39aswu3a539q0t7ves8"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
     print("Waiting the request published on chain...")
@@ -117,7 +117,7 @@ def test_cross_chain_info():
 
 def test_cross_chain_txn():
     # request contract address
-    contract_addr = "zil1q32mk560ucwt57atdcrndagwktx3pdymqy9dsk"
+    contract_addr = "zil1sl4zqk7x2ure00plx864957tame22sw9ud3j2h"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
     print("Waiting the request published on chain...")
@@ -131,4 +131,4 @@ if __name__ == "__main__":
     # test_trading_pairs()
     # test_web_api()
     test_cross_chain_info()
-    # test_cross_chain_txn()
+    test_cross_chain_txn()

@@ -36,7 +36,7 @@ account = Account(private_key="dc15707f4bf08367c89eae066daaa0a2335799fcd75dfb2c4
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-contract_addr = "zil1j70rj5dddlzzar93vh6nlqg6e98awha0xyqpjk"
+contract_addr = "zil1cfq4we3nmf2t7687qjvdwlz89qw2gzy700qwff"
 contract = Contract.load_from_address(contract_addr)
 contract.account = account
 
@@ -105,5 +105,5 @@ def monitor_swap_request_event(account_addr):
 
 if __name__ == "__main__":
     # monitor_swap_request_event("0x7dcB18944157BD73A36DbB61a1700FcFd0182680")
-    commit_swap_hash_test("2", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0xe7dce30629ea344710e0be9586ee1ff33bb4ad7516344a36c4a22266a07fb05e", "1000000000", "15000")
+    commit_swap_hash_test("1", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0xc1f5a536a410724679397944698447345fb81620a998b87a43a3c2cd60f97d2f", "1000000000", "15000")
     # appeal_test("0")
