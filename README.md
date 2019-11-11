@@ -139,11 +139,11 @@ We provide several testcases to quickly check the set up and help users and deve
  * **Master TEE address**: 0xc4818b8c0d0c2ae775e8ed1998d72c7aa0743063
  * **Master TEE IP**: 120.132.103.34:1234
 
- **NOTE: The above is the configure of our test nodes, if you are going to build a new one, remember to replace it with yours!**
+ **NOTE: The above is the configure of our test nodes, if you are going to build a new one, remember to replace it with yours!**
  
 ### Quick Test
 
-Here we provide several testcases based on above configures. [Some prerequisites](#prerequisites-for-user) are required to run these testcases (without TEE).
+Here we provide several testcases based on above configures. [Some prerequisites](#prerequisites-for-user) are required to run these testcases (without TEE).
 
  We have deployed four sample **ToraGeneral User SCs**, one for Top trading pairs, one for general Web API, one for cross-chain info fetch, and one for cross-chain transaction verification.
  The source code locates in:
