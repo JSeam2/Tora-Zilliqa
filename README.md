@@ -150,7 +150,7 @@ We provide several testcases to quickly check the set up and help users and deve
 
  And you can just run the `/Tora-Zilliqa/backend/tests/requset_test.py` to invoke them.
  
- We also give a example test for the swap request. You can run the `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_test.py` to test.
+ We also give a example test for the swap request. You can run the `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_test.py` to test. `swap_user_a_test.py` is for the user who wants to exchange some ETHs with ZILs. `swap_user_b_test.py` is for the user who wants to exchange some ZILs with ETHs. The detail process is explained in the Section "A swap case" at the end of this README.
 
 
 # Tutorial
@@ -256,9 +256,9 @@ We provide several testcases to quickly check the set up and help users and deve
 
 ### A simple case
 
-* Write the user contract，the example contract is in **contracts/Request.scilla** and **contracts/GeneralRequest.scilla**
+* Write the user contract，the example contracts are **contracts/TopRequest.scilla**, **contracts/GeneralRequest.scilla**, **contracts/CrossChainInfoRequest.scilla** and **contracts/CrossChainTxnVerifyRequest.scilla**
 
-  *  Request.scilla is for the trial to fetch data on the top 100 trading pairs from the top 10 exchanges. GeneralRequest.scilla is for the general request to  fetch data from a general web api.
+  *  TopRequest.scilla is for the trial to fetch data on the top 100 trading pairs from the top 10 exchanges. GeneralRequest.scilla is for the general request to  fetch data from a general web api. CrossChainInfoRequest.scilla is for the trial to fetch cross-chain info data. CrossChainTxnVerifyRequest.scilla is for the trial to verify the existence of a cross-chain transaction.
 
   * Parameter Explanation
 
@@ -301,8 +301,42 @@ We provide several testcases to quickly check the set up and help users and deve
 
   If amount< the least fee, an event 'No enough money' will return
 
+### A swap case
 
-
+* The exchange price was negotiated in advance between user A and user B.
+* User A publishes a swap request on the chain by invoking the ToraSwap contract function`request_swap()`. The swap ZILs are temporarily stored in the contract. And an event includes the swap parameters will be published on the chain. The example python code is in `swap_user_a_test.py`.
+    ```
+    def new_swap_request_test(swap_chain, initial_money, swap_money, target_addr, swap_chain_initial_addr, swap_chain_target_addr):
+    resp = contract.call(method="request_swap", params=[
+        Contract.value_dict("swap_chain", "String", swap_chain),
+        Contract.value_dict("initial_money", "Uint128", str(initial_money)),
+        Contract.value_dict("swap_money", "Uint128", str(swap_money)),
+        Contract.value_dict("target_addr", "ByStr20", target_addr),
+        Contract.value_dict("swap_chain_initial_addr", "ByStr20", swap_chain_initial_addr),
+        Contract.value_dict("swap_chain_target_addr", "ByStr20", swap_chain_target_addr)
+    ], amount=initial_money/1000000000000, priority=True)
+    pprint(resp)
+    ```
+    ```
+    new_swap_request_test("Ropsten", 1000000000000, 100000000000000, "Zilliqa account address of user B", "Ethereum account address of user B", "Ethereum account address of user A")
+    ```
+* User B monitors the event which matches the negotiated parameters, and then transfers the according ETHs to user A. User B uploads the transfer transaction hash to the ToraSwap contract by invoking the ToraSwap contract function`commit_swap_hash()`, and then a verify request event will be published on the chain. The example python code is in `swap_user_b_test.py`.
+    ```
+    def commit_swap_hash_test(swap_request_id, user_addr, tx_hash, gas_price, gas_limit):
+    resp = contract.call(method="commit_swap_hash", params=[
+        Contract.value_dict("swap_request_id", "Uint32", swap_request_id),
+        Contract.value_dict("user_addr", "ByStr20", user_addr),
+        Contract.value_dict("tx_hash", "String", tx_hash),
+        Contract.value_dict("gas_price", "Uint128", gas_price),
+        Contract.value_dict("gas_limit", "Uint128", gas_limit)
+    ], amount=20)
+    pprint(resp)
+    ```
+    ```
+    commit_swap_hash_test("swap_request_id", "Zilliqa account address of user B", "transaction hash", "1000000000", "15000")
+    ```
+* If the transfer transaction is verified by an oracle node successfully, the swap ZILs will be transfered to user B. Otherwise, the swap ZILS will be refunded to user A.
+* Something else to note is that some time-limits are set in the ToraSwap contract. One is the time-limit for the swap process, once the time limit is exceeded, money deposited in the contract from user will be returned. Another is the time-limit for the appeal process, user B can appeal to the ToraSwap contract if not get a oracle node response for a long time.
 
  
  
