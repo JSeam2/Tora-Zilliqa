@@ -150,15 +150,12 @@ Here we provide several testcases based on above configures. [Some prerequisites
  (2) general Web API, 
  (3) cross-chain info fetch, 
  (4) cross-chain transaction verification.
-
-  &emsp;&emsp;The source code locates in:
-  &emsp;&emsp;* `/Tora-Zilliqa/contracts/TopRequest.scilla`
-  &emsp;&emsp;* `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
-  &emsp;&emsp;* `/Tora-Zilliqa/contracts/CrossChainInfoRequest.scilla`
-  &emsp;&emsp;* `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
-
-
-  &emsp;&emsp;And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke them.
+The source code locates in:
+   * `/Tora-Zilliqa/contracts/TopRequest.scilla`
+   * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
+   * `/Tora-Zilliqa/contracts/CrossChainInfoRequest.scilla`
+   * `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
+  And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke them.
  
  2. We also give an sample of **Atomic Cross-chain Swap** between ETH and ZIL. The test code locates in `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_test.py`.  The process looks a little complex, you can find the detail [here](#2-atomic-cross-chain-swap).
 
