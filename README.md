@@ -153,7 +153,7 @@ Here we provide several testcases based on above configures. [Some prerequisites
    * `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
 
 
- And you can just run the `/Tora-Zilliqa/backend/tests/requset_test.py` to invoke them.
+ And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke them.
  
  We also give a example test for the swap request. You can run the `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_test.py` to test. `swap_user_a_test.py` is for the user who wants to exchange some ETHs with ZILs. `swap_user_b_test.py` is for the user who wants to exchange some ZILs with ETHs. The detail process is explained in the Section "A swap case" at the end of this README.
 
@@ -263,9 +263,9 @@ Here we provide several testcases based on above configures. [Some prerequisites
 
 #### 1. Top trading pairs
 
-* Write the user contract，the example contracts are **contracts/TopRequest.scilla**, **contracts/GeneralRequest.scilla**, **contracts/CrossChainInfoRequest.scilla** and **contracts/CrossChainTxnVerifyRequest.scilla**
+* Write the user contract，the example contract is in **contracts/TopRequest.scilla**.
 
-  *  TopRequest.scilla is for the trial to fetch data on the top 100 trading pairs from the top 10 exchanges. GeneralRequest.scilla is for the general request to  fetch data from a general web api. CrossChainInfoRequest.scilla is for the trial to fetch cross-chain info data. CrossChainTxnVerifyRequest.scilla is for the trial to verify the existence of a cross-chain transaction.
+  *  TopRequest.scilla is for the trial to fetch data on the top 100 trading pairs from the top 10 exchanges.
 
   * Parameter Explanation
 
@@ -327,7 +327,8 @@ Here we provide several testcases based on above configures. [Some prerequisites
     ```
     new_swap_request_test("Ropsten", 1000000000000, 100000000000000, "Zilliqa account address of user B", "Ethereum account address of user B", "Ethereum account address of user A")
     ```
-* User B monitors the event which matches the negotiated parameters, and then transfers the according ETHs to user A. User B uploads the transfer transaction hash to the ToraSwap contract by invoking the ToraSwap contract function`commit_swap_hash()`, and then a verify request event will be published on the chain. The example python code is in `swap_user_b_test.py`.
+    * Tips: We now only support the swap between **Zilliqa Testnet** and **Ropsten network**.
+* User B monitors the event which matches the negotiated parameters, and then transfers the according ETHs to user A **with the swap request id as the input data of the transaction**. User B uploads the transfer transaction hash to the ToraSwap contract by invoking the ToraSwap contract function`commit_swap_hash()`, and then a verify request event will be published on the chain. The example python code is in `swap_user_b_test.py`.
     ```
     def commit_swap_hash_test(swap_request_id, user_addr, tx_hash, gas_price, gas_limit):
     resp = contract.call(method="commit_swap_hash", params=[
@@ -342,9 +343,16 @@ Here we provide several testcases based on above configures. [Some prerequisites
     ```
     commit_swap_hash_test("swap_request_id", "Zilliqa account address of user B", "transaction hash", "1000000000", "15000")
     ```
-* If the transfer transaction is verified by an oracle node successfully, the swap ZILs will be transfered to user B. Otherwise, the swap ZILS will be refunded to user A.
+    * Tips: User B can transfer ETHs to user A by **MetaMask** client.
+* If the transfer transaction is verified by an oracle node successfully, the swap ZILs will be transfered to user B. Otherwise, the swap ZILs will be refunded to user A.
 * Something else to note is that some time-limits are set in the ToraSwap contract. One is the time-limit for the swap process, once the time limit is exceeded, money deposited in the contract from user will be returned. Another is the time-limit for the appeal process, user B can appeal to the ToraSwap contract if not get a oracle node response for a long time.
 
+#### 3. Other simple cases
+* We also give some other simple cases:
+    * The first case is the general request to  fetch data from a general web api, the request contract is in **contracts/GeneralRequest.scilla**.
+    * The second case is the trial to fetch cross-chain info data, the request contract is in **contracts/CrossChainInfoRequest.scilla**.
+    * The last case is the trial to verify the existence of a cross-chain transaction, the request contract is in **contracts/CrossChainTxnVerifyRequest.scilla**.
+* The tests can be run similar with the top trading pairs case.
  
  
  
