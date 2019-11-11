@@ -81,7 +81,7 @@ def get_response_event(contract_addr):
 
 def test_trading_pairs():
     # request contract address
-    contract_addr = "zil1xme8747tyvasmmpjf6sxd0gxe25syn64jdpcn0"
+    contract_addr = "zil1w6yp6pd0ft203j2mf09mqtmesw7hy6dt6wz507"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
     print("Waiting the request published on chain...")
@@ -93,7 +93,7 @@ def test_trading_pairs():
 
 def test_web_api():
     # request contract address
-    contract_addr = "zil12cfmfz3qx0lrqw0qnk3ssqnp6wtzvw7eshqgev"
+    contract_addr = "zil1n32fhzkfl9v00z5fquh4v84k3gk6w6z8clg0wq"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
     print("Waiting the request published on chain...")
@@ -104,7 +104,7 @@ def test_web_api():
 
 
 def test_cross_chain_info():
-    # request contract address zil154sa6skklxq6w359nc0rk60vmsvnlra76vlvf8
+    # request contract address
     contract_addr = "zil1muhe748ch3awrkvrtth39aswu3a539q0t7ves8"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
