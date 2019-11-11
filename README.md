@@ -130,17 +130,22 @@ We provide several testcases to quickly check the set up and help users and deve
 
 ### An already deployed Oracle (on Zilliqa Testnet with real TEEs)
  
- For testing purposes, we have deployed a set of oracle facilities on Zilliqa Testnet, including a **Worker**, a **Master TEE**, and two **Tora Smart Contracts** .
+ For testing purposes, we have deployed a set of oracle facilities on Zilliqa Testnet, including a **Worker**, a **Master TEE**, and two **Tora Smart Contracts** , which helps a pure user to interact with Tora easily.
+
  * **Zilliqa Network**: Testnet
  * **ToraGeneral SC address**: 0x61987fc2fd2e0d5ea92bbfaa2634f952887cdcf4    
      * or zil1vxv8lsha9cx4a2fth74zvd8e22y8eh85px4thu in *ZIL* format
  * **ToraSwap SC address**: zil1cfq4we3nmf2t7687qjvdwlz89qw2gzy700qwff
  * **Master TEE address**: 0xc4818b8c0d0c2ae775e8ed1998d72c7aa0743063
  * **Master TEE IP**: 120.132.103.34:1234
+
+ **NOTE: The above is the configure of our test nodes, if you are going to build a new one, remember to replace it with yours!**
  
 ### Quick Test
 
- We have deployed four sample **ToraGeneral User SC**s, one for Top trading pairs, one for general Web API, one for cross-chain info fetch, and one for cross-chain transaction verification.
+Here we provide several testcases based on above configures. [Some prerequisites](#prerequisites-for-user) are required to run these testcases (without TEE).
+
+ We have deployed four sample **ToraGeneral User SCs**, one for Top trading pairs, one for general Web API, one for cross-chain info fetch, and one for cross-chain transaction verification.
  The source code locates in:
    * `/Tora-Zilliqa/contracts/TopRequest.scilla`
    * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
@@ -237,7 +242,7 @@ We provide several testcases to quickly check the set up and help users and deve
 
 ## For User
 
-### Prerequisites
+### Prerequisites for user
 
 * A normal Operating System **without SGX device**
 * Python3.6
@@ -254,7 +259,9 @@ We provide several testcases to quickly check the set up and help users and deve
      $ export LDFLAGS="-L/usr/local/opt/openssl/lib -L /usr/local/opt/gmp/lib" && export CPPFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/gmp/include"
     ```
 
-### A simple case
+### Simple cases
+
+#### 1. Top trading pairs
 
 * Write the user contract，the example contracts are **contracts/TopRequest.scilla**, **contracts/GeneralRequest.scilla**, **contracts/CrossChainInfoRequest.scilla** and **contracts/CrossChainTxnVerifyRequest.scilla**
 
@@ -301,7 +308,7 @@ We provide several testcases to quickly check the set up and help users and deve
 
   If amount< the least fee, an event 'No enough money' will return
 
-### A swap case
+#### 2. Atomic Cross-chain Swap
 
 * The exchange price was negotiated in advance between user A and user B.
 * User A publishes a swap request on the chain by invoking the ToraSwap contract function`request_swap()`. The swap ZILs are temporarily stored in the contract. And an event includes the swap parameters will be published on the chain. The example python code is in `swap_user_a_test.py`.
