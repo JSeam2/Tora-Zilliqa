@@ -2,35 +2,40 @@
 
 Tora-Zilliqa is a TEE-based, Trusted Oracle implement for [Zilliqa Blockchain](https://zilliqa.com/). 
 
-## Overview
+# Overview
 
 Existing blockchain is a monolithic and isolated system, which can neither listen to the outside world or show abundant semantics itself (e.g., random number generation, access to private data). In addition, the global redundant computation makes the on-chain operations too expensive, which significantly limits the expressiveness of traditional blockchain.
 
 Tora is a trusted off-chain extended service for blockchain system, used for (i)efficiently fetching data from outside authenticated sources and (ii) delegating heavy workload to off-chain execution environment. Tora is built based on Trusted Execution Environment (e.g., Intel SGX, ARM TrustZone), shifting a part of trust to the verifiable code in a hardware-protected enclave, which can defend against attacks from malicious software (including privileged software like OS and hypervisor) and hardware. Tora builds a bridge between blockchain and the outside world (similar to Oracle but more flexible).  
 
-## Features
+### Features
 
-* Fetch outside data ✅ :
+- [x] Fetch outside data :
   * Support access to authenticated data sources and call Web API based on HTTP protocol.
   * Support major HTTP methods, e.g., GET，POST.
   * Provide authentication through HTTPs protocol.
 
-* Connect to other decentralized networks: 
+- [x] Connect to other decentralized networks: 
   * Support decentralized storage including IPFS、SWARM.
   * Support access data from other blockchain，e.g., check an account, call a smart contract, verify a transaction, etc.
   * Apply to major decentralized consensus，and verify the integrity of data.
-* Trusted computation:
+- [ ]  Trusted computation:
   * Allow users to call off-chain procedures. That is, Tora will collect users input, execute the user-defined program and return the result up to the blockchain.
   * Support major programming languages such as Python, and can run unmodified programs directly.
   * Provide proof of integrity. 
   * Support private computation and secure channel based on TEE
-* Others
+- [ ] Others
   * Trusted random number generation
   * Key management and encrypted Storage
   * More
 
 
-## Architecture
+### v0.1.2 
+Supports trusted relay for fetching information from other decentralized systems. This version provides a dedicated relay connected to Ethereum network, which can query transactions and data of accounts or smart contracts from Ethereum,  and verify the Merkle-proof along with cumulative proof of work for integrity guarantees. It also provides several testcases including an atomic cross-chain swap between Zilliqa and Ethereum.
+
+
+
+# Architecture
 
    <img src="./docs/arch.png" width="100%">
 
@@ -43,7 +48,7 @@ Tora is a trusted off-chain extended service for blockchain system, used for (i)
 
 
 
-## Token Flow
+# Token Flow
 
 <img src="./docs/token-flow.png" width="80%">
 
@@ -118,7 +123,35 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
   $ make 
   $ ./app
 ```
----
+
+## Testcases
+
+We provide several testcases to quickly check the set up and help users and developers understand how to use Tora.
+
+### An already deployed Oracle (on Zilliqa Testnet with real TEEs)
+ 
+ For testing purposes, we have deployed a set of oracle facilities on Zilliqa Testnet, including a **Worker**, a **Master TEE**, and two **Tora Smart Contracts** .
+ * **Zilliqa Network**: Testnet
+ * **ToraGeneral SC address**: 0x61987fc2fd2e0d5ea92bbfaa2634f952887cdcf4    
+     * or zil1vxv8lsha9cx4a2fth74zvd8e22y8eh85px4thu in *ZIL* format
+ * **ToraSwap SC address**: zil1cfq4we3nmf2t7687qjvdwlz89qw2gzy700qwff
+ * **Master TEE address**: 0xc4818b8c0d0c2ae775e8ed1998d72c7aa0743063
+ * **Master TEE IP**: 120.132.103.34:1234
+ 
+### Quick Test
+
+ We have deployed four sample **ToraGeneral User SC**s, one for Top trading pairs, one for general Web API, one for cross-chain info fetch, and one for cross-chain transaction verification.
+ The source code locates in:
+   * `/Tora-Zilliqa/contracts/TopRequest.scilla`
+   * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
+   * `/Tora-Zilliqa/contracts/CrossChainInfoRequest.scilla`
+   * `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
+
+
+ And you can just run the `/Tora-Zilliqa/backend/tests/requset_test.py` to invoke them.
+ 
+ We also give a example test for the swap request. You can run the `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_test.py` to test.
+
 
 # Tutorial
 
@@ -269,26 +302,7 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
   If amount< the least fee, an event 'No enough money' will return
 
 
-## An already deployed Oracle (on Zilliqa Testnet)
- 
- For testing purposes, we have deployed a set of oracle facilities on Zilliqa Testnet, including a **Worker**, a **Master TEE**, a **Tora SC** .
- * **Zilliqa Network**: Testnet
- * **ToraGeneral SC address**: 0x61987fc2fd2e0d5ea92bbfaa2634f952887cdcf4    
-     * or zil1vxv8lsha9cx4a2fth74zvd8e22y8eh85px4thu in *ZIL* format
- * **ToraSwap SC address**: zil1cfq4we3nmf2t7687qjvdwlz89qw2gzy700qwff
- * **Master TEE address**: 0xc4818b8c0d0c2ae775e8ed1998d72c7aa0743063
- * **Master TEE IP**: 120.132.103.34:1234
- 
- We have deployed four sample **ToraGeneral User SC**s, one for Top trading pairs, one for general Web API, one for cross-chain info fetch, and one for cross-chain transaction verification.
- The source code locates in:
-   * `/Tora-Zilliqa/contracts/TopRequest.scilla`
-   * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
-   * `/Tora-Zilliqa/contracts/CrossChainInfoRequest.scilla`
-   * `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
 
- And you can just run the `/Tora-Zilliqa/backend/tests/requset_test.py` to invoke them.
- 
- We also give a example test for the swap request. You can run the `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_test.py` to test.
 
  
  
