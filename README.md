@@ -145,22 +145,22 @@ We provide several testcases to quickly check the set up and help users and deve
 
 Here we provide several testcases based on above configures. [Some prerequisites](#prerequisites-for-user) are required to run these testcases (without TEE).
 
- We have deployed four sample user smart contracts for:
+ 1. We have deployed four sample user smart contracts for:
  (1) top trading pairs, 
  (2) general Web API, 
  (3) cross-chain info fetch, 
  (4) cross-chain transaction verification.
- 
- The source code locates in:
-   * `/Tora-Zilliqa/contracts/TopRequest.scilla`
-   * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
-   * `/Tora-Zilliqa/contracts/CrossChainInfoRequest.scilla`
-   * `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
+
+  &emsp;&emsp;The source code locates in:
+  &emsp;&emsp;* `/Tora-Zilliqa/contracts/TopRequest.scilla`
+  &emsp;&emsp;* `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
+  &emsp;&emsp;* `/Tora-Zilliqa/contracts/CrossChainInfoRequest.scilla`
+  &emsp;&emsp;* `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
 
 
- And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke them.
+  &emsp;&emsp;And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke them.
  
- We also give an sample of **Atomic Cross-chain Swap** between ETH and ZIL. The test code locates in `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_test.py`.  The process looks a little complex, you can find the detail [here](#2-atomic-cross-chain-swap).
+ 2. We also give an sample of **Atomic Cross-chain Swap** between ETH and ZIL. The test code locates in `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_test.py`.  The process looks a little complex, you can find the detail [here](#2-atomic-cross-chain-swap).
 
 
 # Tutorial
