@@ -155,7 +155,7 @@ The source code locates in:
    * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
    * `/Tora-Zilliqa/contracts/CrossChainInfoRequest.scilla`
    * `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
-  And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke them.
+And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke them.
  
  2. We also give an sample of **Atomic Cross-chain Swap** between ETH and ZIL. The test code locates in `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_test.py`.  The process looks a little complex, you can find the detail [here](#2-atomic-cross-chain-swap).
 
