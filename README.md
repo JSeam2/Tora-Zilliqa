@@ -140,10 +140,10 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
     * When the new machine run the master TEE for the first time, master_tee_address will be generated and print on the console
 
 * Tora contract deployment
-  * Modify contracts/Tora.scilla，set the according master_tee_address
+  * Modify contracts/ToraGeneral.scilla and contracts/Toraswap.scilla，set the according master_tee_address
   `let master_tee_address = 0x...`
-  * Deploy the Tora contract, the example code is in tests/deploy_contract_test.py
-  * Publish the Tora contract address
+  * Deploy the Tora contracts, the example code is in tests/deploy_contract_test.py
+  * Publish the Tora contract addresses
 
 ## For Oracle Node
 
@@ -155,20 +155,24 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 * config.ini
 
   ```
-  [auth]
-     master-host = ""
-     account = "zil10h9339zp277h8gmdhds6zuq0elgpsf5qga4qvh"
+  [OracleAccount]
+	    address = "zil15wglkgh0vht9zeaqe9x4axmw4nkw2mr79z6g3x"
+	    sk = "919457fa2d81c0b7f1f1918683b1ff6b459c444aefec494c92f34d746ebb6b73"
 
   [BaseChain]
      [[zilliqa]]
         rpc-server = "https://dev-api.zilliqa.com/"
         network-id = "333"
         version = "21823489"
-        contract-address = "zil165m736j7ht0x6chwsg096rdnrfhu9r8a7r7e4r"
+        contract-address = "zil1cfq4we3nmf2t7687qjvdwlz89qw2gzy700qwff"
 
   [KMS]
-     host = 192.168.1.19
+     host = 127.0.0.1
      port = 1234
+  
+  [CrossChain]
+	    ethereum = "https://mainnet.infura.io/v3/projectid"
+	    ropsten = "https://ropsten.infura.io/v3/projectid"
 
   [debug]
      level = DEBUG
@@ -177,9 +181,11 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
 
   Parameter Explanation
 
-  * account = oracle node account address
+  * address = oracle node account address
+  * sk = oracle node account sk
   * contract-address = Tora contract address
   * host, port = The host and port of the kms server
+  * ethereum, ropsten... = the rpc provider url(can use infura)
   * level, log-file = Log option
 
 * Launch the oracle node
@@ -267,17 +273,22 @@ Pull the Tora-Zilliqa source code, then switch to to the **env** folder, enter t
  
  For testing purposes, we have deployed a set of oracle facilities on Zilliqa Testnet, including a **Worker**, a **Master TEE**, a **Tora SC** .
  * **Zilliqa Network**: Testnet
- * **Tora SC address**: 0xc221df2473d1f3f35dc1ea142f33842f61894fd0    
-     * or zil1cgsa7frn68elxhwpag2z7vuy9ascjn7slcxjg4 in *ZIL* format
- * **Master TEE address**: 0x0105acd2cf6d016ecb85cf37fa8f1941c69f0017
+ * **ToraGeneral SC address**: 0x61987fc2fd2e0d5ea92bbfaa2634f952887cdcf4    
+     * or zil1vxv8lsha9cx4a2fth74zvd8e22y8eh85px4thu in *ZIL* format
+ * **ToraSwap SC address**: zil1cfq4we3nmf2t7687qjvdwlz89qw2gzy700qwff
+ * **Master TEE address**: 0xc4818b8c0d0c2ae775e8ed1998d72c7aa0743063
  * **Master TEE IP**: 120.132.103.34:1234
  
- We have also deployed two sample **User SC**s, one for Top trading pairs, and another for general Web API.
+ We have deployed four sample **ToraGeneral User SC**s, one for Top trading pairs, one for general Web API, one for cross-chain info fetch, and one for cross-chain transaction verification.
  The source code locates in:
    * `/Tora-Zilliqa/contracts/TopRequest.scilla`
    * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
+   * `/Tora-Zilliqa/contracts/CrossChainInfoRequest.scilla`
+   * `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
 
  And you can just run the `/Tora-Zilliqa/backend/tests/requset_test.py` to invoke them.
+ 
+ We also give a example test for the swap request. You can run the `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_test.py` to test.
 
  
  
