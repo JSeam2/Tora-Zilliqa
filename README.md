@@ -224,7 +224,7 @@ And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke
 
   * address = oracle node account address
   * sk = oracle node account sk
-  * contract-address = Tora contract address
+  * contract-address = Tora contract address(use the ToraGeneral contract address for processing general requests, use the ToraSwap contract address for processing swap requests)
   * host, port = The host and port of the kms server
   * ethereum, ropsten... = the rpc provider url(can use infura)
   * level, log-file = Log option
