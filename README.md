@@ -313,8 +313,20 @@ And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke
 
 #### 2. Atomic Cross-chain Swap
 
+* The swap process involves four addresses, including Zilliqa account addresses of user A and B, denoted as `initial_addr` and `target_addr`; Ethereum addresses of user A and B, denoted as `swap_chain_target_addr` and `swap_chain_initial_addr`.
+	* Tips: The accounts of `initial_addr` and `target_addr` need some pre-deposited ZILs to cover the fees incurred in the swap process, including launching a swap request and committing the transaction hash. The accounts of `initial_addr` and `swap_chain_initial_addr` also need the according amount of ZILs and ETHS to swap.
+
 * The exchange price was negotiated in advance between user A and user B.
+
 * User A publishes a swap request on the chain by invoking the ToraSwap contract function`request_swap()`. The swap ZILs are temporarily stored in the contract. And an event includes the swap parameters will be published on the chain. The example python code is in `swap_user_a_test.py`.
+    ```
+      # user account
+       account = Account(private_key="Your account sk")
+      # request contract address
+  	contract_addr = "User contract address(Zil...)"
+  	contract = Contract.load_from_address(contract_addr)
+  	contract.account = account
+    ```
     ```
     def new_swap_request_test(swap_chain, initial_money, swap_money, target_addr, swap_chain_initial_addr, swap_chain_target_addr):
     resp = contract.call(method="request_swap", params=[
@@ -331,7 +343,17 @@ And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke
     new_swap_request_test("Ropsten", 1000000000000, 100000000000000, "Zilliqa account address of user B", "Ethereum account address of user B", "Ethereum account address of user A")
     ```
     * Tips: We now only support the swap between **Zilliqa Testnet** and **Ropsten network**.
-* User B monitors the event which matches the negotiated parameters, and then transfers the according ETHs to user A **with the swap request id as the input data of the transaction**. User B uploads the transfer transaction hash to the ToraSwap contract by invoking the ToraSwap contract function`commit_swap_hash()`, and then a verify request event will be published on the chain. The example python code is in `swap_user_b_test.py`.
+    * Unit conversion instructions: `initial_money` is the amount of QA(1 ZIL = 10^12 QA). `swap_money` is the amount of Wei(1 ETH = 10^18 WEI).
+    
+* User B monitors the event which matches the negotiated parameters, and then transfers the according ETHs to user A **with hexadecimal format of the swap request id as the input data of the transaction**, eg. "0x0" for request 0. User B uploads the transfer transaction hash to the ToraSwap contract by invoking the ToraSwap contract function`commit_swap_hash()`, and then a verify request event will be published on the chain. The example python code is in `swap_user_b_test.py`.
+    ```
+    ```
+      # user account
+       account = Account(private_key="Must be the account sk of the target_addr defined in new_swap_request_test(...)")
+      # request contract address
+  	contract_addr = "User contract address(Zil...)"
+  	contract = Contract.load_from_address(contract_addr)
+  	contract.account = account
     ```
     def commit_swap_hash_test(swap_request_id, user_addr, tx_hash, gas_price, gas_limit):
     resp = contract.call(method="commit_swap_hash", params=[
@@ -346,7 +368,7 @@ And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke
     ```
     commit_swap_hash_test("swap_request_id", "Zilliqa account address of user B", "transaction hash", "1000000000", "15000")
     ```
-    * Tips: User B can transfer ETHs to user A by **MetaMask** client.
+    * User B can transfer ETHs to user A by [MetaMask](https://metamask.io) client.  [How to Transfer? Click Here](https://github.com/MetaMask/metamask-extension/issues/3430).
 * If the transfer transaction is verified by an oracle node successfully, the swap ZILs will be transfered to user B. Otherwise, the swap ZILs will be refunded to user A.
 * Something else to note is that some time-limits are set in the ToraSwap contract. One is the time-limit for the swap process, once the time limit is exceeded, money deposited in the contract from user will be returned. Another is the time-limit for the appeal process, user B can appeal to the ToraSwap contract if not get a oracle node response for a long time.
 
