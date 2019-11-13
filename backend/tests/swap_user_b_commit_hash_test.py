@@ -76,16 +76,24 @@ def __get_swap_request_event(account_addr, api, block_num):
                 event_logs = receipt["event_logs"]
                 for event_log in event_logs:
                     if event_log["address"] == (zilkey.normalise_address(contract_addr)).lower():
-                        if event_log["_eventname"] == "swap":
+                        if event_log["_eventname"] == "Swap success":
                             params = event_log["params"]
                             for param in params:
                                 if param["vname"] == "targetaddr" and param["value"] == account_addr.lower():
+                                    print("Swap successfully...")
+                                    print(event_log)
+                                    return True
+                        if event_log["_eventname"] == "Swap fail and return the lock money":
+                            params = event_log["params"]
+                            for param in params:
+                                if param["vname"] == "targetaddr" and param["value"] == account_addr.lower():
+                                    print("Swap fail and return the lock money...")
                                     print(event_log)
                                     return True
     return False
 
 
-def monitor_swap_request_event(account_addr):
+def monitor_swap_success_event(account_addr):
     url = "https://dev-api.zilliqa.com/"
     api = ZilliqaAPI(url)
     cur_block_num = str(int(api.GetCurrentMiniEpoch()) - 1)
@@ -95,8 +103,7 @@ def monitor_swap_request_event(account_addr):
         else:
             if __has_txn(api, cur_block_num):
                 if __get_swap_request_event(account_addr, api, cur_block_num):
-                    print("A new swap request to you...")
-                    cur_block_num = str(int(cur_block_num) + 1)
+                    break
                 else:
                     cur_block_num = str(int(cur_block_num) + 1)
             else:
@@ -104,6 +111,6 @@ def monitor_swap_request_event(account_addr):
 
 
 if __name__ == "__main__":
-    # monitor_swap_request_event("0x7dcB18944157BD73A36DbB61a1700FcFd0182680")
     commit_swap_hash_test("1", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0xc1f5a536a410724679397944698447345fb81620a998b87a43a3c2cd60f97d2f", "1000000000", "15000")
+    monitor_swap_success_event(account.address0x)
     # appeal_test("0")
