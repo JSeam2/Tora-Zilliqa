@@ -50,7 +50,17 @@ def commit_swap_hash_test(swap_request_id, user_addr, tx_hash, gas_price, gas_li
         Contract.value_dict("gas_price", "Uint128", gas_price),
         Contract.value_dict("gas_limit", "Uint128", gas_limit)
     ], amount=20)
-    pprint(resp)
+    if resp['receipt']['success']:
+        event_logs = resp['receipt']['event_logs']
+        if event_logs[0]['_eventname'] == 'verifyrequest':
+            print("Commit hash successfully, please wait for the response...")
+            monitor_swap_success_event(account.address0x)
+        else:
+            print("Commit fail, please see the event log")
+            pprint(event_logs)
+    else:
+        print("Commit fail")
+        pprint(resp)
 
 
 def appeal_test(swap_request_id):
@@ -112,6 +122,5 @@ def monitor_swap_success_event(account_addr):
 
 
 if __name__ == "__main__":
-    commit_swap_hash_test("1", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0xc1f5a536a410724679397944698447345fb81620a998b87a43a3c2cd60f97d2f", "1000000000", "15000")
-    monitor_swap_success_event(account.address0x)
+    commit_swap_hash_test("6", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0xf206a5a54cb1bec42ac00018f640500111ac7679a5a5ed873efef0fc98fb491d", "1000000000", "15000")
     # appeal_test("0")

@@ -57,6 +57,7 @@ def __get_response_from_block(contract_addr, api, block_num):
                 for event_log in event_logs:
                     if event_log["address"] == (zilkey.normalise_address(contract_addr)).lower():
                         if event_log["_eventname"] == "callback":
+                            print("Get a response...")
                             print(event_log)
                             return True
     return False
@@ -86,9 +87,17 @@ def test_trading_pairs():
     contract.account = account
     print("Waiting the request published on chain...")
     resp = contract.call(method="request", params=[], amount=25, priority=True)
-    pprint(resp)
-    print("Waiting the response...")
-    get_response_event(contract_addr)
+    if resp['receipt']['success']:
+        event_logs = resp['receipt']['event_logs']
+        if event_logs[0]['_eventname'] == 'request':
+            print("Request committed successfully, waiting the response...")
+            get_response_event(contract_addr)
+        else:
+            print("Commit fail, please see the event log")
+            pprint(event_logs)
+    else:
+        print("Commit fail")
+        pprint(resp)
 
 
 def test_web_api():
@@ -98,9 +107,17 @@ def test_web_api():
     contract.account = account
     print("Waiting the request published on chain...")
     resp = contract.call(method="request", params=[], amount=25, priority=True)
-    pprint(resp)
-    print("Waiting the response...")
-    get_response_event(contract_addr)
+    if resp['receipt']['success']:
+        event_logs = resp['receipt']['event_logs']
+        if event_logs[0]['_eventname'] == 'request':
+            print("Request committed successfully, waiting the response...")
+            get_response_event(contract_addr)
+        else:
+            print("Commit fail, please see the event log")
+            pprint(event_logs)
+    else:
+        print("Commit fail")
+        pprint(resp)
 
 
 def test_cross_chain_info():
@@ -110,9 +127,17 @@ def test_cross_chain_info():
     contract.account = account
     print("Waiting the request published on chain...")
     resp = contract.call(method="request", params=[], amount=25, priority=True)
-    pprint(resp)
-    print("Waiting the response...")
-    get_response_event(contract_addr)
+    if resp['receipt']['success']:
+        event_logs = resp['receipt']['event_logs']
+        if event_logs[0]['_eventname'] == 'request':
+            print("Request committed successfully, waiting the response...")
+            get_response_event(contract_addr)
+        else:
+            print("Commit fail, please see the event log")
+            pprint(event_logs)
+    else:
+        print("Commit fail")
+        pprint(resp)
 
 
 def test_cross_chain_txn():
@@ -122,13 +147,21 @@ def test_cross_chain_txn():
     contract.account = account
     print("Waiting the request published on chain...")
     resp = contract.call(method="request", params=[], amount=15, priority=True)
-    pprint(resp)
-    print("Waiting the response...")
-    get_response_event(contract_addr)
+    if resp['receipt']['success']:
+        event_logs = resp['receipt']['event_logs']
+        if event_logs[0]['_eventname'] == 'request':
+            print("Request committed successfully, waiting the response...")
+            get_response_event(contract_addr)
+        else:
+            print("Commit fail, please see the event log")
+            pprint(event_logs)
+    else:
+        print("Commit fail")
+        pprint(resp)
 
 
 if __name__ == "__main__":
     # test_trading_pairs()
     # test_web_api()
     test_cross_chain_info()
-    test_cross_chain_txn()
+    # test_cross_chain_txn()
