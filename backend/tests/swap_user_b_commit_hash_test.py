@@ -42,6 +42,7 @@ contract.account = account
 
 
 def commit_swap_hash_test(swap_request_id, user_addr, tx_hash, gas_price, gas_limit):
+    print("Waiting the request published on chain...")
     resp = contract.call(method="commit_swap_hash", params=[
         Contract.value_dict("swap_request_id", "Uint32", swap_request_id),
         Contract.value_dict("user_addr", "ByStr20", user_addr),

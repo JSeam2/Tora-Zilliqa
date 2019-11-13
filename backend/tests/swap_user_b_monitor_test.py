@@ -60,6 +60,7 @@ def __get_swap_request_event(account_addr, api, block_num):
                             for param in params:
                                 if param["vname"] == "targetaddr" and param["value"] == account_addr.lower():
                                     print("A new swap request to you...")
+                                    pprint(event_log)
                                     for temp_p in params:
                                         if temp_p["vname"] == "id":
                                             print("The request id is " + temp_p["value"] + ", please put the hexadecimal format of it in the input field of your transfer transaction.")
