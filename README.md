@@ -318,9 +318,9 @@ And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke
 
 * The exchange price was negotiated in advance between user A and user B.
 
-* User B can monitor the swap request published by user A with running `/Tora-Zilliqa/backend/tests/swap_user_b_monitor_test.py`.
+* User B can monitor the swap request published by user A with running `tests/swap_user_b_monitor_test.py`.
 
-* User A publishes a swap request on the chain by invoking the ToraSwap contract function`request_swap()`. The swap ZILs are temporarily stored in the contract. And an event includes the swap parameters will be published on the chain. The example python code is in `swap_user_a_test.py`.
+* User A publishes a swap request on the chain by invoking the ToraSwap contract function`request_swap()`. The swap ZILs are temporarily stored in the contract. And an event includes the swap parameters will be published on the chain. The example python code is in `tests/swap_user_a_test.py`.
     ```
       # user account
        account = Account(private_key="Your account sk")
@@ -347,7 +347,7 @@ And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke
     * Tips: We now only support the swap between **Zilliqa Testnet** and **Ropsten network**.
     * Unit conversion instructions: `initial_money` is the amount of QA(1 ZIL = 10^12 QA). `swap_money` is the amount of Wei(1 ETH = 10^18 WEI).
     
-* User B monitors the event which matches the negotiated parameters, and then transfers the according ETHs to user A **with hexadecimal format of the swap request id as the input data of the transaction**, eg. "0x0" for request 0. User B uploads the transfer transaction hash to the ToraSwap contract by invoking the ToraSwap contract function`commit_swap_hash()`, and then a verify request event will be published on the chain. The example python code is in `swap_user_b_commit_hash_test.py`.
+* User B monitors the event which matches the negotiated parameters, and then transfers the according ETHs to user A **with hexadecimal format of the swap request id as the input data of the transaction**, eg. "0x0" for request 0. User B uploads the transfer transaction hash to the ToraSwap contract by invoking the ToraSwap contract function`commit_swap_hash()`, and then a verify request event will be published on the chain. The example python code is in `tests/swap_user_b_commit_hash_test.py`.
     ```
     ```
       # user account
