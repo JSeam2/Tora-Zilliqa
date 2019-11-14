@@ -318,10 +318,10 @@ We also implemented a trusted exchange in the form of ACCS between Ethereum (**R
 ##### Step 0:
 
 * The swap process involves two parties and four account, **so you need prepare the following accounts**:
-  * User A who exchange ZIL into ETH
+  * User A who exchanges ZIL into ETH
     * 1 **initial_addr**: A‘s Zilliqa Account  ( *Has Enough ZIL to swap, GAS fee and Oracle fee* )
     * 2 **swap_chain_target_addr**: A's Ethereum Account
-  * User B who exchange Eth into ZIL
+  * User B who exchanges Eth into ZIL
     * 3 **target_addr**: B's Zilliqa Account ( *Has ZIL for ZIlliqa GAS fee and Oracle fee* )
     * 4 **swap_chain_initial_addr**: B's Ethereum Account ( *Has Enough ETH to swap and ETH GAS fee* )
   * Note: The accounts of **initial_addr** and **target_addr** need some pre-deposited ZILs to cover the fees incurred in the swap process, including launching a swap request and committing the transaction hash. The accounts of **initial_addr** and **swap_chain_initial_addr** also need to have the according amount of ZILs and ETHs to swap.
