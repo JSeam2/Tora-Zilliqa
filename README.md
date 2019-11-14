@@ -317,7 +317,7 @@ We also implemented a trusted exchange in the form of ACCS between Ethereum (**R
 
 ##### Step 0:
 
-* The swap process involves two parties and four account, **so you need prepare the following accounts**:
+* The swap process involves two parties and four accounts, **so you need prepare the following accounts**:
   * User A who exchanges ZIL into ETH
     * 1 **initial_addr**: A‘s Zilliqa Account  ( *Has Enough ZIL to swap, GAS fee and Oracle fee* )
     * 2 **swap_chain_target_addr**: A's Ethereum Account
