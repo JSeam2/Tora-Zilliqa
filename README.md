@@ -313,66 +313,119 @@ And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke
 
 #### 2. Atomic Cross-chain Swap
 
-* The swap process involves four addresses, including Zilliqa account addresses of user A and B, denoted as `initial_addr` and `target_addr`; Ethereum addresses of user A and B, denoted as `swap_chain_target_addr` and `swap_chain_initial_addr`.
-	* Tips: The accounts of `initial_addr` and `target_addr` need some pre-deposited ZILs to cover the fees incurred in the swap process, including launching a swap request and committing the transaction hash. The accounts of `initial_addr` and `swap_chain_initial_addr` also need the according amount of ZILs and ETHs to swap.
+We also implemented a trusted exchange in the form of ACCS between Ethereum (**Ropsten Testnet**) and Zilliqa (**Testnet**).
 
-* The exchange price was negotiated in advance between user A and user B.
+##### Step 0:
 
-* User B can monitor the swap request published by user A with running `tests/swap_user_b_monitor_test.py`.
+* The swap process involves two parties and four account, **so you need prepare the following accounts**:
+  * User A who exchange ZIL into ETH
+    * 1 **initial_addr**: A‘s Zilliqa Account  ( *Has Enough ZIL to swap, GAS fee and Oracle fee* )
+    * 2 **swap_chain_target_addr**: A's Ethereum Account
+  * User B who exchange Eth into ZIL
+    * 3 **target_addr**: B's Zilliqa Account ( *Has ZIL for ZIlliqa GAS fee and Oracle fee* )
+    * 4 **swap_chain_initial_addr**: B's Ethereum Account ( *Has Enough ETH to swap and ETH GAS fee* )
+  * Note: The accounts of **initial_addr** and **target_addr** need some pre-deposited ZILs to cover the fees incurred in the swap process, including launching a swap request and committing the transaction hash. The accounts of **initial_addr** and **swap_chain_initial_addr** also need to have the according amount of ZILs and ETHs to swap.
 
-* User A publishes a swap request on the chain by invoking the ToraSwap contract function`request_swap()`. The swap ZILs are temporarily stored in the contract. And an event includes the swap parameters will be published on the chain. The example python code is in `tests/swap_user_a_test.py`.
+* The exchange price is required to be  negotiated in advance between user A and user B. 
+In this case, A exchange 1000000000000 QA (**1 ZIL**) into 100000000000000 Wei (**0.0001 ETH**) from B by default.
+
+##### Step 1:
+
+For User B
+
+1. Edit the `tests/swap_user_b_monitor_test.py` line 35 and fill in the private key of the **target_addr**.
+
+  ```python
+  34: #user account
+  35: account = Account(private_key= "private key of target_addr")
+  ```
+
+2. Launch a new terminal, run   `tests/swap_user_b_monitor_test.py` to monitor the swap request published by user A, and then wait...
+
     ```
-    # user account
-    account = Account(private_key="Your account sk")
-    # request contract address
-    contract_addr = "User contract address(Zil...)"
-    contract = Contract.load_from_address(contract_addr)
-    contract.account = account
+    Terminal B:
+    -----------
+
+    $ python3 swap_user_b_monitor_test.py
+    Waiting for new requests...
+
     ```
+##### Step 2:
+
+######For User A
+
+1. Modify the `tests/swap_user_a_test.py` 
+    * line 34, fill in the private key of **initial_addr**
+    ```python
+    33: # user account
+    34: account = Account(private_key="private key of initial_addr")
     ```
-    def new_swap_request_test(swap_chain, initial_money, swap_money, target_addr, swap_chain_initial_addr, swap_chain_target_addr):
-    resp = contract.call(method="request_swap", params=[
-        Contract.value_dict("swap_chain", "String", swap_chain),
-        Contract.value_dict("initial_money", "Uint128", str(initial_money)),
-        Contract.value_dict("swap_money", "Uint128", str(swap_money)),
-        Contract.value_dict("target_addr", "ByStr20", target_addr),
-        Contract.value_dict("swap_chain_initial_addr", "ByStr20", swap_chain_initial_addr),
-        Contract.value_dict("swap_chain_target_addr", "ByStr20", swap_chain_target_addr)
-    ], amount=initial_money/1000000000000, priority=True)
-    pprint(resp)
+    * line 99, fill in the parameters of the request:
+      * target network ( **Ropsten** here )
+      * amount of ZIL ( in QA )
+      * amount of ETH ( in Wei )
+      * target_addr
+      * swap_chain_initial_addr
+      * swap_chain_target_addr
+      
+    ```python 
+    99: new_swap_request_test("Ropsten", 1000000000000, 100000000000000, "target_addr", "swap_chain_initial_addr", "swap_chain_target_addr")
     ```
+2. Launch a new terminal, run the `tests/swap_user_a_test.py` to pulish this request on Zilliqa. Once finished, it will print some information including the receipt:
+  ```
+  Terminal A:
+  -----------
+
+  $ python3 swap_user_a_test.py
+  ...
+  'receipt':{'cumulative_gas':'1659',
+             'epoch_num':'912511',
+             .......
+             'success':True}
+  ...
+  ```
+
+######For User B
+
+1. User B can find the information of the new request in Terminal B:
+  ```
+  Terminal B:
+  -----------
+
+  $ python3 swap_user_b_monitor_test.py
+  Waiting for new requests...
+
+  A new request arrives.
+  {'_eventname':'swap',
+  ...}
+  The request id is 8, please put the hexadecimal format of it in the input field of your transfer transaction.
+  $
+
+  ```
+2. User B then transfers the according ETHs from **swap_chain_initial_addr** to **swap_chain_target_addr**, and remember to attach the  **hexadecimal format of the swap request id as the input data of the transaction** (eg. "0x8" if request ID is 8). 
+You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer? [Click Here](https://github.com/MetaMask/metamask-extension/issues/3430).
+
+3. Edit `tests/swap_user_b_commit_hash_test.py`
+    * line 35, fill in the private key of **target_addr**:
+    ```python
+    34: # user account
+    35: account = Account(private_key="private key of target_addr")
+
     ```
-    new_swap_request_test("Ropsten", 1000000000000, 100000000000000, "Zilliqa account address of user B", "Ethereum account address of user B", "Ethereum account address of user A")
+    * line 125, fill in the parameters of the commit request:
+      * request ID
+      * address of **target_addr**
+      * transaction hash
+      * gas price (1000000000 by default)
+      * gas limit (15000 by default)
+    ```python
+    125: commit_swap_hash_test("8", "address of target_addr", "transaction hash", "1000000000", "15000")
     ```
-    * Tips: We now only support the swap between **Zilliqa Testnet** and **Ropsten network**.
-    * Unit conversion instructions: `initial_money` is the amount of QA(1 ZIL = 10^12 QA). `swap_money` is the amount of Wei(1 ETH = 10^18 Wei).
-    
-* User B monitors the event which matches the negotiated parameters, and then transfers the according ETHs to user A **with hexadecimal format of the swap request id as the input data of the transaction**, eg. "0x0" for request 0. User B uploads the transfer transaction hash to the ToraSwap contract by invoking the ToraSwap contract function`commit_swap_hash()`, and then a verify request event will be published on the chain. The example python code is in `tests/swap_user_b_commit_hash_test.py`.
-    ```
-    # user account
-    account = Account(private_key="Must be the account sk of the target_addr defined in new_swap_request_test(...)")
-    # request contract address
-    contract_addr = "User contract address(Zil...)"
-    contract = Contract.load_from_address(contract_addr)
-    contract.account = account
-    ```
-    ```
-    def commit_swap_hash_test(swap_request_id, user_addr, tx_hash, gas_price, gas_limit):
-    resp = contract.call(method="commit_swap_hash", params=[
-        Contract.value_dict("swap_request_id", "Uint32", swap_request_id),
-        Contract.value_dict("user_addr", "ByStr20", user_addr),
-        Contract.value_dict("tx_hash", "String", tx_hash),
-        Contract.value_dict("gas_price", "Uint128", gas_price),
-        Contract.value_dict("gas_limit", "Uint128", gas_limit)
-    ], amount=20)
-    pprint(resp)
-    ```
-    ```
-    commit_swap_hash_test("swap_request_id", "Zilliqa account address of user B", "transaction hash", "1000000000", "15000")
-    ```
-    * User B can transfer ETHs to user A by [MetaMask](https://metamask.io) client.  [How to Transfer? Click Here](https://github.com/MetaMask/metamask-extension/issues/3430).
-* If the transfer transaction is verified by an oracle node successfully, the swap ZILs will be transfered to user B. Otherwise, the swap ZILs will be refunded to user A.
-* Something else to note is that some time-limits are set in the ToraSwap contract. One is the time-limit for the swap process, once the time limit is exceeded, money deposited in the contract from user will be returned. Another is the time-limit for the appeal process, user B can appeal to the ToraSwap contract if not get a oracle node response for a long time.
+
+4. run the `tests/swap_user_b_commit_hash_test.py`
+
+    * If the transfer transaction is verified by an oracle node successfully, the swap ZILs will be transfered to user B. Otherwise, the swap ZILs will be refunded to user A.
+    * Something else to note is that some time-limits are set in the ToraSwap contract. One is the time-limit for the swap process, once the time limit is exceeded, money deposited in the contract from user will be returned. Another is the time-limit for the appeal process, user B can appeal to the ToraSwap contract if not get a oracle node response for a long time.
 
 #### 3. Other simple cases
 * We also give some other simple cases:
