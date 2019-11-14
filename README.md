@@ -352,7 +352,7 @@ For User B
     ```
 ##### Step 2:
 
-######For User A
+###### For User A
 
 1. Modify the `tests/swap_user_a_test.py` 
     * line 34, fill in the private key of **initial_addr**
@@ -385,7 +385,7 @@ For User B
   ...
   ```
 
-######For User B
+###### For User B
 
 1. User B can find the information of the new request in Terminal B:
   ```
