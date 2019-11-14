@@ -59,7 +59,7 @@ def __get_swap_request_event(account_addr, api, block_num):
                             params = event_log["params"]
                             for param in params:
                                 if param["vname"] == "targetaddr" and param["value"] == account_addr.lower():
-                                    print("A new swap request to you...")
+                                    print("A new request arrives.")
                                     pprint(event_log)
                                     for temp_p in params:
                                         if temp_p["vname"] == "id":
@@ -69,6 +69,7 @@ def __get_swap_request_event(account_addr, api, block_num):
 
 
 def monitor_swap_request_event(account_addr):
+    print("Waiting for new request...")
     url = "https://dev-api.zilliqa.com/"
     api = ZilliqaAPI(url)
     cur_block_num = str(int(api.GetCurrentMiniEpoch()) - 1)

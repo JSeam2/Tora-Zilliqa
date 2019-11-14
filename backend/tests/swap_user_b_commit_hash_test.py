@@ -122,5 +122,5 @@ def monitor_swap_success_event(account_addr):
 
 
 if __name__ == "__main__":
-    commit_swap_hash_test("6", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0xf206a5a54cb1bec42ac00018f640500111ac7679a5a5ed873efef0fc98fb491d", "1000000000", "15000")
+    commit_swap_hash_test("10", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0x1f039c93ed891594553e017dd551e20a3047d4c5475d2e7ae2dcdd80c455aa10", "1000000000", "15000")
     # appeal_test("0")
