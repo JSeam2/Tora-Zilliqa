@@ -25,7 +25,7 @@ let one_msg =
 let oracle_address = 0x61987fc2fd2e0d5ea92bbfaa2634f952887cdcf4
 
 let gas_price_set = Uint128 1000000000
-let gas_limit_set = Uint128 10000
+let gas_limit_set = Uint128 20000
 
 (***************************************************)
 (*             The contract definition             *)
