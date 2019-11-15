@@ -31,7 +31,7 @@ Tora is a trusted off-chain extended service for blockchain system, used for (i)
 
 
 ### v0.1.2 
-Supports trusted relay for fetching information from other decentralized systems. This version provides a dedicated relay connected to Ethereum network, which can query transactions and data of accounts or smart contracts from Ethereum,  and verify the Merkle-proof along with cumulative proof of work for integrity guarantees. It also provides several testcases including an atomic cross-chain swap between Zilliqa and Ethereum.
+Supports trusted relay for fetching information from other decentralized systems. This version provides a dedicated relay connected to Ethereum network, which can query transactions and data of accounts or smart contracts from Ethereum,  and verify the Merkle-proof along with cumulative proof of work for integrity guarantees. It also provides several testcases including [an atomic cross-chain swap](#2-atomic-cross-chain-swap) between Zilliqa and Ethereum.
 
 
 
