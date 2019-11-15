@@ -401,11 +401,14 @@ For User B
   A new request arrives.
   {'_eventname':'swap',
   ...}
-  The request id is 8, please put the hexadecimal format of it in the input field of your transfer transaction.
+  The request id is 12, please put the hexadecimal format of it in the input field of your transfer transaction.
   $
 
   ```
-2. User B then transfers the according ETHs from **swap_chain_initial_addr** to **swap_chain_target_addr**, and remember to attach the  **hexadecimal format of the swap request id as the input data of the transaction** (eg. "0x8" if request ID is 8). 
+2. User B then transfers the according ETHs from **swap_chain_initial_addr** to **swap_chain_target_addr**, and remember to attach the  **hexadecimal format of the swap request id as the input data of the transaction** (eg. "0xc" if request ID is 12). 
+
+<img src="./docs/guide.png" width="50%">
+
 You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer? [Click Here](https://github.com/MetaMask/metamask-extension/issues/3430).
 
 3. Edit `tests/swap_user_b_commit_hash_test.py`
