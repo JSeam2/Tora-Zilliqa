@@ -121,5 +121,5 @@ def test_web_api():
 
 
 if __name__ == "__main__":
-    test_trading_pairs()
+    # test_trading_pairs()
     test_web_api()
