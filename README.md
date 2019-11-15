@@ -156,7 +156,7 @@ The source code locates in:
    * `/Tora-Zilliqa/contracts/CrossChainInfoRequest.scilla`
    * `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
 
-And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke them.
+And you can just run the `/Tora-Zilliqa/backend/tests/general_request_test.py` to invoke the **(1)** and **(2)** test cases, run the `/Tora-Zilliqa/backend/tests/cross_chain_request_test.py` to invoke the **(3)** and **(4)** test cases.
  
  2. We also give an sample of **Atomic Cross-chain Swap** between ETH and ZIL. The test code locates in `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` ,  `/Tora-Zilliqa/backend/tests/swap_user_b_monitor_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_commit_hash_test.py`.  The process looks a little complex, you can find the detail [here](#2-atomic-cross-chain-swap).
 
@@ -289,7 +289,7 @@ And you can just run the `/Tora-Zilliqa/backend/tests/request_test.py` to invoke
 
 * Deploy the user contract with your account sk and find the contract address on Zilliqa Explorer, the example code is in tests/deploy_contract_test.py
 
-* Invoke the user contract, the example code is in tests/request_test.py
+* Invoke the user contract, the example code is in tests/general_request_test.py
 
   ```
   # user account
@@ -435,9 +435,9 @@ You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer?
 
 #### 3. Other simple cases
 * We also give some other simple cases:
-    * The first case is the general request to  fetch data from a general web api, the request contract is in **contracts/GeneralRequest.scilla**.
-    * The second case is the trial to fetch cross-chain info data, the request contract is in **contracts/CrossChainInfoRequest.scilla**.
-    * The last case is the trial to verify the existence of a cross-chain transaction, the request contract is in **contracts/CrossChainTxnVerifyRequest.scilla**.
+    * The first case is the general request to  fetch data from a general web api, the request contract is in **contracts/GeneralRequest.scilla**, the invoke code is in **tests/general_request_test.py**.
+    * The second case is the trial to fetch cross-chain info data, the request contract is in **contracts/CrossChainInfoRequest.scilla**, the invoke code is in **tests/cross_chain_request_test.py**.
+    * The last case is the trial to verify the existence of a cross-chain transaction, the request contract is in **contracts/CrossChainTxnVerifyRequest.scilla**, the invoke code is in **tests/cross_chain_request_test.py**.
 * The tests can be run similar with the top trading pairs case.
  
  
