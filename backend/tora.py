@@ -52,7 +52,8 @@ _baseChain_cfg_zilliqa = [
     ["baseChainServer",         "rpc-server"],
     ["baseChainID",             "network-id"],
     ["baseChainversion",        "version"],
-    ["baseChainContract",       "contract-address"],
+    ["generalContract",         "general-address"],
+    ["swapContract",            "swap-address"],
 ]
 
 _kms_cfg = [
@@ -130,18 +131,21 @@ def launch(config):
     KMSConnector.port = int(cfg["KMS_PORT"])
     KMSConnector.oracle_owner_address = cfg["oracleAddress"]
     
-    zilliqa_monitor = ZilliqaMonitor(url=cfg["baseChainServer"], contract_addr=cfg["baseChainContract"])
-    resolver = Resolver([zilliqa_monitor], cfg)
+    general_monitor = ZilliqaMonitor(url=cfg["baseChainServer"], contract_addr=cfg["generalContract"])
+    swap_monitor = ZilliqaMonitor(url=cfg["baseChainServer"], contract_addr=cfg["swapContract"])
+    resolver = Resolver([general_monitor, swap_monitor], cfg)
     logger.info("Monitor lanuched~")
     logger.info("BaseChain: Zilliqa")
     logger.info("RPC-server: " + cfg["baseChainServer"])
-    logger.info("Tora Contract Address: " + cfg["baseChainContract"])
+    logger.info("Tora Contract Address: " + cfg["generalContract"]+", " + cfg["swapContract"])
     logger.info("Oracle Account: " + cfg["oracleAddress"] + " " + cfg["oracleSK"])
 
-    zilliqa_monitor.start()
+    general_monitor.start()
+    swap_monitor.start()
     resolver.start()
 
-    zilliqa_monitor.join()
+    general_monitor.join()
+    swap_monitor.join()
     resolver.join()
 
 
@@ -149,7 +153,8 @@ def launch(config):
 @click.option('--config',         default="config.ini",    type=click.Path(exists=True))
 @click.option('--gas_price',  default=1000000000)
 @click.option('--gas_limit',  default=10000)
-def withdraw(config, gas_price, gas_limit):
+@click.option('--contract', default='generalContract')
+def withdraw(config, gas_price, gas_limit, contract):
 
     '''
     This function will generate a transaction to transfer the token from TEE accoount to the worker's account.
@@ -165,7 +170,7 @@ def withdraw(config, gas_price, gas_limit):
     KMSConnector.host = str(cfg["KMS_HOST"])
     KMSConnector.port = int(cfg["KMS_PORT"])
 
-    contract_addr = cfg["baseChainContract"]
+    contract_addr = cfg[contract]
     contract = Contract.load_from_address(contract_addr)
 
     account = Account(private_key=cfg["oracleSK"])
@@ -182,11 +187,11 @@ def withdraw(config, gas_price, gas_limit):
             money = int(resp['receipt']['event_logs'][0]['params'][0]['value']['arguments'][0])/1000000000000.0
             print("Have money: " + str(money))
             kms = KMSConnector()
-            if kms.withdraw(zilkey.normalise_address(cfg['oracleAddress'].lower()), money, cfg["baseChainContract"])=="success":
+            if kms.withdraw(zilkey.normalise_address(cfg['oracleAddress'].lower()), money, cfg[contract])=="success":
                 print("Withdraw submit success")
                 time.sleep(300)
                 print("Withdraw success")
-            elif kms.withdraw(zilkey.normalise_address(cfg['oracleAddress'].lower()), money, cfg["baseChainContract"]) is None:
+            elif kms.withdraw(zilkey.normalise_address(cfg['oracleAddress'].lower()), money, cfg[contract]) is None:
                 print("KMS server has no response")
             else:
                 print("Withdraw submit fail")

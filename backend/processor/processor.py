@@ -111,7 +111,7 @@ class SwapRelay(Processor):
         verify_id = params['verify_id']
         swap_process_register = None
         if initial_chain == "Zilliqa":
-            swap_process_register = ZilliqaSwapProcessRegister(self.configs['baseChainContract'])
+            swap_process_register = ZilliqaSwapProcessRegister(self.configs['swapContract'])
         if swap_chain == "Ropsten":
             if swap_process_register is not None:
                 if self.configs['oracleSK'] is None or self.configs['oracleSK'] == "":
