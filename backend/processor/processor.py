@@ -20,6 +20,7 @@ from backend.responder.response import Response
 from backend.processor.general_web_api import get_web_api_json_result
 from backend.processor.swap_process_register import ZilliqaSwapProcessRegister
 from backend.processor.eth_verifier import Verifier
+from backend.processor.executor import execute
 from queue import Queue
 import time
 import json
@@ -98,8 +99,11 @@ class Collector(Processor):
 class Executor(Processor):
     def process(self, params):
         print("Enter Executor~")
-        # TODO:
-        return
+        try:
+            return execute(params['inputs'], params['expr'])
+        except Exception as e:
+            print(e)
+            return "No correct inputs and expressions"
 
 
 class SwapRelay(Processor):

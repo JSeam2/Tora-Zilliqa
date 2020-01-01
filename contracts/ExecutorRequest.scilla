@@ -1,0 +1,52 @@
+(* Copyright 2019 TEEX *)
+(* Licensed under the Apache License, Version 2.0 (the "License"); *)
+(* you may not use this file except in compliance with the License. *)
+(* You may obtain a copy of the License at *)
+(*    http://www.apache.org/licenses/LICENSE-2.0 *)
+(* Unless required by applicable law or agreed to in writing, software *)
+(* distributed under the License is distributed on an "AS IS" BASIS, *)
+(* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. *)
+(* See the License for the specific language governing permissions and *)
+(* limitations under the License. *)
+
+scilla_version 0
+
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+library RequestOracle
+
+let one_msg =
+  fun (msg : Message) =>
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let oracle_address = 0x61987fc2fd2e0d5ea92bbfaa2634f952887cdcf4
+
+let gas_price_set = Uint128 1000000000
+let gas_limit_set = Uint128 20000
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract RequestOracle
+(owner: ByStr20)
+
+
+transition request()
+    accept;
+    msg = { _tag : "request"; _recipient : oracle_address; _amount : _amount;
+    user_addr: _sender; request_type: Uint32 5; param_data: "{'expr':'x = inp[0]    \ny = inp[1]    \noutp = x + y',
+    'inputs':[1, 2]}";
+    gas_price: gas_price_set; gas_limit: gas_limit_set;
+    callback_func: "callback"};
+    msgs = one_msg msg;
+    send msgs
+end
+
+transition callback(result : String)
+    e = {_eventname: "callback"; msg: result};
+    event e
+end
