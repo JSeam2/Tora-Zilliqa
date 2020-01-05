@@ -74,6 +74,7 @@ class Processor(threading.Thread):
             
             else:
                 try:
+                    print(request)
                     param_data = json.loads(request.param.replace("'", '"'))
                     response = self.process(param_data)
                     if response is None:
@@ -81,7 +82,8 @@ class Processor(threading.Thread):
                         continue
                     if not isinstance(response, str):
                         response = str(response)
-                except:
+                except Exception as e:
+                    print(e)
                     response = "No correct request params"
                 self.generate_response_str(request, response)
 
@@ -100,7 +102,7 @@ class Executor(Processor):
     def process(self, params):
         print("Enter Executor~")
         try:
-            return execute(params['inputs'], params['expr'])
+            return execute(params['inputs'], params['exprs'])
         except Exception as e:
             print(e)
             return "No correct inputs and expressions"

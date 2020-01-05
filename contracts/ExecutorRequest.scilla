@@ -38,7 +38,7 @@ contract RequestOracle
 transition request()
     accept;
     msg = { _tag : "request"; _recipient : oracle_address; _amount : _amount;
-    user_addr: _sender; request_type: Uint32 5; param_data: "{'expr':'x = inp[0]    \ny = inp[1]    \noutp = x + y',
+    user_addr: _sender; request_type: Uint32 5; param_data: "{'exprs': ['x = inp[0]', 'y = inp[1]', 'outp = x + y'],
     'inputs':[1, 2]}";
     gas_price: gas_price_set; gas_limit: gas_limit_set;
     callback_func: "callback"};

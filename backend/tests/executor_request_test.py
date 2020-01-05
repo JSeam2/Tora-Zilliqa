@@ -82,7 +82,7 @@ def get_response_event(contract_addr):
 
 def test_executor():
     # request contract address
-    contract_addr = ""
+    contract_addr = "zil1yqy3cp6054ycj4m3tfwqls7z2t962cr6zvxgf8"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
     print("Waiting for the request published on chain...")

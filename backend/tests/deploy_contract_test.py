@@ -40,7 +40,7 @@ def deploy_contract(contract_file, account_sk):
     # set account before deploy
     contract.account = account
 
-    contract.deploy(timeout=300, sleep=10, gas_limit=50000, priority=True)
+    contract.deploy(timeout=300, sleep=10, priority=True)
     assert contract.status == Contract.Status.Deployed
 
 
