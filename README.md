@@ -479,7 +479,7 @@ You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer?
   ```
 
 
-#####Step 1: Invoke your script
+##### Step 1: Invoke your script
 
 * Write the user contract，the example contract is in **contracts/ExecutorRequest.scilla** which invoking the **executeScript** transition defined in the **ToraGeneral** contract.
 
