@@ -7,6 +7,7 @@
   * The example script is as the following:
 
     * **inp** is a reserved word, which is an array composed of the inputs of your script in order.
+    * **outp** is another reserved word, which represents the result you want.
     * In the example case, the inputs are **two integers**, the result of the script is the sum of the two integers which are respectively added 1. 
 
     ```
