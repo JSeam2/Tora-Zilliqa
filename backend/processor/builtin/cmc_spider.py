@@ -86,3 +86,7 @@ def process(param):
         res[i] = str(pair_list[i])
     return json.dumps(res)
 
+
+if __name__ == "__main__":
+    params = {'builtin': 'market_trade_pairs_info', 'market_num': '10', 'pair_num': '100'}
+    process(params)

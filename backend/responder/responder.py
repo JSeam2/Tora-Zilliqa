@@ -64,13 +64,24 @@ class ZilliqaResponder(Responder):
             request_id = response.request_id
             tora_contract_address = response.tora_addr
             zilkey.normalise_address(KMSConnector.oracle_owner_address)
-            data = self.__generate_send_data(method=response.response_method,
-                                             params=[self.__value_dict('id', 'Uint32', str(request_id)),
-                                                     self.__value_dict('result', 'String',
-                                                                       response.result.replace('"', "'")),
-                                                     self.__value_dict('oracle_owner_address', 'ByStr20',
-                                                                       zilkey.normalise_address(KMSConnector.oracle_owner_address).lower())
-                                                     ])
+            if response.response_method == 'responseString':
+                data = self.__generate_send_data(method=response.response_method,
+                                                 params=[self.__value_dict('id', 'Uint32', str(request_id)),
+                                                         self.__value_dict('result', 'String',
+                                                                           response.result.replace('"', "'")),
+                                                         self.__value_dict('oracle_owner_address', 'ByStr20',
+                                                                           zilkey.normalise_address(KMSConnector.oracle_owner_address).lower()),
+                                                         self.__value_dict('param', 'String', response.params)
+                                                         ])
+            else:
+                data = self.__generate_send_data(method=response.response_method,
+                                                 params=[self.__value_dict('id', 'Uint32', str(request_id)),
+                                                         self.__value_dict('result', 'String',
+                                                                           response.result.replace('"', "'")),
+                                                         self.__value_dict('oracle_owner_address', 'ByStr20',
+                                                                           zilkey.normalise_address(
+                                                                               KMSConnector.oracle_owner_address).lower())
+                                                         ])
             try:
                 resp = self.__send_data_to_address(tora_contract_address, 0, response.gas_price, response.gas_limit, data)
             except Exception as e:

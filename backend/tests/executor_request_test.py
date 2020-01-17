@@ -35,7 +35,7 @@ account = Account(private_key="919457fa2d81c0b7f1f1918683b1ff6b459c444aefec494c9
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-# oracle_address = '0x' + zilkey.to_valid_address("zil1vxv8lsha9cx4a2fth74zvd8e22y8eh85px4thu")
+# oracle_address = '0x' + zilkey.to_valid_address("zil16slpdnvyfk90xtc4658n20wq9prr7qm8jmjwhx")
 # pprint(oracle_address)
 
 
@@ -82,7 +82,7 @@ def get_response_event(contract_addr):
 
 def test_executor():
     # request contract address
-    contract_addr = "zil1yqy3cp6054ycj4m3tfwqls7z2t962cr6zvxgf8"
+    contract_addr = "zil1tvqrsh2d3v6wfq4d7dsn999e7s98k9kqxakuyd"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
     print("Waiting for the request published on chain...")

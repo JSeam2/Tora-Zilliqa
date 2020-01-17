@@ -122,5 +122,9 @@ def monitor_swap_success_event(account_addr):
 
 
 if __name__ == "__main__":
-    commit_swap_hash_test("10", "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0x1f039c93ed891594553e017dd551e20a3047d4c5475d2e7ae2dcdd80c455aa10", "1000000000", "15000")
+    # swap_request_id, user_addr, tx_hash, gas_price, gas_limit
+    commit_swap_hash_test("13",
+                          "0x7dcB18944157BD73A36DbB61a1700FcFd0182680",
+                          "0xabcf73c9a2a52e59445be8cf8bf135c4b6d67337eda22997d20bbf14d57ac129",
+                          "1000000000", "15000")
     # appeal_test("0")

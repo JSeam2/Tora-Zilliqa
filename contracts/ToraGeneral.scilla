@@ -80,7 +80,7 @@ transition request (user_addr : ByStr20, request_type : Uint32, param_data : Str
 end
 
 (*             Return the String type result       *)
-transition responseString(id : Uint32, result : String, oracle_owner_address : ByStr20)
+transition responseString(id : Uint32, result : String, oracle_owner_address : ByStr20, param: String)
         requests <- req_map;
         request_opt = builtin get requests id;
         match request_opt with
@@ -92,23 +92,30 @@ transition responseString(id : Uint32, result : String, oracle_owner_address : B
             check_not_responded = builtin eq if_responded code_not_responded;
             match check_not_responded with
             | True =>
-                (* set is_responded *)
-                update_req = Request id from user_addr request_type param_data gas_price gas_limit fee callback_func code_is_responded;
-                req_map[id] := update_req;
-                (* record the reward *)
-                c_reward_map <- reward_map;
-                check_have_reward = builtin get c_reward_map oracle_owner_address;
-                match check_have_reward with
-                | Some (history_reward) =>
-                    new_reward = builtin add history_reward fee;
-                    reward_map[oracle_owner_address] := new_reward
-                | None =>
-                    new_reward = fee;
-                    reward_map[oracle_owner_address] := new_reward
-                end;
-                msg = { _tag : callback_func; _recipient : from; _amount : Uint128 0; result : result};
-                msgs = one_msg msg;
-                send msgs
+                check_param = builtin eq param param_data;
+                match check_param with
+                | True =>
+                    (* set is_responded *)
+                    update_req = Request id from user_addr request_type param_data gas_price gas_limit fee callback_func code_is_responded;
+                    req_map[id] := update_req;
+                    (* record the reward *)
+                    c_reward_map <- reward_map;
+                    check_have_reward = builtin get c_reward_map oracle_owner_address;
+                    match check_have_reward with
+                    | Some (history_reward) =>
+                        new_reward = builtin add history_reward fee;
+                        reward_map[oracle_owner_address] := new_reward
+                    | None =>
+                        new_reward = fee;
+                        reward_map[oracle_owner_address] := new_reward
+                    end;
+                    msg = { _tag : callback_func; _recipient : from; _amount : Uint128 0; result : result};
+                    msgs = one_msg msg;
+                    send msgs
+                | False =>
+                    e = {_eventname: "response fail"; msg : "the request params mismatch"};
+                    event e
+                end
             | False =>
                 e = {_eventname: "repeat response"; msg: "have a response"};
                 event e

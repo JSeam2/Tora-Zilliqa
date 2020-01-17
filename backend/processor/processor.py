@@ -55,11 +55,11 @@ class Processor(threading.Thread):
 
     def generate_response_str(self, request, res_str):
         response_method = ""
-        if request.type in [0, 1, 3, 4]:
+        if request.type in [0, 1, 3, 4, 5]:
             response_method = "responseString"
         elif request.type == 2:
             response_method = "commit_verify_result"
-        response = Response(request.type, response_method, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit, request.tora_addr, request.user_addr)
+        response = Response(request.type, response_method, res_str, request.ID, request.chain_name, request.gas_price, request.gas_limit, request.tora_addr, request.user_addr, request.param)
         self.dispatcher.dispatch_response(response)
 
     def process(self, params):

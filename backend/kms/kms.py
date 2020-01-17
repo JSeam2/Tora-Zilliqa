@@ -96,6 +96,8 @@ class KMSConnector:
 
 
 if __name__ == '__main__':
+    KMSConnector.host = '120.132.103.34'
+    KMSConnector.port = 1234
     kms = KMSConnector()
     # kms.get_master_tee_pubkey()
-    # kms.get_master_tee_nonce()
+    print(kms.get_master_tee_nonce())

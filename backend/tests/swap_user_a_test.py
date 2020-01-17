@@ -73,7 +73,7 @@ def __get_swap_request_event(account_addr, api, block_num):
                             params = event_log["params"]
                             for param in params:
                                 if param["vname"] == "initialaddr" and param["value"] == account_addr.lower():
-                                    print(event_log)
+                                    print("Swap success")
                                     return True
     return False
 
@@ -96,5 +96,11 @@ def monitor_swap_success_event(account_addr):
 
 
 if __name__ == "__main__":
-    new_swap_request_test("Ropsten", 1000000000000, 100000000000000, "0x7dcB18944157BD73A36DbB61a1700FcFd0182680", "0x96C2D6177f5D5e5137047e38ECAC6d064a878fD1", "0xe586C7111C5dD4feb222f2CBB087020485640308")
-    # monitor_swap_success_event("0x7dcB18944157BD73A36DbB61a1700FcFd0182680")
+    # swap_chain, initial_money, swap_money,
+    # target_addr, swap_chain_initial_addr, swap_chain_target_addr
+    new_swap_request_test("Ropsten", 1000000000000, 100000000000000,
+                          "0x7dcB18944157BD73A36DbB61a1700FcFd0182680",
+                          "0x96C2D6177f5D5e5137047e38ECAC6d064a878fD1",
+                          "0xe586C7111C5dD4feb222f2CBB087020485640308")
+    print("Please wait for the response...")
+    monitor_swap_success_event("0x7dcB18944157BD73A36DbB61a1700FcFd0182680")
