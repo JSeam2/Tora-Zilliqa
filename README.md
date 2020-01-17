@@ -133,8 +133,8 @@ We provide several testcases to quickly check the set up and help users and deve
  For testing purposes, we have deployed a set of oracle facilities on Zilliqa Testnet, including a **Worker**, a **Master TEE**, and two **Tora Smart Contracts** , which helps a pure user to interact with Tora easily.
 
  * **Zilliqa Network**: Testnet
- * **ToraGeneral SC address**: 0x61987fc2fd2e0d5ea92bbfaa2634f952887cdcf4    
-     * or zil1vxv8lsha9cx4a2fth74zvd8e22y8eh85px4thu in *ZIL* format
+ * **ToraGeneral SC address**: 0xd43e16cd844d8af32f15d50f353dc028463f0367    
+     * or zil16slpdnvyfk90xtc4658n20wq9prr7qm8jmjwhx in *ZIL* format
  * **ToraSwap SC address**: zil1cfq4we3nmf2t7687qjvdwlz89qw2gzy700qwff
  * **Master TEE address**: 0xc4818b8c0d0c2ae775e8ed1998d72c7aa0743063
  * **Master TEE IP**: 120.132.103.34:1234
@@ -150,13 +150,16 @@ Here we provide several testcases based on above configures. [Some prerequisites
  (2) general Web API, 
  (3) cross-chain info fetch, 
  (4) cross-chain transaction verification.
+ (5) python executor
 The source code locates in:
    * `/Tora-Zilliqa/contracts/TopRequest.scilla`
    * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
    * `/Tora-Zilliqa/contracts/CrossChainInfoRequest.scilla`
    * `/Tora-Zilliqa/contracts/CrossChainTxnVerifyRequest.scilla`
+   * `/Tora-Zilliqa/contracts/ExecutorRequest.scilla`
 
-And you can just run the `/Tora-Zilliqa/backend/tests/general_request_test.py` to invoke the **(1)** and **(2)** test cases, run the `/Tora-Zilliqa/backend/tests/cross_chain_request_test.py` to invoke the **(3)** and **(4)** test cases.
+And you can just run the `/Tora-Zilliqa/backend/tests/general_request_test.py` to invoke the **(1)** and **(2)** test cases, run the `/Tora-Zilliqa/backend/tests/cross_chain_request_test.py` to invoke the **(3)** and **(4)** test cases,
+run the `/Tora-Zilliqa/backend/tests/executor_request_test.py` to invoke the **(5)** test cases,
  
  2. We also give an sample of **Atomic Cross-chain Swap** between ETH and ZIL. The test code locates in `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` ,  `/Tora-Zilliqa/backend/tests/swap_user_b_monitor_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_commit_hash_test.py`.  The process looks a little complex, you can find the detail [here](#2-atomic-cross-chain-swap).
 
@@ -433,7 +436,26 @@ You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer?
     * If the transfer transaction is verified by an oracle node successfully, the swap ZILs will be transfered to user B. Otherwise, the swap ZILs will be refunded to user A.
     * Something else to note is that some time-limits are set in the ToraSwap contract. One is the time-limit for the swap process, once the time limit is exceeded, money deposited in the contract from user will be returned. Another is the time-limit for the appeal process, user B can appeal to the ToraSwap contract if not get a oracle node response for a long time.
 
-#### 3. Other simple cases
+#### 3. Python Executor
+* Write the user contract，the example contract is in **contracts/ExecutorRequest.scilla**.
+* ExecutorRequest.scilla is for the trial to get the result of computing 1+2 with Python.
+* Parameter Explanation
+    * Requests of off-chain computation are required to have two parameters in the `param_data` field like the example contract, including an array of inputs and an expression array of the computation in order. Every element in the expression array must be a python statement without syntax errors.
+    * You can run the script in **backend/tests/generate_params.py** to generate the required arrays. The usage is as the following:
+        * The input script:
+        ```python
+        inp = [1, 2]
+        x = inp[0]
+        y = inp[1]
+        outp = x + y
+        ```
+        * The output arrays:
+        ```
+        'exprs': ['x = inp[0]', 'y = inp[1]', 'outp = x + y']
+        'inputs':[1, 2]
+        ```
+
+#### 4. Other simple cases
 * We also give some other simple cases:
     * The first case is the general request to  fetch data from a general web api, the request contract is in **contracts/GeneralRequest.scilla**, the invoke code is in **tests/general_request_test.py**.
     * The second case is the trial to fetch cross-chain info data, the request contract is in **contracts/CrossChainInfoRequest.scilla**, the invoke code is in **tests/cross_chain_request_test.py**.
