@@ -35,7 +35,8 @@ account = Account(private_key="919457fa2d81c0b7f1f1918683b1ff6b459c444aefec494c9
 balance = account.get_balance()
 print("{}: {}".format(account, balance))
 
-# oracle_address = '0x' + zilkey.to_valid_address("zil16slpdnvyfk90xtc4658n20wq9prr7qm8jmjwhx")
+
+# oracle_address = '0x' + zilkey.to_valid_address("zil1mejpsqd5cw589xyq3llzvrk0nvetm9v0l5kcn7")
 # pprint(oracle_address)
 
 
@@ -80,9 +81,27 @@ def get_response_event(contract_addr):
                 cur_block_num = str(int(cur_block_num) + 1)
 
 
+def deploy_execution_script(exprs):
+    contract_addr = "zil1mejpsqd5cw589xyq3llzvrk0nvetm9v0l5kcn7"
+    contract = Contract.load_from_address(contract_addr)
+    contract.account = account
+    resp = contract.call(method="deployScript", params=[
+        Contract.value_dict('exprs', "String", exprs)], priority=True)
+    if resp['receipt']['success']:
+        event_logs = resp['receipt']['event_logs']
+        if event_logs[0]['_eventname'] == 'Script Deploy':
+            print("Script committed successfully, the script id is " + event_logs[0]['params'][1]['value'])
+        else:
+            print("Commit fail, please see the event log")
+            pprint(event_logs)
+    else:
+        print("Commit fail")
+        pprint(resp)
+
+
 def test_executor():
     # request contract address
-    contract_addr = "zil1tvqrsh2d3v6wfq4d7dsn999e7s98k9kqxakuyd"
+    contract_addr = "zil1phx2r986z4hr3rcpk0ztnxfaqvw4je5e2ek2w8"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
     print("Waiting for the request published on chain...")
@@ -100,5 +119,26 @@ def test_executor():
         pprint(resp)
 
 
+def deploy_test():
+    script = """
+
+x = inp[0] + 1
+y = inp[1] + 1
+
+outp = x + y
+
+    """
+
+    lines = script.split('\n')
+    exprs = []
+    for line in lines:
+        if line != '' and line != '    ' and not line.startswith('#'):
+            exprs.append(line)
+    exprs = str(exprs)
+    print(exprs)
+    deploy_execution_script(exprs)
+
+
 if __name__ == "__main__":
+    # deploy_test()
     test_executor()

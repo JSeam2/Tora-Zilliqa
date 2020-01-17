@@ -128,7 +128,7 @@ class Contract:
 
     def deploy(self, init_params: Optional[List[Dict]]=None,
                nonce: Optional[int]=None,
-               gas_price: Optional[int]=None, gas_limit=10000, priority=False,
+               gas_price: Optional[int]=None, gas_limit=20000, priority=False,
                confirm=True, timeout=300, sleep=10) -> Optional[Dict]:
         assert self.code, "invalid contract code"
 

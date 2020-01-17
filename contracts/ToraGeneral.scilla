@@ -41,6 +41,9 @@ field req_count: Uint32 = Uint32 1
 (* oracle owner address <-> reward money *)
 field reward_map: Map ByStr20 Uint128 = Emp ByStr20 Uint128
 
+field script_map: Map Uint32 String = Emp Uint32 String
+field script_count: Uint32 = Uint32 1
+
 (*             Send a request on chain             *)
 transition request (user_addr : ByStr20, request_type : Uint32, param_data : String, gas_price : Uint128, gas_limit : Uint128, callback_func : String)
     gas_fee = builtin mul gas_price gas_limit;
@@ -161,4 +164,68 @@ transition withdraw_reward(oracle_owner_address : ByStr20)
         e = {_eventname: "withdraw error"; msg: "No authority"};
         event e
      end
+end
+
+
+transition deployScript(exprs : String)
+    id <- script_count;
+    script_map[id] := exprs;
+    e = {_eventname: "Script Deploy"; msg: "Deploy success"; id: id};
+    event e;
+    id =
+    let x = Uint32 1 in builtin add x id;
+    script_count := id
+end
+
+transition executeScript(user_addr : ByStr20, request_type : Uint32, gas_price : Uint128, gas_limit : Uint128, callback_func : String, scriptId : Uint32, inputs : String)
+    scripts <- script_map;
+    script_opt = builtin get scripts scriptId;
+    match script_opt with
+    | None =>
+        e = {_eventname: "No such script"; msg: "fail request"};
+        event e
+    | Some(script) =>
+        gas_fee = builtin mul gas_price gas_limit;
+        withdraw_fee = builtin mul withdraw_gas_price withdraw_gas;
+        transfer_fee = builtin mul transfer_gas_price transfer_gas;
+        total_fee = builtin add gas_fee withdraw_fee;
+        total_fee = builtin add total_fee transfer_fee;
+        check = builtin lt _amount total_fee;
+        match check with
+        |True =>
+            e = {_eventname: "Not enough money"; msg: "fail request"};
+            event e
+        |False =>
+            (* log the request *)
+            id <- req_count;
+            fee = builtin sub _amount total_fee;
+            check_fee = builtin lt fee min_fee;
+            match check_fee with
+            |True =>
+                e = {_eventname: "Not enough money"; msg: "fail request"};
+                event e
+            |False =>
+                (* send the money to the master tee address *)
+                accept;
+                msg = { _tag : ""; _recipient : master_tee_address; _amount : _amount};
+                msgs = one_msg msg;
+                send msgs;
+                prefix = "{'exprs': ";
+                comma = ", 'inputs': ";
+                postfix = "}";
+                param_data = builtin concat prefix script;
+                param_data = builtin concat param_data comma;
+                param_data = builtin concat param_data inputs;
+                param_data = builtin concat param_data postfix;
+                param_type = Uint32 5;
+                new_req = Request id _sender user_addr param_type param_data gas_price gas_limit fee callback_func code_not_responded;
+                req_map[id] := new_req;
+                e = {_eventname: "request"; msg: "send request success"; id: id; from: user_addr; reqtype: request_type; gaslimit: gas_limit; gasprice: gas_price; paramdata: param_data; fee: fee};
+                event e;
+                id =
+                let x = Uint32 1 in builtin add x id;
+                req_count := id
+             end
+         end
+    end
 end

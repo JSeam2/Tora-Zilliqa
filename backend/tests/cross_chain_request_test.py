@@ -82,7 +82,7 @@ def get_response_event(contract_addr):
 
 def test_cross_chain_info():
     # request contract address
-    contract_addr = "zil1z0zwskyntt0tanxqcjlg9kvw0rm2kz9qllj0da"
+    contract_addr = "zil1wazvqe0pl3qwnd7hcjw6yqaqy7say2a4qkhkzj"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
     print("Waiting for the request published on chain...")
@@ -102,7 +102,7 @@ def test_cross_chain_info():
 
 def test_cross_chain_txn():
     # request contract address
-    contract_addr = "zil10y7yswv9xk4qutug7m0h2d6pqr7z7uc4qd3mhc"
+    contract_addr = "zil1usddye6wam5ewygqk9ywm6054ruvjghsdkzh0f"
     contract = Contract.load_from_address(contract_addr)
     contract.account = account
     print("Waiting for the request published on chain...")
