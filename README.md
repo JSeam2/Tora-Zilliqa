@@ -40,8 +40,8 @@ We proposed a general-purposed script execution framework as a layer-2 smart con
 
 And future plans:
 * An encrypted script for privacy preservation.
-* A complete exception handling mechanism for off-chain execution.
-* Supports for a freer data capture and validation mechanism in this off-chain execution framework.(e.g., open the network I/O for off-chain scripts and allow users to specify an external data source inside the script)
+* A complete exception handling mechanism for off-chain execution.
+* Supports for a freer data capture and validation mechanism in this off-chain execution framework.(e.g., open the network I/O for off-chain scripts and allow users to specify an external data source inside the script)
 
 ### v0.1.2 
 Supports trusted relay for fetching information from other decentralized systems. This version provides a dedicated relay connected to Ethereum network, which can query transactions and data of accounts or smart contracts from Ethereum,  and verify the Merkle-proof along with cumulative proof of work for integrity guarantees. It also provides several testcases including [an atomic cross-chain swap](#2-atomic-cross-chain-swap) between Zilliqa and Ethereum.
@@ -146,8 +146,8 @@ We provide several testcases to quickly check the set up and help users and deve
  For testing purposes, we have deployed a set of oracle facilities on Zilliqa Testnet, including a **Worker**, a **Master TEE**, and two **Tora Smart Contracts** , which helps a pure user to interact with Tora easily.
 
  * **Zilliqa Network**: Testnet
- * **ToraGeneral SC address**: 0xd43e16cd844d8af32f15d50f353dc028463f0367    
-     * or zil16slpdnvyfk90xtc4658n20wq9prr7qm8jmjwhx in *ZIL* format
+ * **ToraGeneral SC address**: 0xde641801b4c3a87298808ffe260ecf9b32bd958f    
+     * or zil1mejpsqd5cw589xyq3llzvrk0nvetm9v0l5kcn7 in *ZIL* format
  * **ToraSwap SC address**: zil1cfq4we3nmf2t7687qjvdwlz89qw2gzy700qwff
  * **Master TEE address**: 0xc4818b8c0d0c2ae775e8ed1998d72c7aa0743063
  * **Master TEE IP**: 120.132.103.34:1234
@@ -477,6 +477,7 @@ You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer?
   ----------
   Script committed successfully, the script id is 1
   ```
+
 
 #####Step 1: Invoke your script
 
