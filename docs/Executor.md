@@ -39,9 +39,9 @@
     end
     ```
 
-* ExecutorRequest.scilla is for the trial to get the result of the above script defined in **Step 0** with **input** 1 and 2. 
+* ExecutorRequest.scilla is for the trial to get the result of the above script defined in **Step 0** with the**inputs** 1 and 2. 
 
-* In addition to  **inputs** required to be designated, you should designate the **scriptId** returned in **Step 0**.
+* In addition to the **inputs** required to be designated, you should designate the **scriptId** returned in **Step 0**.
 
 * After deploying your user contract, you can invoke it by the example code in **backend/tests/executor_request_test.py**.
 
