@@ -438,7 +438,7 @@ You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer?
 
 #### 3. Python Executor
 * Write the user contract，the example contract is in **contracts/ExecutorRequest.scilla**.
-* ExecutorRequest.scilla is for the trial to get the result of computing 1+2 with Python.
+* ExecutorRequest.scilla is for the trial to get the result of computing 1 plus 2 with Python.
 * Parameter Explanation
     * Requests of off-chain computation are required to have two parameters in the `param_data` field like the example contract, including an array of inputs and an expression array of the computation in order. Every element in the expression array must be a python statement without syntax errors.
     * You can run the script in **backend/tests/generate_params.py** to generate the required arrays. The usage is as the following:
