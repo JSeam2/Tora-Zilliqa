@@ -444,9 +444,8 @@ You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer?
     * You can run the script in **backend/tests/generate_params.py** to generate the required arrays. The usage is as the following:
         * The input script:
         ```python
-        inp = [1, 2]
-        x = inp[0]
-        y = inp[1]
+        x = 1
+        y = 2
         outp = x + y
         ```
         * The output arrays:
