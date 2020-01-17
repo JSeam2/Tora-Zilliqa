@@ -19,7 +19,7 @@ Tora is a trusted off-chain extended service for blockchain system, used for (i)
   * Support decentralized storage including IPFS、SWARM.
   * Support access data from other blockchain，e.g., check an account, call a smart contract, verify a transaction, etc.
   * Apply to major decentralized consensus，and verify the integrity of data.
-- [ ]  Trusted computation:
+- [x]  Trusted computation:
   * Allow users to call off-chain procedures. That is, Tora will collect users input, execute the user-defined program and return the result up to the blockchain.
   * Support major programming languages such as Python, and can run unmodified programs directly.
   * Provide proof of integrity. 
@@ -29,6 +29,19 @@ Tora is a trusted off-chain extended service for blockchain system, used for (i)
   * Key management and encrypted Storage
   * More
 
+### v0.1.3
+**Now we support arbitrary off-chain computation !**
+We proposed a general-purposed script execution framework as a layer-2 smart contract extension on the basis of Tora oracle. In this version, we provided the following features:
+* We improved our off-chain execution environment, Matroska, and now it provides a dynamic execution framework for custom scripts as well as a complete validation protocol to ensure the integrity of the execution. We also expanded the remote-attestation process to make it compatible with the framework.
+* We defined a generic off-chain script model. Users could easily write a script in the same manner as Python, and the script could be transferred into an on-chain record for unforgeability.
+* We extended the interfaces of on-chain smart contracts for arbitrary off-chain computation.
+* We provided an easy to understand use case [here](#3-off-chain-script-executor). 
+
+
+And future plans:
+* An encrypted script for privacy preservation.
+* A complete exception handling mechanism for off-chain execution.
+* Supports for a freer data capture and validation mechanism in this off-chain execution framework.(e.g., open the network I/O for off-chain scripts and allow users to specify an external data source inside the script)
 
 ### v0.1.2 
 Supports trusted relay for fetching information from other decentralized systems. This version provides a dedicated relay connected to Ethereum network, which can query transactions and data of accounts or smart contracts from Ethereum,  and verify the Merkle-proof along with cumulative proof of work for integrity guarantees. It also provides several testcases including [an atomic cross-chain swap](#2-atomic-cross-chain-swap) between Zilliqa and Ethereum.
@@ -145,12 +158,12 @@ We provide several testcases to quickly check the set up and help users and deve
 
 Here we provide several testcases based on above configures. [Some prerequisites](#prerequisites-for-user) are required to run these testcases (without TEE).
 
- 1. We have deployed four sample user smart contracts for:
+ 1. We have deployed five sample user smart contracts for:
  (1) top trading pairs, 
  (2) general Web API, 
  (3) cross-chain info fetch, 
  (4) cross-chain transaction verification.
- (5) python executor
+ (5) off-chain script executor
 The source code locates in:
    * `/Tora-Zilliqa/contracts/TopRequest.scilla`
    * `/Tora-Zilliqa/contracts/GeneralRequest.scilla`
@@ -162,6 +175,7 @@ And you can just run the `/Tora-Zilliqa/backend/tests/general_request_test.py` t
 run the `/Tora-Zilliqa/backend/tests/executor_request_test.py` to invoke the **(5)** test cases,
  
  2. We also give an sample of **Atomic Cross-chain Swap** between ETH and ZIL. The test code locates in `/Tora-Zilliqa/backend/tests/swap_user_a_test.py` ,  `/Tora-Zilliqa/backend/tests/swap_user_b_monitor_test.py` and `/Tora-Zilliqa/backend/tests/swap_user_b_commit_hash_test.py`.  The process looks a little complex, you can find the detail [here](#2-atomic-cross-chain-swap).
+
 
 
 # Tutorial
@@ -436,24 +450,66 @@ You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer?
     * If the transfer transaction is verified by an oracle node successfully, the swap ZILs will be transfered to user B. Otherwise, the swap ZILs will be refunded to user A.
     * Something else to note is that some time-limits are set in the ToraSwap contract. One is the time-limit for the swap process, once the time limit is exceeded, money deposited in the contract from user will be returned. Another is the time-limit for the appeal process, user B can appeal to the ToraSwap contract if not get a oracle node response for a long time.
 
-#### 3. Python Executor
-* Write the user contract，the example contract is in **contracts/ExecutorRequest.scilla**.
-* ExecutorRequest.scilla is for the trial to get the result of computing 1 plus 2 with Python.
-* Parameter Explanation
-    * Requests of off-chain computation are required to have two parameters in the `param_data` field like the example contract, including an array of inputs and an expression array of the computation in order. Every element in the expression array must be a python statement without syntax errors.
-    * You can run the script in **backend/tests/generate_params.py** to generate the required arrays. The usage is as the following:
-        * The input script:
-        ```python
-        x = 1
-        y = 2
-        outp = x + y
-        ```
-        * The output arrays:
-        ```
-        'exprs': ['x = inp[0]', 'y = inp[1]', 'outp = x + y']
-        'inputs':[1, 2]
-        ```
+#### 3. Off-chain script executor
 
+##### Step 0: Commit your script
+
+* You can commit your scripts by invoking the **deployScript** transition in the **ToraGeneral** contract. The example code is in **backend/tests/executor_deploy_test.py**
+
+  * The example script is as the following:
+
+    * **inp** is a reserved word, which is an array composed of the inputs of your script in order.
+    * **outp** is another reserved word, which represents the result you want.
+    * In the example case, the inputs are **two integers**, the result of the script is the sum of the two integers which are respectively added 1. 
+
+    ```
+    x = inp[0] + 1
+    y = inp[1] + 1
+    
+    outp = x + y
+    ```
+
+  After committing your script successfully, the **scriptId** will be returned to you:
+
+  ```
+  $ python3 executor_deploy_test.py
+  Terminal:
+  ----------
+  Script committed successfully, the script id is 1
+  ```
+
+#####Step 1: Invoke your script
+
+* Write the user contract，the example contract is in **contracts/ExecutorRequest.scilla** which invoking the **executeScript** transition defined in the **ToraGeneral** contract.
+
+    ```
+    transition request()
+        accept;
+        msg = { _tag : "executeScript"; _recipient : oracle_address; _amount : _amount;
+        ...(other params); scriptId: Uint32 1; inputs: "[1, 2]" };
+        msgs = one_msg msg;
+        send msgs
+    end
+    ```
+
+* ExecutorRequest.scilla is for the trial to get the result of the above script defined in **Step 0** with the**inputs** 1 and 2. 
+
+* In addition to the **inputs** required to be designated, you should designate the **scriptId** returned in **Step 0**.
+
+* After deploying your user contract, you can invoke it by the example code in **backend/tests/executor_request_test.py**.
+
+    You can achieve the result as the following:
+
+    ```
+    $ python3 executor_request_test.py
+    Terminal:
+    ----------
+    {'_eventname': 'callback', 'address': '0x0dcca194fa156e388f01b3c4b9993d031d596699', 'params': [{'type': 'String', 'value': '5', 'vname': 'msg'}]}
+    ```
+
+    
+
+    
 #### 4. Other simple cases
 * We also give some other simple cases:
     * The first case is the general request to  fetch data from a general web api, the request contract is in **contracts/GeneralRequest.scilla**, the invoke code is in **tests/general_request_test.py**.
