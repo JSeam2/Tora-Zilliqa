@@ -35,11 +35,11 @@ We proposed a general-purposed script execution framework as a layer-2 smart con
 * We improved our off-chain execution environment, Matroska, and now it provides a dynamic execution framework for custom scripts as well as a complete validation protocol to ensure the integrity of the execution. We also expanded the remote-attestation process to make it compatible with the framework.
 * We defined a generic off-chain script model. Users could easily write a script in the same manner as Python, and the script could be transferred into an on-chain record for unforgeability.
 * We extended the interfaces of on-chain smart contracts for arbitrary off-chain computation.
+* The privacy of execution is preserved by TEE.
 * We provided an easy to understand use case [here](#3-off-chain-script-executor). 
 
 
 And future plans:
-* An encrypted script for privacy preservation.
 * A complete exception handling mechanism for off-chain execution.
 * Supports for a freer data capture and validation mechanism in this off-chain execution framework.(e.g., open the network I/O for off-chain scripts and allow users to specify an external data source inside the script)
 
@@ -452,15 +452,21 @@ You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer?
 
 #### 3. Off-chain script executor
 
-##### Step 0: Commit your script
+##### Step 0: Deploy your script
 
-* You can commit your scripts by invoking the **deployScript** transition in the **ToraGeneral** contract. The example code is in **backend/tests/executor_deploy_test.py**
+* You can deploy your scripts by invoking the **deployScript** transition in the **ToraGeneral** contract. The example code is in **backend/tests/executor_deploy_test.py**
 
-  * The example script is as the following:
-
-    * **inp** is a reserved word, which is an array composed of the inputs of your script in order.
-    * **outp** is another reserved word, which represents the result you want.
-    * In the example case, the inputs are **two integers**, the result of the script is the sum of the two integers which are respectively added 1. 
+  * Here we defined a simple scripte model:
+    * We use **Python** as the development language. You can use any operator, type, data structure and conditional control statement in Python syntax.
+    * The script model is currently **stateless** and **closed**, which means it do not support persistent storage or any access for external data source or other scripts.
+    * Since there are not any complex function calls, we provide a simple passing mechanism of parameters  and return values with two preserved words: **inp** and **outp**.
+      * **inp** is  an array composed of the inputs. The incoming parameters from the caller will be stored here in order.
+      * **outp** represents the result of computation and will be transfered back to the caller.
+  
+  * In this example, we implement a simple addition calculation with a formalized expression as follows:
+    `f(a,b) = (a+1) + (b+1)`
+  The inputs are two integers, the result is the sum of the two integers which are respectively added 1.
+   The corresponding python script is similar to the following: 
 
     ```
     x = inp[0] + 1
@@ -469,7 +475,7 @@ You can do the transfer with  [MetaMask](https://metamask.io) . How to Transfer?
     outp = x + y
     ```
 
-  After committing your script successfully, the **scriptId** will be returned to you:
+  After deploying your script successfully, the **scriptId** will be returned:
 
   ```
   $ python3 executor_deploy_test.py
